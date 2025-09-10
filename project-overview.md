@@ -161,6 +161,7 @@ GOOGLE_ANALYTICS_ID=GA_MEASUREMENT_ID
 - [x] Responsive layout implementation
 - [x] npm dependencies installed and security issues fixed
 - [x] Project structure organized
+- [x] Initial commit to git repository
 
 ### 🚀 To Start Development Server:
 ```bash
