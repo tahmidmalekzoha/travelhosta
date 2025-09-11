@@ -1,3 +1,5 @@
+import HeroSection from './HeroSection';
+
 export default function HomePage() {
     return (
         <div
@@ -6,57 +8,16 @@ export default function HomePage() {
         >
 
             {/* Hero Section */}
-            <div
-                className="self-stretch h-[690px] flex flex-col items-end justify-start p-8 relative gap-4"
-                style={{
-                    backgroundImage: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80")',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    borderRadius: '8px'
-                }}
-            >
+            <HeroSection />
 
-                {/* Sign In Button */}
-                <div className="relative z-10 w-52 h-16 mb-3">
-                    <div className="absolute inset-0 rounded-full" style={{ backgroundColor: '#f2eee9' }}></div>
-                    <div className="absolute top-3 left-7 text-black text-lg font-medium">
-                        Sign In
-                    </div>
-                    <div
-                        className="absolute top-2 right-4 w-12 h-12 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: '#cd8453' }}
-                    >
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </div>
-
-                {/* Menu Button */}
-                <div className="relative z-10 w-44 h-16">
-                    <div className="absolute inset-0 rounded-full" style={{ backgroundColor: '#f2eee9' }}></div>
-                    <div className="absolute top-3 left-6 text-black text-lg font-medium">
-                        Menu
-                    </div>
-                    <div
-                        className="absolute top-2 right-4 w-12 h-12 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: '#cd8453' }}
-                    >
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </div>
-                </div>
-
-                {/* Logo positioned at bottom left of hero */}
-                <div className="absolute bottom-8 left-8 z-10">
-                    <h1 className="text-white text-4xl font-bold tracking-wide">
-                        TRAVELHOSTA
-                    </h1>
-                    <p className="text-white/90 text-xl mt-2">
-                        Sajek, Hill of Wonders
-                    </p>
-                </div>
+            {/* Logo positioned at bottom left of hero - now separate overlay */}
+            <div className="absolute top-[550px] left-12 z-10">
+                <h1 className="text-white text-4xl font-bold tracking-wide drop-shadow-lg">
+                    TRAVELHOSTA
+                </h1>
+                <p className="text-white/90 text-xl mt-2 drop-shadow-md">
+                    Sajek, Hill of Wonders
+                </p>
             </div>
 
             {/* Description Section */}

@@ -1,0 +1,26 @@
+<svg width="1404" height="690" viewBox="0 0 1404 690" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background with gradient overlay -->
+  <rect width="1404" height="690" fill="url(#heroGradient)" />
+  
+  <!-- Abstract travel-themed elements -->
+  <circle cx="200" cy="150" r="80" fill="rgba(255,255,255,0.1)" />
+  <circle cx="1200" cy="500" r="120" fill="rgba(255,255,255,0.1)" />
+  <circle cx="600" cy="350" r="60" fill="rgba(255,255,255,0.15)" />
+  
+  <!-- Mountain silhouettes -->
+  <path d="M0 400 L200 200 L400 300 L600 150 L800 250 L1000 180 L1200 280 L1404 220 L1404 690 L0 690 Z" 
+        fill="rgba(255,255,255,0.1)" />
+  
+  <!-- Additional decorative elements -->
+  <rect x="100" y="100" width="3" height="40" fill="rgba(255,255,255,0.2)" transform="rotate(45 100 100)" />
+  <rect x="300" y="200" width="3" height="40" fill="rgba(255,255,255,0.2)" transform="rotate(30 300 200)" />
+  <rect x="800" y="150" width="3" height="40" fill="rgba(255,255,255,0.2)" transform="rotate(60 800 150)" />
+  <rect x="1100" y="250" width="3" height="40" fill="rgba(255,255,255,0.2)" transform="rotate(15 1100 250)" />
+</svg>

@@ -19,6 +19,9 @@ out/
 
 # IDE and editor files
 .vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/css_custom_data.json
 .idea/
 *.swp
 *.swo
