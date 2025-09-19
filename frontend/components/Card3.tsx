@@ -3,6 +3,9 @@
 import { FunctionComponent } from 'react';
 import styles from './Card3.module.css';
 
+/**
+ * Travel card component displaying information about budget travel tips
+ */
 const Card3: FunctionComponent = () => {
     const handleViewClick = (e: React.MouseEvent) => {
         e.preventDefault();

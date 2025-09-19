@@ -11,6 +11,10 @@ import Footer from './Footer';
 import ScrollReveal from './ScrollReveal';
 import StickyNavbar from './StickyNavbar';
 
+/**
+ * Main homepage component containing all sections
+ * Features responsive design with hero, description, cards, FAQ, and footer sections
+ */
 export default function HomePage() {
     return (
         <div
@@ -32,13 +36,10 @@ export default function HomePage() {
             <div className="w-full h-[100vh] flex items-center justify-center py-[120px]">
                 <div className="w-full px-20">
                     <ScrollReveal
-                        baseOpacity={0}
                         enableBlur={true}
                         blurStrength={3}
                         textClassName="text-[64px] font-medium text-left leading-[40px]"
                         containerClassName=""
-                        rotationEnd="bottom top"
-                        wordAnimationEnd="bottom top"
                     >
                         At TravelHosta, we make exploring easy and affordable. Guides for every
                         traveler budget or premium. With tips on stay, food, and safety. Whether

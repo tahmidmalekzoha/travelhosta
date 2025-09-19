@@ -3,13 +3,19 @@
 import { FunctionComponent } from 'react';
 import styles from './SeeAll.module.css';
 
+/**
+ * "See All" button component with animated hover effects
+ * Features background color transitions and sliding text animation
+ */
 const SeeAll: FunctionComponent = () => {
     const handleSeeAll = () => {
         console.log('See All clicked');
         // Add your see all logic here
         // Example: navigate to all destinations page
         // window.location.href = '/destinations';
-    }; return (
+    };
+
+    return (
         <button
             onClick={handleSeeAll}
             className={`group w-full h-full relative text-left text-[48px] color-[#f2eee9] font-['Schibsted_Grotesk'] border-none bg-transparent cursor-pointer ${styles.interactive}`}

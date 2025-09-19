@@ -1,29 +1,17 @@
-import { FunctionComponent, useEffect } from 'react';
+import { FunctionComponent } from 'react';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
+/**
+ * Hero section component with animated background image and text elements
+ * Features responsive design and scroll-based animations
+ */
 const HeroSection: FunctionComponent = () => {
-
-    useEffect(() => {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate');
-                }
-            });
-        }, observerOptions);
-
-        // Observe all elements with scroll animation classes
-        const animatedElements = document.querySelectorAll('.scroll-fade-in, .scroll-slide-up, .scroll-slide-left, .scroll-slide-right');
-        animatedElements.forEach((el) => observer.observe(el));
-
-        return () => {
-            animatedElements.forEach((el) => observer.unobserve(el));
-        };
-    }, []);
+    // Initialize scroll animations for hero elements
+    useScrollAnimation({
+        animationClasses: ['scroll-fade-in', 'scroll-slide-up', 'scroll-slide-left'],
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
 
     return (
         <div className="w-full relative h-full rounded-[47px] overflow-hidden shadow-2xl scroll-fade-in">

@@ -2,10 +2,14 @@
 
 import { FunctionComponent } from 'react';
 
+/**
+ * Animated sign-in button with hover effects
+ * Features sliding text animation and color transitions
+ */
 const SigninButton: FunctionComponent = () => {
     const handleSignIn = () => {
-        // Add your sign-in logic here
         console.log('Sign In clicked');
+        // Add your sign-in logic here
         // Example: redirect to sign-in page or open modal
         // window.location.href = '/signin';
     };

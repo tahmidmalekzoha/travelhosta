@@ -2,12 +2,17 @@
 
 import { FunctionComponent, useState } from 'react';
 
+/**
+ * Animated menu button with toggle state and hover effects
+ * Features sliding text animation, rotation effects, and state management
+ */
 const MenuButton: FunctionComponent = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const handleMenuToggle = () => {
-        setIsMenuOpen(!isMenuOpen);
-        console.log('Menu toggled:', !isMenuOpen);
+        const newMenuState = !isMenuOpen;
+        setIsMenuOpen(newMenuState);
+        console.log('Menu toggled:', newMenuState);
         // Add your menu logic here
         // Example: show/hide navigation menu
     };
