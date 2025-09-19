@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500&display=swap');
+
+.faqContainer {
+    width: 100%;
+    position: relative;
+    height: 837px;
+}
+
+.background {
+    width: 100%;
+    height: 837px;
+    background-color: #1b3c44;
+    border-radius: 40px 40px 0px 0px;
+    position: relative;
+}
+
+.content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 97px 27px 0 27px;
+    box-sizing: border-box;
+}
+
+.title {
+    color: #ffffff;
+    font-family: 'Lato', Helvetica;
+    font-size: 80px;
+    font-weight: 700;
+    line-height: 85px;
+    margin: 0;
+    margin-bottom: 50px;
+}
+
+.titleLine {
+    margin: 0;
+}
+
+.faqMain {
+    position: relative;
+    width: 100%;
+    height: 511px;
+}
+
+.questions {
+    position: absolute;
+    right: 18px;
+    top: 0;
+    width: 700px;
+    height: 511px;
+}
+
+.questionItem {
+    background-color: #cd8453;
+    border-radius: 36px;
+    position: absolute;
+    width: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 31px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.questionItem:hover {
+    background-color: #b8754a;
+}
+
+.questionItem:nth-child(1) {
+    top: 0;
+    height: 129px;
+}
+
+.questionItem:nth-child(2) {
+    top: 148px;
+    height: 124px;
+}
+
+.questionItem:nth-child(3) {
+    top: 291px;
+    height: 103px;
+}
+
+.questionItem:nth-child(4) {
+    top: 413px;
+    height: 98px;
+}
+
+.questionText {
+    color: #ffffff;
+    font-family: 'Schibsted Grotesk', Helvetica;
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 85px;
+    white-space: nowrap;
+}
+
+.addCircle {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.vector {
+    width: 44px;
+    height: 44px;
+}
+
+.buttons {
+    position: absolute;
+    left: 0;
+    top: 292px;
+    width: 451px;
+    height: 147px;
+}
+
+.buttonGroup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 209px;
+    height: 65px;
+}
+
+.generalButton {
+    background-color: #ffffff;
+    border-radius: 30px;
+    height: 65px;
+    width: 209px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.generalButton:hover {
+    background-color: #f0f0f0;
+}
+
+.generalText {
+    color: #1b3c44;
+    font-family: 'Lato', Helvetica;
+    font-size: 22px;
+    font-weight: 400;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+.subscriptionButton {
+    background-color: #3cbd9f;
+    border-radius: 30px;
+    height: 65px;
+    width: 222px;
+    position: absolute;
+    top: 0;
+    left: 229px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.subscriptionButton:hover {
+    background-color: #35a589;
+}
+
+.subscriptionText {
+    color: #ffffff;
+    font-family: 'Lato', Helvetica;
+    font-size: 22px;
+    font-weight: 400;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+.privacyButton {
+    background-color: #3cbd9f;
+    border-radius: 30px;
+    height: 65px;
+    width: 209px;
+    position: absolute;
+    top: 82px;
+    left: 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.privacyButton:hover {
+    background-color: #35a589;
+}
+
+.privacyText {
+    color: #ffffff;
+    font-family: 'Lato', Helvetica;
+    font-size: 22px;
+    font-weight: 400;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .questions {
+        right: 10px;
+        width: 60%;
+    }
+    
+    .questionItem {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 50px 20px 0 20px;
+    }
+    
+    .title {
+        font-size: 48px;
+        line-height: 55px;
+    }
+    
+    .faqMain {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .questions {
+        position: relative;
+        right: auto;
+        width: 100%;
+        height: auto;
+        order: 2;
+    }
+    
+    .questionItem {
+        position: relative !important;
+        top: auto !important;
+        margin-bottom: 15px;
+        height: auto !important;
+        min-height: 80px;
+        padding: 20px 31px;
+    }
+    
+    .questionText {
+        font-size: 24px;
+        line-height: 1.3;
+        white-space: normal;
+    }
+    
+    .buttons {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 100%;
+        height: auto;
+        order: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .buttonGroup,
+    .subscriptionButton,
+    .privacyButton {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        flex: 1;
+        min-width: 120px;
+    }
+}

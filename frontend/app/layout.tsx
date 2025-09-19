@@ -1,5 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
+import LenisProvider from '@/components/LenisProvider'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,7 +17,13 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className={inter.className}>{children}</body>
+            <body className={inter.className}>
+                <AuthProvider>
+                    <LenisProvider>
+                        {children}
+                    </LenisProvider>
+                </AuthProvider>
+            </body>
         </html>
     )
 }

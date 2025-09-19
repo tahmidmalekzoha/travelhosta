@@ -1,0 +1,155 @@
+"use client";
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
+import Image from 'next/image';
+import MenuButton from '../../components/MenuButton';
+
+export default function SignIn() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [rememberPassword, setRememberPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const router = useRouter();
+    const { login } = useAuth();
+
+    const handleSignIn = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        // Basic validation
+        if (!email || !password) {
+            setError('Please fill in all fields');
+            setLoading(false);
+            return;
+        }
+
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // For demo purposes, accept any valid email/password
+        if (email.includes('@') && password.length >= 3) {
+            // Simulate successful login
+            const user = { email, name: 'Demo User', id: '1' };
+            login(user);
+            router.push('/');
+        } else {
+            setError('Invalid email or password');
+        }
+
+        setLoading(false);
+    };
+
+    return (
+        <div className="w-full relative bg-white h-[59.625rem] overflow-hidden text-left text-[1.5rem] text-white font-schibsted-grotesk">
+            <div className="absolute top-[0rem] left-[0rem] bg-linen w-[119rem] h-[59.625rem]" />
+            <div className="absolute top-[1.5rem] left-[1.438rem] rounded-[39px] bg-darkslategray w-[116.125rem] h-[56.625rem]" />
+
+            {/* Menu Button - Top Right */}
+            <div className="absolute top-8 right-8 z-20">
+                <MenuButton />
+            </div>
+
+            {/* Header */}
+            <b className="absolute top-[4rem] left-[5rem] text-[8rem] text-linen">{`Let's Plan. Pack & Go.`}</b>
+
+            {/* Signpost Image */}
+            <img className="absolute top-[25.938rem] left-[80.063rem] w-[31.25rem] h-[32.188rem] object-cover" src="/images/signpost.svg" alt="Travel Signpost" />
+
+            {/* Form Container */}
+            <form onSubmit={handleSignIn} className="relative">
+                {/* Error Message */}
+                {error && (
+                    <div
+                        className="absolute bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center p-4"
+                        style={{
+                            left: '29rem',
+                            top: '16rem',
+                            width: '35.125rem',
+                            zIndex: 10
+                        }}
+                    >
+                        {error}
+                    </div>
+                )}
+
+                {/* Email and Password Fields Container */}
+                <div className="absolute top-[18.188rem] left-[29rem] w-[35.125rem] h-[20.5rem] text-[1.75rem]">
+                    {/* Email Field */}
+                    <div className="absolute top-[0rem] left-[0rem] w-[35.125rem] h-[9.313rem]">
+                        <div className="absolute top-[0rem] left-[1.813rem] tracking-[-0.01em]">Email</div>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="absolute top-[3.938rem] left-[0rem] rounded-[37px] bg-gainsboro w-[35.125rem] h-[5.375rem] px-6 text-xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-peru transition-all duration-200 border-none"
+                            required
+                        />
+                    </div>
+
+                    {/* Password Field */}
+                    <div className="absolute top-[11.188rem] left-[0rem] w-[35.125rem] h-[9.313rem]">
+                        <div className="absolute top-[0rem] left-[1.813rem] tracking-[-0.01em]">Password</div>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="absolute top-[3.938rem] left-[0rem] rounded-[37px] bg-gainsboro w-[35.125rem] h-[5.375rem] px-6 text-xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-peru transition-all duration-200 border-none"
+                            required
+                        />
+                    </div>
+                </div>
+
+                {/* Remember Password Checkbox */}
+                <div className="absolute top-[41rem] left-[38rem] w-[17.063rem] h-[1.875rem]">
+                    <div className="absolute top-[0rem] left-[2.438rem] tracking-[-0.01em]">Remember password</div>
+                    <button
+                        type="button"
+                        onClick={() => setRememberPassword(!rememberPassword)}
+                        className={`absolute top-[0rem] left-[0rem] rounded-[50%] w-[1.813rem] h-[1.875rem] transition-colors ${rememberPassword
+                            ? 'bg-peru'
+                            : 'bg-gainsboro'
+                            }`}
+                    >
+                        {rememberPassword && (
+                            <svg className="w-4 h-4 text-white mx-auto mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                    </button>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="absolute top-[45.125rem] left-[38.875rem] w-[15.375rem] h-[4.75rem] text-[2.25rem] text-black hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                    <div className="absolute top-[0rem] left-[0rem] rounded-[52px] bg-gainsboro w-[15.375rem] h-[4.75rem] group-hover:bg-opacity-80 transition-colors" />
+                    <div className="absolute top-[0.938rem] left-[2.688rem] z-10">{loading ? 'Signing in...' : 'Sign in'}</div>
+                    <div className="absolute top-[0.625rem] left-[11.25rem] w-[3.4rem] h-[3.556rem] bg-peru rounded-full flex items-center justify-center z-10">
+                        {loading ? (
+                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                            <svg className="text-white w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        )}
+                    </div>
+                </button>
+
+                {/* Sign Up Link */}
+                <div className="absolute top-[51.938rem] left-[39.5rem] tracking-[-0.01em]">
+                    <span>{`No account? `}</span>
+                    <Link href="/signup" className="text-peru hover:underline transition-colors">
+                        Sign up
+                    </Link>
+                </div>
+            </form>
+        </div>
+    );
+}

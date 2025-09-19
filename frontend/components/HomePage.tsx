@@ -1,146 +1,86 @@
+"use client";
+
 import HeroSection from './HeroSection';
+import SeeAll from './SeeAll';
+import Card1 from './Card1';
+import Card2 from './Card2';
+import Card3 from './Card3';
+import Card4 from './Card4';
+import Group4 from './Group4';
+import Footer from './Footer';
+import ScrollReveal from './ScrollReveal';
+import StickyNavbar from './StickyNavbar';
 
 export default function HomePage() {
     return (
         <div
-            className="w-full relative overflow-hidden flex flex-col items-center justify-start p-4 gap-24 text-left text-black min-h-screen"
-            style={{ backgroundColor: '#f2eee9', fontFamily: 'Schibsted Grotesk, sans-serif' }}
+            className="w-full relative overflow-hidden text-left text-black min-h-screen"
+            style={{
+                background: 'linear-gradient(135deg, #f8f6f1 0%, #f2eee9 50%, #ede8e0 100%)',
+                fontFamily: 'Schibsted Grotesk, sans-serif'
+            }}
         >
+            {/* Sticky Navigation Buttons */}
+            <StickyNavbar />
 
             {/* Hero Section */}
-            <HeroSection />
-
-            {/* Logo positioned at bottom left of hero - now separate overlay */}
-            <div className="absolute top-[550px] left-12 z-10">
-                <h1 className="text-white text-4xl font-bold tracking-wide drop-shadow-lg">
-                    TRAVELHOSTA
-                </h1>
-                <p className="text-white/90 text-xl mt-2 drop-shadow-md">
-                    Sajek, Hill of Wonders
-                </p>
+            <div className="w-full p-[18px] h-[98vh] box-border">
+                <HeroSection />
             </div>
 
             {/* Description Section */}
-            <div className="w-full max-w-6xl text-center">
-                <p
-                    className="text-3xl md:text-4xl font-medium leading-relaxed"
-                    style={{ color: '#1b3c44' }}
-                >
-                    At TravelHosta, we make exploring easy and affordable. Guides for every
-                    traveler budget or premium. With tips on stay, food, and safety. Whether
-                    you're chasing hidden gems or planning your next big escape, we've got
-                    the roadmap ready for you.
-                </p>
+            <div className="w-full h-[100vh] flex items-center justify-center py-[120px]">
+                <div className="w-full px-20">
+                    <ScrollReveal
+                        baseOpacity={0}
+                        enableBlur={true}
+                        blurStrength={3}
+                        textClassName="text-[64px] font-medium text-left leading-[40px]"
+                        containerClassName=""
+                        rotationEnd="bottom top"
+                        wordAnimationEnd="bottom top"
+                    >
+                        At TravelHosta, we make exploring easy and affordable. Guides for every
+                        traveler budget or premium. With tips on stay, food, and safety. Whether
+                        you're chasing hidden gems or planning your next big escape, we've got
+                        the roadmap ready for you.
+                    </ScrollReveal>
+                </div>
             </div>
 
             {/* Cards Section */}
-            <div className="w-full max-w-7xl relative">
+            <div className="w-full px-6 md:px-12 lg:px-20 py-12 md:py-16 lg:py-20">
                 {/* Section Header */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-16 gap-8">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 md:mb-16 lg:mb-20 gap-8">
                     <h2
-                        className="text-4xl md:text-5xl lg:text-6xl font-bold"
+                        className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
                         style={{ color: '#1b3c44' }}
                     >
                         Find your next escape
                     </h2>
 
                     {/* See All Button */}
-                    <div className="relative w-48 h-16 flex-shrink-0">
-                        <div className="absolute inset-0 rounded-full" style={{ backgroundColor: '#1b3c44' }}></div>
-                        <div
-                            className="absolute top-3 left-6 text-lg font-medium"
-                            style={{ color: '#f2eee9' }}
-                        >
-                            See All
-                        </div>
-                        <div
-                            className="absolute top-2 right-4 w-12 h-12 rounded-full flex items-center justify-center"
-                            style={{ backgroundColor: '#f2eee9' }}
-                        >
-                            <svg
-                                className="w-6 h-6"
-                                style={{ color: '#1b3c44' }}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </div>
+                    <div className="w-[297px] h-[92px] flex-shrink-0 p-0">
+                        <SeeAll />
                     </div>
                 </div>
 
                 {/* Travel Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Card 1 */}
-                    <div
-                        className="relative h-96 rounded-lg overflow-hidden group cursor-pointer"
-                        style={{
-                            backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2)), url("https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                        }}
-                    >
-                        <div className="absolute bottom-4 left-4 right-4 text-white">
-                            <h3 className="text-lg font-semibold mb-2">
-                                Explore New Destinations That Cost Less Than Standard. Only $500/trip
-                            </h3>
-                            <p className="text-sm opacity-90">View →</p>
-                        </div>
-                    </div>
-
-                    {/* Card 2 */}
-                    <div
-                        className="relative h-96 rounded-lg overflow-hidden group cursor-pointer"
-                        style={{
-                            backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2)), url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                        }}
-                    >
-                        <div className="absolute bottom-4 left-4 right-4 text-white">
-                            <h3 className="text-lg font-semibold mb-2">
-                                Explore New Destinations That Cost Less Than Standard. Only $500/trip
-                            </h3>
-                            <p className="text-sm opacity-90">View →</p>
-                        </div>
-                    </div>
-
-                    {/* Card 3 */}
-                    <div
-                        className="relative h-96 rounded-lg overflow-hidden group cursor-pointer"
-                        style={{
-                            backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2)), url("https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                        }}
-                    >
-                        <div className="absolute bottom-4 left-4 right-4 text-white">
-                            <h3 className="text-lg font-semibold mb-2">
-                                Explore New Destinations That Cost Less Than Standard. Only $500/trip
-                            </h3>
-                            <p className="text-sm opacity-90">View →</p>
-                        </div>
-                    </div>
-
-                    {/* Card 4 */}
-                    <div
-                        className="relative h-96 rounded-lg overflow-hidden group cursor-pointer"
-                        style={{
-                            backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2)), url("https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80")',
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                        }}
-                    >
-                        <div className="absolute bottom-4 left-4 right-4 text-white">
-                            <h3 className="text-lg font-semibold mb-2">
-                                Explore New Destinations That Cost Less Than Standard. Only $500/trip
-                            </h3>
-                            <p className="text-sm opacity-90">View →</p>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+                    <Card1 />
+                    <Card2 />
+                    <Card3 />
+                    <Card4 />
                 </div>
             </div>
+
+            {/* FAQ Section */}
+            <div className="w-full h-[100vh] bg-[#213c44] flex items-center justify-center">
+                <Group4 />
+            </div>
+
+            {/* Footer Section */}
+            <Footer />
         </div>
     );
 }
