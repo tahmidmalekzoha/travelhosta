@@ -1,8 +1,15 @@
 "use client";
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 const Footer = () => {
+    const router = useRouter();
+
+    const handleSignIn = () => {
+        router.push('/signin');
+    };
+
     return (
         <footer className="w-full bg-[#213c44] py-12 md:py-16 lg:py-20 px-6 md:px-12 lg:px-20 text-white">
             <div className="w-full">
@@ -35,7 +42,10 @@ const Footer = () => {
                         </div>
 
                         {/* Sign In Button - Original Style */}
-                        <button className="group w-[297px] relative h-[92px] text-left text-[48px] text-black font-['Schibsted_Grotesk'] transition-all duration-300 active:scale-95 cursor-pointer border-none bg-transparent">
+                        <button
+                            onClick={handleSignIn}
+                            className="group w-[297px] relative h-[92px] text-left text-[48px] text-black font-['Schibsted_Grotesk'] transition-all duration-300 active:scale-95 cursor-pointer border-none bg-transparent"
+                        >
                             {/* Background */}
                             <div className="absolute top-0 left-0 rounded-[52px] bg-[#e4d9d3] w-[297px] h-[92px] transition-all duration-300 group-hover:bg-[#ddd2cc]" />
 

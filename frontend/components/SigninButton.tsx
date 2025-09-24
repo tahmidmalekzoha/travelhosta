@@ -1,17 +1,17 @@
 "use client";
 
 import { FunctionComponent } from 'react';
+import { useRouter } from 'next/navigation';
 
 /**
  * Animated sign-in button with hover effects
  * Features sliding text animation and color transitions
  */
 const SigninButton: FunctionComponent = () => {
+    const router = useRouter();
+
     const handleSignIn = () => {
-        console.log('Sign In clicked');
-        // Add your sign-in logic here
-        // Example: redirect to sign-in page or open modal
-        // window.location.href = '/signin';
+        router.push('/signin');
     };
 
     return (
