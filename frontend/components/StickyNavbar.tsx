@@ -22,10 +22,11 @@ const StickyNavbar: FunctionComponent = () => {
 
     return (
         <>
-            {/* Backdrop for closing menu when clicking outside */}
+            {/* Blur backdrop for menu focus and closing when clicking outside */}
             {isMenuOpen && (
                 <div
-                    className="fixed inset-0 z-40"
+                    className="fixed inset-0 z-30 bg-black/5 transition-all duration-300"
+                    style={{ backdropFilter: 'blur(3px)' }}
                     onClick={handleMenuClose}
                 />
             )}
