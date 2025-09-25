@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import Image from 'next/image';
-import MenuButton from '../../components/MenuButton';
+import StickyNavbar from '../../components/StickyNavbar';
 
 export default function SignIn() {
     const [email, setEmail] = useState('');
@@ -49,10 +49,8 @@ export default function SignIn() {
             <div
                 className="bg-[#1b3c44] rounded-[39px] relative overflow-hidden w-full h-full"
             >
-                {/* Menu Button - Top Right */}
-                <div className="absolute top-8 right-8 z-20">
-                    <MenuButton />
-                </div>
+                {/* Navigation - Top Right */}
+                <StickyNavbar />
 
                 {/* Header */}
                 <div

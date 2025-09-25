@@ -62,3 +62,28 @@ export interface LayoutProps {
 export type ClickHandler = () => void;
 export type MenuToggleHandler = (isOpen: boolean) => void;
 export type ScrollHandler = (scrollY: number) => void;
+
+// Navigation types
+export interface NavigationLink {
+    path: string;
+    label: string;
+}
+
+export interface FooterLink {
+    label: string;
+    href: string;
+}
+
+// FAQ types
+export type FAQCategory = 'general' | 'subscription' | 'privacy';
+
+export interface FAQItem {
+    question: string;
+    answer: string;
+    category: FAQCategory;
+}
+
+export interface FAQCategoryOption {
+    key: FAQCategory;
+    label: string;
+}
