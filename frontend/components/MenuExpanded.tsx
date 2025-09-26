@@ -27,7 +27,7 @@ const MenuExpanded: FunctionComponent<MenuExpandedProps> = ({ isOpen, onClose })
 
     return (
         <div
-            className="fixed top-8 right-8 z-40 transition-all duration-300 ease-out"
+            className="fixed top-[82px] right-[50px] z-40 transition-all duration-300 ease-out"
             style={{
                 width: '48.25rem',
                 height: '47.375rem',
@@ -38,11 +38,13 @@ const MenuExpanded: FunctionComponent<MenuExpandedProps> = ({ isOpen, onClose })
         >
             {/* Background */}
             <div
-                className="absolute top-0 left-0 rounded-[49px]"
+                className="absolute rounded-[49px]"
                 style={{
                     backgroundColor: '#cd8453',
                     width: '48.25rem',
-                    height: '47.375rem'
+                    height: '47.375rem',
+                    top: '-30px',
+                    right: '-16px'
                 }}
             />
 

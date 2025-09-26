@@ -32,7 +32,7 @@ const StickyNavbar: FunctionComponent = () => {
             )}
 
             {/* Fixed positioned buttons that never move */}
-            <div className="fixed top-8 right-8 z-50 flex flex-col gap-2 md:gap-3 items-end">
+            <div className="fixed top-[82px] right-[50px] z-50 flex flex-col gap-2 md:gap-3 items-end">
                 <SigninButton />
                 <MenuButton onClick={handleMenuToggle} isOpen={isMenuOpen} />
             </div>
