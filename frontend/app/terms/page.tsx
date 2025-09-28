@@ -1,8 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import StickyNavbar from '../../components/StickyNavbar';
 
 export default function Terms() {
     return (
-        <div className="min-h-screen bg-[#f2eee9] p-6">
+        <div className="min-h-screen bg-[#f2eee9] p-6 relative">
+            <StickyNavbar />
             <div className="bg-[#1b3c44] rounded-[39px] max-w-4xl mx-auto p-12">
                 <div className="mb-8">
                     <Link
