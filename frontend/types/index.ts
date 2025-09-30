@@ -23,8 +23,6 @@ export interface GuideData {
     description: string;
     division: string;
     category: string;
-    duration: string;
-    price: string;
     imageUrl: string;
 }
 
@@ -98,4 +96,44 @@ export interface FAQItem {
 export interface FAQCategoryOption {
     key: FAQCategory;
     label: string;
+}
+
+// Admin types
+export interface User {
+    id: string;
+    email: string;
+    name: string;
+    role: 'admin' | 'user';
+    createdAt: string;
+    lastLogin?: string;
+}
+
+export interface HeroImage {
+    id: string;
+    imageUrl: string;
+    title: string;
+    subtitle: string;
+    isActive: boolean;
+    uploadedAt: string;
+}
+
+export interface AnalyticsData {
+    totalUsers: number;
+    totalGuides: number;
+    pageViews: number;
+    popularGuides: {
+        id: number;
+        title: string;
+        views: number;
+    }[];
+    userGrowth: {
+        date: string;
+        count: number;
+    }[];
+    recentActivity: {
+        id: string;
+        type: 'user_signup' | 'guide_view' | 'guide_created';
+        description: string;
+        timestamp: string;
+    }[];
 }

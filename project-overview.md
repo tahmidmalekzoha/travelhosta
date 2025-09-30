@@ -213,7 +213,7 @@ GOOGLE_ANALYTICS_ID=GA_MEASUREMENT_ID
 - [x] **Dynamic results display** with count and filter status
 - [x] **No results handling** with clear all filters functionality
 - [x] **Professional card layout** matching homepage travel card aesthetic
-- [x] **Optimized information display** showing title, description, category, duration, division, and price
+- [x] **Optimized information display** showing title, description, category, and division
 - [x] **TypeScript integration** with proper type definitions
 - [x] **Performance optimized** with useMemo for filtering logic
 

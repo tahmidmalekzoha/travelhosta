@@ -1,10 +1,18 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import Lenis from 'lenis'
 
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname()
+    
     useEffect(() => {
+        // Disable Lenis on admin pages to allow native scrolling
+        if (pathname?.startsWith('/admin')) {
+            return
+        }
+
         // Initialize Lenis
         const lenis = new Lenis({
             duration: 1.2,
@@ -37,7 +45,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
             lenis.destroy()
             window.lenis = undefined
         }
-    }, [])
+    }, [pathname])
 
     return <>{children}</>
 }

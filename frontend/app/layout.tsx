@@ -2,6 +2,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import LenisProvider from '@/components/LenisProvider'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { GuidesProvider } from '@/contexts/GuidesContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,9 +20,11 @@ export default function RootLayout({
         <html lang="en">
             <body className={inter.className}>
                 <AuthProvider>
-                    <LenisProvider>
-                        {children}
-                    </LenisProvider>
+                    <GuidesProvider>
+                        <LenisProvider>
+                            {children}
+                        </LenisProvider>
+                    </GuidesProvider>
                 </AuthProvider>
             </body>
         </html>

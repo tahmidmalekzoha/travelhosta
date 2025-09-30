@@ -4,16 +4,18 @@ import { useState, useMemo } from 'react';
 import StickyNavbar from '../../components/StickyNavbar';
 import GuideCard from '../../components/shared/GuideCard';
 import Footer from '../../components/Footer';
-import { GUIDES_DATA, GUIDE_DIVISIONS, GUIDE_CATEGORIES } from '../../constants';
+import { GUIDE_DIVISIONS, GUIDE_CATEGORIES } from '../../constants';
+import { useGuides } from '../../contexts/GuidesContext';
 import type { GuideData } from '../../types';
 
 export default function Guides() {
+    const { guides } = useGuides();
     const [selectedDivision, setSelectedDivision] = useState('All Divisions');
     const [selectedCategory, setSelectedCategory] = useState('All Guides');
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredGuides = useMemo(() => {
-        return GUIDES_DATA.filter(guide => {
+        return guides.filter(guide => {
             const matchesDivision = selectedDivision === 'All Divisions' || guide.division === selectedDivision;
             const matchesCategory = selectedCategory === 'All Guides' || guide.category === selectedCategory;
             const matchesSearch = guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

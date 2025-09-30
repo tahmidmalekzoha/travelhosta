@@ -164,8 +164,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Explore Old Dhaka\'s heritage sites and cultural landmarks',
         division: 'Dhaka',
         category: 'Day Tour',
-        duration: '6 hours',
-        price: '$45',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -174,8 +172,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'World\'s longest natural beach with stunning sunsets',
         division: 'Chittagong',
         category: 'Beach',
-        duration: '3 days',
-        price: '$120',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -184,8 +180,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Royal Bengal Tiger sanctuary and mangrove exploration',
         division: 'Khulna',
         category: 'Adventure',
-        duration: '2 days',
-        price: '$200',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -194,8 +188,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Sylhet\'s scenic tea gardens and hill country',
         division: 'Sylhet',
         category: 'Trekking',
-        duration: '4 days',
-        price: '$150',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -204,8 +196,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Tropical rainforest and wildlife sanctuary',
         division: 'Sylhet',
         category: 'Camping',
-        duration: '2 days',
-        price: '$90',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -214,8 +204,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Historical silk production and cultural heritage',
         division: 'Rajshahi',
         category: 'Cultural',
-        duration: '1 day',
-        price: '$35',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -224,8 +212,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Panoramic sea beach with both sunrise and sunset views',
         division: 'Barisal',
         category: 'Staycation',
-        duration: '3 days',
-        price: '$110',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -234,8 +220,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Rural Bangladesh experience with local communities',
         division: 'Rangpur',
         category: 'Cultural',
-        duration: '2 days',
-        price: '$80',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -244,8 +228,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Highest peaks and indigenous culture exploration',
         division: 'Chittagong',
         category: 'Adventure',
-        duration: '5 days',
-        price: '$250',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -254,8 +236,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'UNESCO World Heritage archaeological site',
         division: 'Rajshahi',
         category: 'Day Tour',
-        duration: '4 hours',
-        price: '$40',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -264,8 +244,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Historic paddle steamer river cruise experience',
         division: 'Barisal',
         category: 'Cultural',
-        duration: '1 day',
-        price: '$60',
         imageUrl: 'images/dummy.jpg'
     },
     {
@@ -274,8 +252,6 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Indigenous culture and pristine natural beauty',
         division: 'Chittagong',
         category: 'Trekking',
-        duration: '6 days',
-        price: '$300',
         imageUrl: 'images/dummy.jpg'
     }
 ] as const;

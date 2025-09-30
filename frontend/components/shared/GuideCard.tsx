@@ -37,9 +37,9 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({
             >
                 <div className={styles.imageOverlay} />
                 <div className={styles.contentBlog}>
-                    {/* Category and Duration */}
+                    {/* Category */}
                     <div className={styles.paragraph}>
-                        {guide.category} • {guide.duration}
+                        {guide.category}
                     </div>
                     
                     {/* Title - matching homepage card style */}

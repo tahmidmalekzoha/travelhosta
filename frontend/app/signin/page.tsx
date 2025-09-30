@@ -33,10 +33,20 @@ export default function SignIn() {
 
         // For demo purposes, accept any valid email/password
         if (email.includes('@') && password.length >= 3) {
+            // Check if admin login
+            const isAdmin = email === 'admin@travelhosta.com' || email.includes('admin');
+            
             // Simulate successful login
-            const user = { email, name: 'Demo User', id: '1' };
+            const user = {
+                email,
+                name: isAdmin ? 'Admin User' : 'Demo User',
+                id: isAdmin ? 'admin-1' : '1',
+                role: isAdmin ? 'admin' as const : 'user' as const
+            };
             login(user);
-            router.push('/');
+            
+            // Redirect to admin panel if admin, otherwise to home
+            router.push(isAdmin ? '/admin' : '/');
         } else {
             setError('Invalid email or password');
         }
@@ -81,6 +91,28 @@ export default function SignIn() {
                         alt="Travel Signpost"
                         className="w-full h-full object-contain"
                     />
+                </div>
+
+                {/* Admin Credentials Info Box */}
+                <div
+                    className="absolute bg-[#cd8453]/20 border border-[#cd8453] rounded-lg p-4"
+                    style={{
+                        left: '52px',
+                        bottom: '40px',
+                        maxWidth: '400px'
+                    }}
+                >
+                    <h3 className="text-[#f2eee9] font-bold text-lg mb-2 font-['Schibsted_Grotesk']">
+                        Demo Credentials
+                    </h3>
+                    <div className="text-[#f2eee9]/90 text-sm font-['Schibsted_Grotesk'] space-y-1">
+                        <p><strong>Admin Access:</strong></p>
+                        <p>Email: admin@travelhosta.com</p>
+                        <p>Password: admin123</p>
+                        <p className="mt-2"><strong>Regular User:</strong></p>
+                        <p>Any email with @ symbol</p>
+                        <p>Password: 3+ characters</p>
+                    </div>
                 </div>
 
                 {/* Form Container */}
