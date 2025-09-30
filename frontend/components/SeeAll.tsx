@@ -1,18 +1,19 @@
 "use client";
 
 import { FunctionComponent } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './SeeAll.module.css';
 
 /**
  * "See All" button component with animated hover effects
  * Features background color transitions and sliding text animation
+ * Navigates to the Guides page when clicked
  */
 const SeeAll: FunctionComponent = () => {
+    const router = useRouter();
+    
     const handleSeeAll = () => {
-        console.log('See All clicked');
-        // Add your see all logic here
-        // Example: navigate to all destinations page
-        // window.location.href = '/destinations';
+        router.push('/guides');
     };
 
     return (

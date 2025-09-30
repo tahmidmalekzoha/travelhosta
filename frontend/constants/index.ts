@@ -2,6 +2,8 @@
  * Application constants and configuration values
  */
 
+import type { GuideData } from '../types';
+
 // Animation configuration
 export const ANIMATION_CONFIG = {
     /** Default scroll animation threshold */
@@ -129,4 +131,151 @@ export const FAQ_CATEGORIES = [
     { key: 'general' as const, label: 'General' },
     { key: 'subscription' as const, label: 'Subscription' },
     { key: 'privacy' as const, label: 'Privacy' }
+] as const;
+
+// Guide categories and divisions
+export const GUIDE_DIVISIONS = [
+    { name: 'All Divisions' },
+    { name: 'Dhaka' },
+    { name: 'Chittagong' },
+    { name: 'Khulna' },
+    { name: 'Rajshahi' },
+    { name: 'Sylhet' },
+    { name: 'Barisal' },
+    { name: 'Rangpur' }
+] as const;
+
+export const GUIDE_CATEGORIES = [
+    { name: 'All Guides' },
+    { name: 'Day Tour' },
+    { name: 'Camping' },
+    { name: 'Trekking' },
+    { name: 'Staycation' },
+    { name: 'Adventure' },
+    { name: 'Cultural' },
+    { name: 'Beach' }
+] as const;
+
+// Sample guide data
+export const GUIDES_DATA: GuideData[] = [
+    {
+        id: 1,
+        title: 'Historic Dhaka Tour',
+        description: 'Explore Old Dhaka\'s heritage sites and cultural landmarks',
+        division: 'Dhaka',
+        category: 'Day Tour',
+        duration: '6 hours',
+        price: '$45',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 2,
+        title: 'Cox\'s Bazar Beach',
+        description: 'World\'s longest natural beach with stunning sunsets',
+        division: 'Chittagong',
+        category: 'Beach',
+        duration: '3 days',
+        price: '$120',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 3,
+        title: 'Sundarbans Adventure',
+        description: 'Royal Bengal Tiger sanctuary and mangrove exploration',
+        division: 'Khulna',
+        category: 'Adventure',
+        duration: '2 days',
+        price: '$200',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 4,
+        title: 'Tea Garden Trek',
+        description: 'Sylhet\'s scenic tea gardens and hill country',
+        division: 'Sylhet',
+        category: 'Trekking',
+        duration: '4 days',
+        price: '$150',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 5,
+        title: 'Srimangal Nature Walk',
+        description: 'Tropical rainforest and wildlife sanctuary',
+        division: 'Sylhet',
+        category: 'Camping',
+        duration: '2 days',
+        price: '$90',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 6,
+        title: 'Rajshahi Silk Route',
+        description: 'Historical silk production and cultural heritage',
+        division: 'Rajshahi',
+        category: 'Cultural',
+        duration: '1 day',
+        price: '$35',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 7,
+        title: 'Kuakata Beach Retreat',
+        description: 'Panoramic sea beach with both sunrise and sunset views',
+        division: 'Barisal',
+        category: 'Staycation',
+        duration: '3 days',
+        price: '$110',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 8,
+        title: 'Rangpur Countryside',
+        description: 'Rural Bangladesh experience with local communities',
+        division: 'Rangpur',
+        category: 'Cultural',
+        duration: '2 days',
+        price: '$80',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 9,
+        title: 'Bandarban Hill Climbing',
+        description: 'Highest peaks and indigenous culture exploration',
+        division: 'Chittagong',
+        category: 'Adventure',
+        duration: '5 days',
+        price: '$250',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 10,
+        title: 'Paharpur Buddhist Monastery',
+        description: 'UNESCO World Heritage archaeological site',
+        division: 'Rajshahi',
+        category: 'Day Tour',
+        duration: '4 hours',
+        price: '$40',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 11,
+        title: 'Rocket Steamer Journey',
+        description: 'Historic paddle steamer river cruise experience',
+        division: 'Barisal',
+        category: 'Cultural',
+        duration: '1 day',
+        price: '$60',
+        imageUrl: 'images/dummy.jpg'
+    },
+    {
+        id: 12,
+        title: 'Chittagong Hill Tracts',
+        description: 'Indigenous culture and pristine natural beauty',
+        division: 'Chittagong',
+        category: 'Trekking',
+        duration: '6 days',
+        price: '$300',
+        imageUrl: 'images/dummy.jpg'
+    }
 ] as const;

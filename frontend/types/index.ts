@@ -16,6 +16,18 @@ export interface TravelCardData {
     description?: string;
 }
 
+// Guide related types
+export interface GuideData {
+    id: number;
+    title: string;
+    description: string;
+    division: string;
+    category: string;
+    duration: string;
+    price: string;
+    imageUrl: string;
+}
+
 // Animation related types
 export interface ScrollAnimationOptions {
     /** CSS class names to observe for animation */

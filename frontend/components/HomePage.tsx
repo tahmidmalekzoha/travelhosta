@@ -1,21 +1,30 @@
 "use client";
 
+import { useRouter } from 'next/navigation';
 import HeroSection from './HeroSection';
 import SeeAll from './SeeAll';
-import Card1 from './Card1';
-import Card2 from './Card2';
-import Card3 from './Card3';
-import Card4 from './Card4';
+import GuideCard from './shared/GuideCard';
 import Group4 from './Group4';
 import Footer from './Footer';
 import ScrollReveal from './ScrollReveal';
 import StickyNavbar from './StickyNavbar';
+import { GUIDES_DATA } from '../constants';
 
 /**
  * Main homepage component containing all sections
  * Features responsive design with hero, description, cards, FAQ, and footer sections
  */
 export default function HomePage() {
+    const router = useRouter();
+    
+    // Get first 4 guides for homepage preview
+    const featuredGuides = GUIDES_DATA.slice(0, 4);
+    
+    const handleGuideView = (guideId: number) => {
+        // Navigate to guides page (could also navigate to specific guide detail in future)
+        router.push('/guides');
+    };
+    
     return (
         <div
             className="w-full relative overflow-hidden text-left text-black min-h-screen"
@@ -57,7 +66,7 @@ export default function HomePage() {
                         className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
                         style={{ color: '#1b3c44' }}
                     >
-                        Find your next escape
+                        Featured Travel Guides
                     </h2>
 
                     {/* See All Button */}
@@ -66,12 +75,15 @@ export default function HomePage() {
                     </div>
                 </div>
 
-                {/* Travel Cards Grid */}
+                {/* Guide Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
-                    <Card1 />
-                    <Card2 />
-                    <Card3 />
-                    <Card4 />
+                    {featuredGuides.map((guide) => (
+                        <GuideCard
+                            key={guide.id}
+                            guide={guide}
+                            onViewClick={() => handleGuideView(guide.id)}
+                        />
+                    ))}
                 </div>
             </div>
 
