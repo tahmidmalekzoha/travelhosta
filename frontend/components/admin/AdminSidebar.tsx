@@ -3,7 +3,7 @@
 import { FunctionComponent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Image, BookOpen, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, Image, BookOpen, Users, Tags, Star, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 /**
@@ -17,6 +17,8 @@ const AdminSidebar: FunctionComponent = () => {
         { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
         { path: '/admin/hero', label: 'Hero Section', icon: Image },
         { path: '/admin/guides', label: 'Guides', icon: BookOpen },
+        { path: '/admin/featured', label: 'Featured Guides', icon: Star },
+        { path: '/admin/categories', label: 'Categories', icon: Tags },
         { path: '/admin/users', label: 'Users', icon: Users },
     ];
 

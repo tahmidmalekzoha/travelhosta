@@ -3,6 +3,7 @@
 import { FunctionComponent, useState } from 'react';
 import { GuideData } from '../../types';
 import { useGuides } from '../../contexts/GuidesContext';
+import { useCategories } from '../../contexts/CategoriesContext';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 
 /**
@@ -10,6 +11,7 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
  */
 const GuidesManagement: FunctionComponent = () => {
     const { guides, addGuide, updateGuide, deleteGuide } = useGuides();
+    const { categories, divisions } = useCategories();
     const [showForm, setShowForm] = useState(false);
     const [editingGuide, setEditingGuide] = useState<GuideData | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -133,13 +135,18 @@ const GuidesManagement: FunctionComponent = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Division *
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     value={formData.division}
                                     onChange={(e) => setFormData({ ...formData, division: e.target.value })}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
-                                    placeholder="Rangamati"
-                                />
+                                >
+                                    <option value="">Select Division</option>
+                                    {divisions.map((division) => (
+                                        <option key={division.id} value={division.name}>
+                                            {division.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -160,13 +167,18 @@ const GuidesManagement: FunctionComponent = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Category
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
-                                placeholder="Adventure"
-                            />
+                            >
+                                <option value="">Select Category</option>
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.name}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         <div>

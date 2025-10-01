@@ -8,7 +8,7 @@ import Group4 from './Group4';
 import Footer from './Footer';
 import ScrollReveal from './ScrollReveal';
 import StickyNavbar from './StickyNavbar';
-import { GUIDES_DATA } from '../constants';
+import { useGuides } from '../contexts/GuidesContext';
 
 /**
  * Main homepage component containing all sections
@@ -16,9 +16,10 @@ import { GUIDES_DATA } from '../constants';
  */
 export default function HomePage() {
     const router = useRouter();
+    const { getFeaturedGuides } = useGuides();
     
-    // Get first 4 guides for homepage preview
-    const featuredGuides = GUIDES_DATA.slice(0, 4);
+    // Get featured guides from context
+    const featuredGuides = getFeaturedGuides();
     
     const handleGuideView = (guideId: number) => {
         // Navigate to guides page (could also navigate to specific guide detail in future)

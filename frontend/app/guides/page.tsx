@@ -4,15 +4,20 @@ import { useState, useMemo } from 'react';
 import StickyNavbar from '../../components/StickyNavbar';
 import GuideCard from '../../components/shared/GuideCard';
 import Footer from '../../components/Footer';
-import { GUIDE_DIVISIONS, GUIDE_CATEGORIES } from '../../constants';
 import { useGuides } from '../../contexts/GuidesContext';
+import { useCategories } from '../../contexts/CategoriesContext';
 import type { GuideData } from '../../types';
 
 export default function Guides() {
     const { guides } = useGuides();
+    const { categories, divisions } = useCategories();
     const [selectedDivision, setSelectedDivision] = useState('All Divisions');
     const [selectedCategory, setSelectedCategory] = useState('All Guides');
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Create arrays with "All" options
+    const divisionsWithAll = [{ id: 'all-div', name: 'All Divisions' }, ...divisions];
+    const categoriesWithAll = [{ id: 'all-cat', name: 'All Guides' }, ...categories];
 
     const filteredGuides = useMemo(() => {
         return guides.filter(guide => {
@@ -70,12 +75,12 @@ export default function Guides() {
                 <div className="space-y-6 mb-12">
                     {/* Division Categories */}
                     <div className="flex flex-wrap gap-4 justify-center">
-                        {GUIDE_DIVISIONS.map((division) => {
+                        {divisionsWithAll.map((division) => {
                             const isActive = selectedDivision === division.name;
                             
                             return (
                                 <button 
-                                    key={division.name}
+                                    key={division.id}
                                     className={`px-8 py-4 rounded-full text-lg font-medium transition-all duration-200 hover:scale-105 shadow-md ${
                                         isActive 
                                             ? 'bg-[#cd8453] text-white shadow-lg' 
@@ -91,12 +96,12 @@ export default function Guides() {
 
                     {/* Guide Categories */}
                     <div className="flex flex-wrap gap-4 justify-center">
-                        {GUIDE_CATEGORIES.map((category) => {
+                        {categoriesWithAll.map((category) => {
                             const isActive = selectedCategory === category.name;
                             
                             return (
                                 <button 
-                                    key={category.name}
+                                    key={category.id}
                                     className={`px-8 py-4 rounded-full text-lg font-medium transition-all duration-200 hover:scale-105 shadow-md ${
                                         isActive 
                                             ? 'bg-[#1b3c44] text-white shadow-lg' 
