@@ -3,7 +3,7 @@
 import { FunctionComponent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Image, BookOpen, Users, Tags, Star, LogOut } from 'lucide-react';
+import { LayoutDashboard, Image, BookOpen, Users, Tags, Star, LogOut, MapPin } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 /**
@@ -20,6 +20,7 @@ const AdminSidebar: FunctionComponent = () => {
         { path: '/admin/featured', label: 'Featured Guides', icon: Star },
         { path: '/admin/categories', label: 'Categories', icon: Tags },
         { path: '/admin/users', label: 'Users', icon: Users },
+        { path: '/admin/itinerary-demo', label: 'Itinerary Demo', icon: MapPin },
     ];
 
     const isActive = (path: string) => {

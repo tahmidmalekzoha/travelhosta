@@ -1,14 +1,13 @@
 "use client";
 
 import { FunctionComponent } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './TravelCard.module.css';
-import type { ClickHandler, GuideData } from '../../types';
+import type { GuideData } from '../../types';
 
 interface GuideCardProps {
     /** Guide data */
     guide: GuideData;
-    /** Click handler for the view button */
-    onViewClick: ClickHandler;
 }
 
 /**
@@ -16,15 +15,12 @@ interface GuideCardProps {
  * with image background, title, duration, and view button.
  * Styled consistently with the homepage travel cards.
  */
-const GuideCard: FunctionComponent<GuideCardProps> = ({
-    guide,
-    onViewClick
-}) => {
+const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
+    const router = useRouter();
+
     const handleViewClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        // TODO: Implement navigation to detailed guide view
-        // Example: router.push(`/guides/${guide.id}`);
-        onViewClick();
+        router.push(`/guides/${guide.id}`);
     };
 
     return (
@@ -52,11 +48,16 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({
                         {guide.description}
                     </p>
                     
-                    {/* Division */}
-                    <div className="flex items-center mb-4">
+                    {/* Division & Itinerary info */}
+                    <div className="flex items-center justify-between mb-4">
                         <span className="text-white/80 text-lg font-medium font-['Schibsted_Grotesk']">
                             {guide.division}
                         </span>
+                        {guide.itinerary && guide.itinerary.length > 0 && (
+                            <span className="text-white/70 text-sm font-['Schibsted_Grotesk']">
+                                {guide.itinerary.length} steps
+                            </span>
+                        )}
                     </div>
                     
                     {/* View Button - matching homepage style */}

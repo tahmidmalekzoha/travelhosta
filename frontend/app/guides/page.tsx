@@ -30,9 +30,7 @@ export default function Guides() {
     }, [selectedDivision, selectedCategory, searchTerm]);
 
     const handleGuideView = (guide: GuideData) => {
-        console.log('View guide clicked:', guide.title);
-        // TODO: Navigate to guide detail page
-        // router.push(`/guides/${guide.id}`);
+        // Navigation is now handled within GuideCard component
     };
 
     return (
@@ -133,7 +131,6 @@ export default function Guides() {
                             <GuideCard
                                 key={guide.id}
                                 guide={guide}
-                                onViewClick={() => handleGuideView(guide)}
                             />
                         ))}
                     </div>

@@ -164,7 +164,24 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Explore Old Dhaka\'s heritage sites and cultural landmarks',
         division: 'Dhaka',
         category: 'Day Tour',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: 'images/dummy.jpg',
+        itinerary: [
+            {
+                id: 'step-1',
+                title: 'Start from Dhaka University',
+                details: ['Take CNG or Uber to Lalbagh Fort - 50 Taka']
+            },
+            {
+                id: 'step-2',
+                title: 'Visit Lalbagh Fort',
+                details: ['Entry fee - 20 Taka per person', 'Guided tour available - 100 Taka']
+            },
+            {
+                id: 'step-3',
+                title: 'Lalbagh Fort to Ahsan Manzil',
+                details: ['Rickshaw ride - 30 Taka', 'Walk through old Dhaka streets']
+            }
+        ]
     },
     {
         id: 2,
@@ -184,11 +201,36 @@ export const GUIDES_DATA: GuideData[] = [
     },
     {
         id: 4,
-        title: 'Tea Garden Trek',
-        description: 'Sylhet\'s scenic tea gardens and hill country',
+        title: 'Sylhet to Ratargul Adventure',
+        description: 'Journey from Sylhet city to the amazing Ratargul Swamp Forest',
         division: 'Sylhet',
         category: 'Trekking',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: 'images/dummy.jpg',
+        itinerary: [
+            {
+                id: 'step-1',
+                title: 'Dhaka to Sylhet',
+                details: ['Train: 395 Taka']
+            },
+            {
+                id: 'step-2',
+                title: 'Sylhet Railway Station to Shahjalal Mazar',
+                details: [
+                    'CNG Auto: 25 Taka per person',
+                    'Reserve CNG: 125 Taka',
+                    'Breakfast: 100 Taka per person'
+                ]
+            },
+            {
+                id: 'step-3',
+                title: 'Shahjalal Mazar to Ratargul Swamp Forest',
+                details: [
+                    'Reserve car: 2500 Taka',
+                    'Entry fee: 50 Taka per person',
+                    'Boat ride: 200 Taka per boat'
+                ]
+            }
+        ]
     },
     {
         id: 5,

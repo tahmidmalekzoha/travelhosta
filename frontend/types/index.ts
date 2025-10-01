@@ -17,6 +17,59 @@ export interface TravelCardData {
 }
 
 // Guide related types
+export interface ItineraryStep {
+    id: string;
+    title: string;
+    details: string[];
+}
+
+// Content block types for flexible guide structure
+export type ContentBlockType = 'text' | 'timeline' | 'image' | 'imageGallery' | 'table';
+
+export interface TextBlock {
+    type: 'text';
+    id: string;
+    content: string; // Markdown supported
+    heading?: string; // Optional heading for the text block
+}
+
+export interface TimelineBlock {
+    type: 'timeline';
+    id: string;
+    title?: string; // Optional title for the timeline section
+    steps: ItineraryStep[];
+}
+
+export interface ImageBlock {
+    type: 'image';
+    id: string;
+    url: string;
+    caption?: string;
+    alt?: string;
+}
+
+export interface ImageGalleryBlock {
+    type: 'imageGallery';
+    id: string;
+    images: {
+        url: string;
+        caption?: string;
+        alt?: string;
+    }[];
+    title?: string;
+}
+
+export interface TableBlock {
+    type: 'table';
+    id: string;
+    title?: string; // Optional title for the table
+    headers: string[]; // Column headers
+    rows: string[][]; // Array of row data
+    caption?: string; // Optional caption below table
+}
+
+export type ContentBlock = TextBlock | TimelineBlock | ImageBlock | ImageGalleryBlock | TableBlock;
+
 export interface GuideData {
     id: number;
     title: string;
@@ -24,6 +77,8 @@ export interface GuideData {
     division: string;
     category: string;
     imageUrl: string;
+    itinerary?: ItineraryStep[]; // Legacy support
+    content?: ContentBlock[]; // New flexible content structure
 }
 
 // Animation related types

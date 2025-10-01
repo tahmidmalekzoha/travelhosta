@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
 import HeroSection from './HeroSection';
 import SeeAll from './SeeAll';
 import GuideCard from './shared/GuideCard';
@@ -15,16 +14,10 @@ import { useGuides } from '../contexts/GuidesContext';
  * Features responsive design with hero, description, cards, FAQ, and footer sections
  */
 export default function HomePage() {
-    const router = useRouter();
     const { getFeaturedGuides } = useGuides();
     
     // Get featured guides from context
     const featuredGuides = getFeaturedGuides();
-    
-    const handleGuideView = (guideId: number) => {
-        // Navigate to guides page (could also navigate to specific guide detail in future)
-        router.push('/guides');
-    };
     
     return (
         <div
@@ -82,7 +75,6 @@ export default function HomePage() {
                         <GuideCard
                             key={guide.id}
                             guide={guide}
-                            onViewClick={() => handleGuideView(guide.id)}
                         />
                     ))}
                 </div>
