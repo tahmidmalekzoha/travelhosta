@@ -87,11 +87,22 @@ const GuidesManagement: FunctionComponent = () => {
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <div className="lg:col-span-2">
-                            <img
-                                src={viewingGuide.imageUrl}
-                                alt={viewingGuide.title}
-                                className="w-full h-64 object-cover rounded-lg"
-                            />
+                            {viewingGuide.imageUrl && viewingGuide.imageUrl !== '' && viewingGuide.imageUrl !== 'dummy.jpg' && viewingGuide.imageUrl !== '/images/dummy.jpg' ? (
+                                <img
+                                    src={viewingGuide.imageUrl}
+                                    alt={viewingGuide.title}
+                                    className="w-full h-64 object-cover rounded-lg"
+                                />
+                            ) : (
+                                <div className="w-full h-64 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg">
+                                    <div className="text-center text-gray-500">
+                                        <svg className="w-20 h-20 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p className="text-base">No Image Available</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-gray-600">
@@ -185,12 +196,26 @@ const GuidesManagement: FunctionComponent = () => {
                 {filteredGuides.map((guide) => (
                     <div key={guide.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-video bg-gray-200 overflow-hidden">
-                            <img
-                                src={guide.imageUrl}
-                                alt={guide.title}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                                onClick={() => setViewingGuide(guide)}
-                            />
+                            {guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg' ? (
+                                <img
+                                    src={guide.imageUrl}
+                                    alt={guide.title}
+                                    className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                                    onClick={() => setViewingGuide(guide)}
+                                />
+                            ) : (
+                                <div 
+                                    className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 cursor-pointer"
+                                    onClick={() => setViewingGuide(guide)}
+                                >
+                                    <div className="text-center text-gray-500">
+                                        <svg className="w-16 h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <p className="text-sm">No Image</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         
                         <div className="p-4">

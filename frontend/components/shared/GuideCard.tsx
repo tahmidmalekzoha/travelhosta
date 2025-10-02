@@ -23,10 +23,12 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
         router.push(`/guides/${guide.id}`);
     };
 
+    const hasValidImage = guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg';
+
     return (
         <div className={styles.itemBlog}>
             <div
-                style={{ backgroundImage: `url("${guide.imageUrl}")` }}
+                style={hasValidImage ? { backgroundImage: `url("${guide.imageUrl}")` } : { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
                 className={styles.imageBlog}
                 role="img"
                 aria-label={guide.title}
