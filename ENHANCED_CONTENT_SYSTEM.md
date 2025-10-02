@@ -51,7 +51,42 @@ memories in the land of two leaves and a bud.
 
 ---
 
-### 2. Timeline Block
+### 2. Tips Block
+
+Highlight important travel tips, advice, and recommendations in a visually distinct format.
+
+**Syntax:**
+
+```
+:::tips [title="Optional Title"]
+- Tip 1: Your first tip
+- Tip 2: Another helpful tip
+- Tip 3: More advice
+:::
+```
+
+**Features:**
+
+- Optional custom title (defaults to "Pro Tips")
+- Numbered tips with distinctive styling
+- Eye-catching amber/yellow theme with lightbulb icon
+- Perfect for important advice, warnings, and recommendations
+
+**Example:**
+
+```
+:::tips [title="Before You Go"]
+- Always carry sufficient cash as many places don't accept cards
+- Book train/bus tickets at least 2-3 days in advance
+- Download offline maps before the journey
+- Keep emergency contact numbers handy
+- Pack light but bring a jacket for evening weather
+:::
+```
+
+---
+
+### 3. Timeline Block
 
 Create step-by-step itineraries with routes, costs, and details.
 
@@ -78,6 +113,29 @@ Create step-by-step itineraries with routes, costs, and details.
 - Visual timeline representation with connecting lines
 - Cost and time information display
 
+**Timeline with Step-Specific Tips:**
+
+```
+:::timeline [title="Day 1: Getting There"]
+## Dhaka to Sylhet
+- Train: 395 Taka
+- Journey time: 6 hours
+[tips]
+- Book window seats for scenic views
+- Carry snacks and water
+- Keep ticket accessible for checks
+[/tips]
+
+## Hotel Check-in
+- Budget: 1,500-2,000 Taka
+- Location: City center
+[tips]
+- Check-in time is usually 2 PM
+- Ask for a room with a view
+[/tips]
+:::
+```
+
 **Example:**
 
 ```
@@ -91,12 +149,17 @@ Create step-by-step itineraries with routes, costs, and details.
 - CNG Auto: 25 Taka per person
 - Reserve CNG: 125 Taka
 - Duration: 15 minutes
+[tips]
+- Dress modestly when visiting religious sites
+- Remove shoes before entering
+- Visit during non-prayer times
+[/tips]
 :::
 ```
 
 ---
 
-### 3. Image Block
+### 4. Image Block
 
 Insert single images with captions throughout your content.
 

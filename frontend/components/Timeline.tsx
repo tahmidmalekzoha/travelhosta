@@ -1,5 +1,6 @@
 import { FunctionComponent } from 'react';
 import { ItineraryStep } from '../types';
+import { Lightbulb } from 'lucide-react';
 
 interface TimelineProps {
     steps: ItineraryStep[];
@@ -44,7 +45,7 @@ const Timeline: FunctionComponent<TimelineProps> = ({ steps, className = '' }) =
                             
                             {/* Step details */}
                             {step.details && step.details.length > 0 && (
-                                <div className="space-y-2">
+                                <div className="space-y-2 mb-4">
                                     {step.details.map((detail, detailIndex) => (
                                         <div
                                             key={detailIndex}
@@ -53,6 +54,26 @@ const Timeline: FunctionComponent<TimelineProps> = ({ steps, className = '' }) =
                                             {detail}
                                         </div>
                                     ))}
+                                </div>
+                            )}
+                            
+                            {/* Step tips - highlighted section */}
+                            {step.tips && step.tips.length > 0 && (
+                                <div className="mt-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Lightbulb className="text-amber-600" size={18} />
+                                        <span className="text-sm font-bold text-amber-900 uppercase tracking-wide">
+                                            Tips
+                                        </span>
+                                    </div>
+                                    <ul className="space-y-2">
+                                        {step.tips.map((tip, tipIndex) => (
+                                            <li key={tipIndex} className="flex items-start gap-2 text-sm text-gray-700">
+                                                <span className="text-amber-600 font-bold mt-0.5">•</span>
+                                                <span className="flex-grow">{tip}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
                             )}
                         </div>

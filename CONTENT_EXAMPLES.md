@@ -1,8 +1,8 @@
 # Visual Content Examples
 
-## Example 1: Simple Guide with One Timeline
+## Example 1: Simple Guide with Tips
 
-This is the simplest enhanced guide - just adding text before and after a timeline.
+This is the simplest enhanced guide - adding tips after the introduction.
 
 ```
 :::text [heading="Introduction to Sylhet"]
@@ -11,11 +11,24 @@ from Dhaka. Known for its tea gardens and natural beauty, this guide will
 help you plan a **memorable 2-day trip**.
 :::
 
+:::tips [title="Essential Travel Tips"]
+- Book train tickets 3-5 days in advance during peak season
+- Carry sufficient cash as many places don't accept cards
+- Best time to visit is November to February
+- Download offline maps before leaving Dhaka
+- Keep a light jacket for evening weather
+:::
+
 :::timeline [title="Complete Itinerary"]
 ## Dhaka to Sylhet
 - Train: 395 Taka (Parabat Express)
 - Departure: 6:30 AM
 - Arrival: 12:30 PM
+[tips]
+- Book window seats for scenic views along the way
+- Carry snacks and bottled water
+- Keep your ticket accessible for checks
+[/tips]
 
 ## Hotel Check-in
 - Budget: 1,500-2,000 Taka
@@ -26,6 +39,11 @@ help you plan a **memorable 2-day trip**.
 - CNG Auto: 25 Taka per person
 - Free entry
 - Best time: Sunset
+[tips]
+- Dress modestly (cover shoulders and knees)
+- Remove shoes before entering
+- Visit during non-prayer times for better experience
+[/tips]
 :::
 
 :::text

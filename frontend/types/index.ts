@@ -21,16 +21,24 @@ export interface ItineraryStep {
     id: string;
     title: string;
     details: string[];
+    tips?: string[]; // Optional tips for this specific step
 }
 
 // Content block types for flexible guide structure
-export type ContentBlockType = 'text' | 'timeline' | 'image' | 'imageGallery' | 'table';
+export type ContentBlockType = 'text' | 'timeline' | 'image' | 'imageGallery' | 'table' | 'tips';
 
 export interface TextBlock {
     type: 'text';
     id: string;
     content: string; // Markdown supported
     heading?: string; // Optional heading for the text block
+}
+
+export interface TipsBlock {
+    type: 'tips';
+    id: string;
+    title?: string; // Optional title for the tips section
+    tips: string[]; // Array of tip strings
 }
 
 export interface TimelineBlock {
@@ -68,7 +76,7 @@ export interface TableBlock {
     caption?: string; // Optional caption below table
 }
 
-export type ContentBlock = TextBlock | TimelineBlock | ImageBlock | ImageGalleryBlock | TableBlock;
+export type ContentBlock = TextBlock | TimelineBlock | ImageBlock | ImageGalleryBlock | TableBlock | TipsBlock;
 
 export interface GuideData {
     id: number;

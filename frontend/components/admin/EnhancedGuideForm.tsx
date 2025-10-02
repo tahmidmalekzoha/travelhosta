@@ -1,9 +1,10 @@
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import { GuideData, ContentBlock } from '../../types';
 import { parseGuideContent, contentToText, validateContent, sampleContent } from '../../utils/contentParser';
 import ContentRenderer from '../ContentRenderer';
 import TableEditor from './TableEditor';
-import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb } from 'lucide-react';
+import { handleTablePaste, previewTableFromClipboard } from '../../utils/tablePasteHandler';
 
 interface EnhancedGuideFormProps {
     guide?: GuideData;
@@ -38,6 +39,9 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     const [contentErrors, setContentErrors] = useState<string[]>([]);
     const [showHelp, setShowHelp] = useState(false);
     const [showTableEditor, setShowTableEditor] = useState(false);
+    const [tablePasteDetected, setTablePasteDetected] = useState(false);
+    const [pastedTablePreview, setPastedTablePreview] = useState<string>('');
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Initialize content text from existing guide
     useEffect(() => {
@@ -76,10 +80,48 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     };
 
     const insertTemplate = (template: string) => {
-        const cursorPos = (document.getElementById('content-editor') as HTMLTextAreaElement)?.selectionStart || contentText.length;
+        const cursorPos = textareaRef.current?.selectionStart || contentText.length;
         const before = contentText.substring(0, cursorPos);
         const after = contentText.substring(cursorPos);
         setContentText(before + '\n\n' + template + '\n\n' + after);
+    };
+
+    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const clipboardData = e.clipboardData;
+        if (!clipboardData) return;
+
+        // Try to detect and parse table
+        const htmlData = clipboardData.getData('text/html');
+        const textData = clipboardData.getData('text/plain');
+
+        // Check if it looks like a table
+        let pastedContent = htmlData || textData;
+        
+        if (pastedContent) {
+            const result = previewTableFromClipboard(pastedContent);
+            
+            if (result.success && result.preview) {
+                // Prevent default paste
+                e.preventDefault();
+                
+                // Show preview
+                setPastedTablePreview(result.preview);
+                setTablePasteDetected(true);
+            }
+        }
+    };
+
+    const confirmTablePaste = () => {
+        if (pastedTablePreview) {
+            insertTemplate(pastedTablePreview);
+            setTablePasteDetected(false);
+            setPastedTablePreview('');
+        }
+    };
+
+    const cancelTablePaste = () => {
+        setTablePasteDetected(false);
+        setPastedTablePreview('');
     };
 
     const templates = {
@@ -87,6 +129,13 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
 Write your content here. You can use **bold** and *italic* text.
 
 Add multiple paragraphs as needed.
+:::`,
+        tips: `:::tips [title="Pro Tips"]
+- Always carry sufficient cash as many places don't accept cards
+- Book train/bus tickets at least 2-3 days in advance
+- Download offline maps before the journey
+- Keep emergency contact numbers handy
+- Pack light but bring layers for changing weather
 :::`,
         timeline: `:::timeline [title="Day 1: Journey"]
 ## Location A to Location B
@@ -97,6 +146,29 @@ Add multiple paragraphs as needed.
 ## Location B to Location C
 - Transportation: Cost
 - Tips: Helpful advice
+:::`,
+        timelineTips: `[tips]
+- Tip for this step
+- Another tip
+[/tips]`,
+        timelineWithTips: `:::timeline [title="Day 1: Getting There"]
+## Dhaka to Sylhet
+- Train: 395 Taka
+- Journey time: 6 hours
+- Departure: 6:30 AM
+[tips]
+- Book window seats for scenic views
+- Carry snacks and water bottles
+- Keep ticket accessible for checks
+[/tips]
+
+## Sylhet Railway Station to Hotel
+- CNG Auto: 100 Taka
+- Duration: 20 minutes
+[tips]
+- Use metered CNG or agree on price first
+- Save hotel address in Bengali on your phone
+[/tips]
 :::`,
         image: `:::image
 url: https://example.com/your-image.jpg
@@ -250,11 +322,28 @@ Transport | 500 | 1000 | 3000
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertTemplate(templates.tips)}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm bg-amber-100 text-amber-800 border border-amber-300 rounded-lg hover:bg-amber-200 transition-colors"
+                                >
+                                    <Lightbulb size={16} />
+                                    Tips Block
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => insertTemplate(templates.timeline)}
                                     className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                                 >
                                     <Calendar size={16} />
                                     Timeline
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => insertTemplate(templates.timelineTips)}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                                    title="Add tips section inside a timeline step"
+                                >
+                                    <Lightbulb size={16} />
+                                    Timeline Tips
                                 </button>
                                 <button
                                     type="button"
@@ -290,6 +379,42 @@ Transport | 500 | 1000 | 3000
                             </div>
                         </div>
 
+                        {/* Table Paste Detection Modal */}
+                        {tablePasteDetected && (
+                            <div className="mb-4 p-4 bg-green-50 border-2 border-green-300 rounded-lg">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <ClipboardPaste className="text-green-600" size={20} />
+                                        <h4 className="font-semibold text-green-900">Table Detected!</h4>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-green-800 mb-3">
+                                    We detected a table in your paste. Would you like to insert it as a table block?
+                                </p>
+                                <div className="bg-white p-3 rounded border border-green-200 mb-3 max-h-40 overflow-auto">
+                                    <pre className="text-xs font-mono text-gray-700 whitespace-pre-wrap">
+                                        {pastedTablePreview}
+                                    </pre>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={confirmTablePaste}
+                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                                    >
+                                        Insert Table
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={cancelTablePaste}
+                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Help Section */}
                         {showHelp && (
                             <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -300,8 +425,12 @@ Transport | 500 | 1000 | 3000
                                         <p className="ml-4">Add paragraphs, descriptions, or any narrative content. Supports **bold** and *italic* formatting.</p>
                                     </div>
                                     <div>
-                                        <p className="font-medium mb-1">🗺️ Timeline Block:</p>
-                                        <p className="ml-4">Create step-by-step itineraries with routes and details. Perfect for travel schedules.</p>
+                                        <p className="font-medium mb-1">� Tips Block:</p>
+                                        <p className="ml-4">Highlight important travel advice, recommendations, and insider tips. Displays with eye-catching amber styling and numbered tips.</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-medium mb-1">�🗺️ Timeline Block:</p>
+                                        <p className="ml-4">Create step-by-step itineraries with routes and details. Perfect for travel schedules. You can also add tips within timeline steps!</p>
                                     </div>
                                     <div>
                                         <p className="font-medium mb-1">🖼️ Image Block:</p>
@@ -311,11 +440,16 @@ Transport | 500 | 1000 | 3000
                                         <p className="font-medium mb-1">🎨 Gallery Block:</p>
                                         <p className="ml-4">Create photo galleries with multiple images in a grid layout.</p>
                                     </div>
+                                    <div>
+                                        <p className="font-medium mb-1">📊 Table Block:</p>
+                                        <p className="ml-4">Create tables for pricing, comparisons, schedules, etc. You can paste directly from Google Docs or Excel!</p>
+                                    </div>
                                     <div className="mt-3 pt-3 border-t border-blue-300">
                                         <p className="font-medium">💡 Pro Tips:</p>
                                         <ul className="ml-4 mt-1 space-y-1 list-disc">
                                             <li>Mix and match blocks in any order</li>
                                             <li>Add multiple timelines for multi-day trips</li>
+                                            <li>Paste tables directly from Google Docs/Sheets or Excel</li>
                                             <li>Use text blocks between timelines for context</li>
                                             <li>Add images to break up long content</li>
                                         </ul>
@@ -329,14 +463,19 @@ Transport | 500 | 1000 | 3000
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Content Editor
+                                    <span className="ml-2 text-xs text-green-600 font-normal">
+                                        💡 Paste tables directly from Google Docs or Excel!
+                                    </span>
                                 </label>
                                 <textarea
+                                    ref={textareaRef}
                                     id="content-editor"
                                     value={contentText}
                                     onChange={(e) => setContentText(e.target.value)}
+                                    onPaste={handlePaste}
                                     rows={20}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent font-mono text-sm"
-                                    placeholder="Start typing or use Quick Insert buttons above..."
+                                    placeholder="Start typing or use Quick Insert buttons above... You can also paste tables directly from Google Docs or Excel!"
                                 />
 
                                 {/* Errors */}

@@ -10,6 +10,16 @@ Multiple paragraphs supported.
 :::
 ```
 
+## Tips Block
+
+```
+:::tips [title="Pro Tips"]
+- Tip 1: Always carry cash
+- Tip 2: Book in advance
+- Tip 3: Learn basic local phrases
+:::
+```
+
 ## Timeline Block
 
 ```
@@ -21,6 +31,28 @@ Multiple paragraphs supported.
 ## Next Step
 - Detail 1
 - Detail 2
+:::
+```
+
+## Timeline with Tips
+
+```
+:::timeline [title="Day by Day"]
+## Day 1: Arrival
+- Train ticket: 400 Taka
+- Hotel check-in
+[tips]
+- Book window seats for scenic views
+- Carry snacks for the journey
+[/tips]
+
+## Day 2: Sightseeing
+- Entry fee: 50 Taka
+- Guide: 500 Taka
+[tips]
+- Visit early morning to avoid crowds
+- Wear comfortable shoes
+[/tips]
 :::
 ```
 

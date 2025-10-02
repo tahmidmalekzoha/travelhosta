@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
-import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock } from '../types';
+import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock } from '../types';
 import Timeline from './Timeline';
+import { Lightbulb } from 'lucide-react';
 
 interface ContentRendererProps {
     blocks: ContentBlock[];
@@ -24,6 +25,8 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks }) =>
                         return <ImageGalleryRenderer key={block.id} block={block} />;
                     case 'table':
                         return <TableBlockRenderer key={block.id} block={block} />;
+                    case 'tips':
+                        return <TipsBlockRenderer key={block.id} block={block} />;
                     default:
                         return null;
                 }
@@ -65,6 +68,39 @@ const TextBlockRenderer: FunctionComponent<{ block: TextBlock }> = ({ block }) =
             )}
             <div className="prose prose-lg max-w-none">
                 {formatText(block.content)}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * Renders a tips block with highlighted styling
+ */
+const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock }> = ({ block }) => {
+    return (
+        <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl shadow-lg p-6 md:p-8 border-2 border-amber-200">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
+                        <Lightbulb className="text-white" size={24} />
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-amber-900">
+                        {block.title || 'Pro Tips'}
+                    </h3>
+                </div>
+                
+                <div className="space-y-3">
+                    {block.tips.map((tip, index) => (
+                        <div key={index} className="flex items-start gap-3 bg-white/60 rounded-lg p-4 hover:bg-white/80 transition-colors">
+                            <div className="flex-shrink-0 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold text-sm mt-0.5">
+                                {index + 1}
+                            </div>
+                            <p className="text-gray-800 text-base leading-relaxed flex-grow">
+                                {tip}
+                            </p>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
