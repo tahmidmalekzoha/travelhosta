@@ -93,26 +93,26 @@ const HeroManagement: FunctionComponent = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#1b3c44]">Hero Section Management</h1>
-                    <p className="text-gray-600 mt-1">Manage homepage hero images and text</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44]">Hero Section Management</h1>
+                    <p className="text-sm sm:text-base text-gray-600 mt-1">Manage homepage hero images and text</p>
                 </div>
                 <button
                     onClick={() => setShowUploadForm(!showUploadForm)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors text-sm sm:text-base w-full sm:w-auto"
                 >
-                    <Plus size={20} />
+                    <Plus size={18} className="sm:w-5 sm:h-5" />
                     Upload New Hero
                 </button>
             </div>
 
             {/* Upload Form */}
             {showUploadForm && (
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-bold text-[#1b3c44] mb-4">Upload New Hero Image</h2>
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                    <h2 className="text-lg sm:text-xl font-bold text-[#1b3c44] mb-4">Upload New Hero Image</h2>
                     <form onSubmit={handleUpload} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -122,7 +122,7 @@ const HeroManagement: FunctionComponent = () => {
                                 type="text"
                                 value={newHero.imageUrl}
                                 onChange={(e) => setNewHero({ ...newHero, imageUrl: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
                                 placeholder="/images/hero-background.jpg"
                             />
                         </div>
@@ -134,7 +134,7 @@ const HeroManagement: FunctionComponent = () => {
                                 type="text"
                                 value={newHero.title}
                                 onChange={(e) => setNewHero({ ...newHero, title: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
                                 placeholder="TRAVELHOSTA"
                             />
                         </div>
@@ -146,21 +146,21 @@ const HeroManagement: FunctionComponent = () => {
                                 type="text"
                                 value={newHero.subtitle}
                                 onChange={(e) => setNewHero({ ...newHero, subtitle: e.target.value })}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                                className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
                                 placeholder="Sajek, Hill of Wonders"
                             />
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-2 sm:gap-3">
                             <button
                                 type="submit"
-                                className="px-6 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors"
+                                className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors text-sm sm:text-base"
                             >
                                 Upload
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setShowUploadForm(false)}
-                                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
                             >
                                 Cancel
                             </button>
@@ -170,7 +170,7 @@ const HeroManagement: FunctionComponent = () => {
             )}
 
             {/* Hero Images Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {heroImages.map((hero) => (
                     <div
                         key={hero.id}
@@ -180,41 +180,42 @@ const HeroManagement: FunctionComponent = () => {
                     >
                         {/* Image Preview */}
                         <div
-                            className="h-64 bg-cover bg-center relative"
+                            className="h-48 sm:h-64 bg-cover bg-center relative"
                             style={{ backgroundImage: `url("${hero.imageUrl}")` }}
                         >
                             {hero.isActive && (
-                                <div className="absolute top-4 right-4 bg-[#cd8453] text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                                    <Check size={16} />
+                                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-[#cd8453] text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1">
+                                    <Check size={14} className="sm:w-4 sm:h-4" />
                                     Active
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-6">
-                                <h3 className="text-white text-3xl font-bold">{hero.title}</h3>
-                                <p className="text-white text-xl mt-2">{hero.subtitle}</p>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-4 sm:p-6">
+                                <h3 className="text-white text-xl sm:text-3xl font-bold">{hero.title}</h3>
+                                <p className="text-white text-base sm:text-xl mt-1 sm:mt-2">{hero.subtitle}</p>
                             </div>
                         </div>
 
                         {/* Actions */}
-                        <div className="p-4 flex items-center justify-between">
-                            <div className="text-sm text-gray-600">
+                        <div className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="text-xs sm:text-sm text-gray-600">
                                 Uploaded: {new Date(hero.uploadedAt).toLocaleDateString()}
                             </div>
                             <div className="flex gap-2">
                                 {!hero.isActive && (
                                     <button
                                         onClick={() => handleSetActive(hero.id)}
-                                        className="px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors text-sm"
+                                        className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors text-xs sm:text-sm"
                                     >
                                         Set Active
                                     </button>
                                 )}
                                 <button
                                     onClick={() => handleDelete(hero.id)}
-                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={hero.isActive}
+                                    title={hero.isActive ? "Cannot delete active hero" : "Delete hero"}
                                 >
-                                    <Trash2 size={20} />
+                                    <Trash2 size={18} className="sm:w-5 sm:h-5" />
                                 </button>
                             </div>
                         </div>

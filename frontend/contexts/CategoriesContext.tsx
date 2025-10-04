@@ -12,13 +12,24 @@ export interface Division {
     name: string;
 }
 
+export interface Tag {
+    id: string;
+    name: string;
+}
+
 interface CategoriesContextType {
     categories: Category[];
     divisions: Division[];
+    tags: Tag[];
     addCategory: (name: string) => void;
     removeCategory: (id: string) => void;
     addDivision: (name: string) => void;
     removeDivision: (id: string) => void;
+    addTag: (name: string) => void;
+    removeTag: (id: string) => void;
+    setCategories: (categories: Category[]) => void;
+    setDivisions: (divisions: Division[]) => void;
+    setTags: (tags: Tag[]) => void;
 }
 
 const CategoriesContext = createContext<CategoriesContextType | undefined>(undefined);
@@ -44,9 +55,19 @@ const DEFAULT_DIVISIONS: Division[] = [
     { id: 'div-7', name: 'Rangpur' }
 ];
 
+const DEFAULT_TAGS: Tag[] = [
+    { id: 'tag-1', name: 'Family Friendly' },
+    { id: 'tag-2', name: 'Budget' },
+    { id: 'tag-3', name: 'Luxury' },
+    { id: 'tag-4', name: 'Solo Travel' },
+    { id: 'tag-5', name: 'Weekend' },
+    { id: 'tag-6', name: 'Photography' }
+];
+
 export function CategoriesProvider({ children }: { children: React.ReactNode }) {
     const [categories, setCategories] = useState<Category[]>([...DEFAULT_CATEGORIES]);
     const [divisions, setDivisions] = useState<Division[]>([...DEFAULT_DIVISIONS]);
+    const [tags, setTags] = useState<Tag[]>([...DEFAULT_TAGS]);
 
     // Load categories from localStorage on mount
     useEffect(() => {
@@ -54,7 +75,7 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         if (storedCategories) {
             try {
                 const parsed = JSON.parse(storedCategories);
-                if (parsed && parsed.length > 0) {
+                if (parsed) {
                     setCategories(parsed);
                 }
             } catch (error) {
@@ -69,7 +90,7 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         if (storedDivisions) {
             try {
                 const parsed = JSON.parse(storedDivisions);
-                if (parsed && parsed.length > 0) {
+                if (parsed) {
                     setDivisions(parsed);
                 }
             } catch (error) {
@@ -78,19 +99,35 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         }
     }, []);
 
+    // Load tags from localStorage on mount
+    useEffect(() => {
+        const storedTags = localStorage.getItem('travelhosta_tags');
+        if (storedTags) {
+            try {
+                const parsed = JSON.parse(storedTags);
+                if (parsed) {
+                    setTags(parsed);
+                }
+            } catch (error) {
+                console.error('Error parsing stored tags:', error);
+            }
+        }
+    }, []);
+
     // Persist categories to localStorage whenever they change
     useEffect(() => {
-        if (categories.length > 0) {
-            localStorage.setItem('travelhosta_categories', JSON.stringify(categories));
-        }
+        localStorage.setItem('travelhosta_categories', JSON.stringify(categories));
     }, [categories]);
 
     // Persist divisions to localStorage whenever they change
     useEffect(() => {
-        if (divisions.length > 0) {
-            localStorage.setItem('travelhosta_divisions', JSON.stringify(divisions));
-        }
+        localStorage.setItem('travelhosta_divisions', JSON.stringify(divisions));
     }, [divisions]);
+
+    // Persist tags to localStorage whenever they change
+    useEffect(() => {
+        localStorage.setItem('travelhosta_tags', JSON.stringify(tags));
+    }, [tags]);
 
     const addCategory = (name: string) => {
         const newCategory: Category = {
@@ -116,13 +153,31 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         setDivisions(prev => prev.filter(div => div.id !== id));
     };
 
+    const addTag = (name: string) => {
+        const newTag: Tag = {
+            id: `tag-${Date.now()}`,
+            name: name.trim(),
+        };
+        setTags(prev => [...prev, newTag]);
+    };
+
+    const removeTag = (id: string) => {
+        setTags(prev => prev.filter(tag => tag.id !== id));
+    };
+
     const value = {
         categories,
         divisions,
+        tags,
         addCategory,
         removeCategory,
         addDivision,
         removeDivision,
+        addTag,
+        removeTag,
+        setCategories,
+        setDivisions,
+        setTags,
     };
 
     return (

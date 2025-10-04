@@ -8,6 +8,29 @@ interface MenuExpandedProps {
     onClose: () => void;
 }
 
+// Navigation menu items configuration
+const MENU_ITEMS = [
+    { label: 'Home', path: '/', top: '4.188rem' },
+    { label: 'Guides', path: '/guides', top: '11.063rem' },
+    { label: 'Destinations', path: '/destinations', top: '17.938rem' },
+    { label: 'About us', path: '/about', top: '24.813rem' },
+    { label: 'Contact', path: '/contact', top: '31.688rem' },
+] as const;
+
+// Menu styling constants
+const MENU_STYLES = {
+    background: {
+        color: '#cd8453',
+        borderRadius: '49px',
+    },
+    text: {
+        color: '#f2eee9',
+        fontSize: '3.75rem',
+        fontFamily: 'Lato, sans-serif',
+    },
+    itemLeft: '3.75rem',
+} as const;
+
 /**
  * Expanded menu overlay component with navigation links
  * Features animated entrance/exit and navigation functionality
@@ -29,16 +52,16 @@ const MenuExpanded: FunctionComponent<MenuExpandedProps> = ({ isOpen, onClose })
             style={{
                 width: '48.25rem',
                 height: '47.375rem',
-                fontSize: '3.75rem',
-                color: '#f2eee9',
-                fontFamily: 'Lato, sans-serif'
+                fontSize: MENU_STYLES.text.fontSize,
+                color: MENU_STYLES.text.color,
+                fontFamily: MENU_STYLES.text.fontFamily
             }}
         >
             {/* Background */}
             <div
                 className="absolute rounded-[49px]"
                 style={{
-                    backgroundColor: '#cd8453',
+                    backgroundColor: MENU_STYLES.background.color,
                     width: '48.25rem',
                     height: '47.375rem',
                     top: '-30px',
@@ -47,85 +70,24 @@ const MenuExpanded: FunctionComponent<MenuExpandedProps> = ({ isOpen, onClose })
             />
 
             {/* Navigation Menu Items */}
-            <button
-                onClick={() => handleNavigation('/')}
-                className="absolute cursor-pointer hover:opacity-80 transition-opacity"
-                style={{
-                    top: '4.188rem',
-                    left: '3.75rem',
-                    fontSize: '3.75rem',
-                    color: '#f2eee9',
-                    fontFamily: 'Lato, sans-serif',
-                    background: 'none',
-                    border: 'none'
-                }}
-            >
-                Home
-            </button>
-
-            <button
-                onClick={() => handleNavigation('/guides')}
-                className="absolute cursor-pointer hover:opacity-80 transition-opacity"
-                style={{
-                    top: '11.063rem',
-                    left: '3.75rem',
-                    fontSize: '3.75rem',
-                    color: '#f2eee9',
-                    fontFamily: 'Lato, sans-serif',
-                    background: 'none',
-                    border: 'none'
-                }}
-            >
-                Guides
-            </button>
-
-            <button
-                onClick={() => handleNavigation('/destinations')}
-                className="absolute cursor-pointer hover:opacity-80 transition-opacity"
-                style={{
-                    top: '17.938rem',
-                    left: '3.75rem',
-                    fontSize: '3.75rem',
-                    color: '#f2eee9',
-                    fontFamily: 'Lato, sans-serif',
-                    background: 'none',
-                    border: 'none'
-                }}
-            >
-                Destinations
-            </button>
-
-            <button
-                onClick={() => handleNavigation('/about')}
-                className="absolute cursor-pointer hover:opacity-80 transition-opacity"
-                style={{
-                    top: '24.813rem',
-                    left: '3.75rem',
-                    fontSize: '3.75rem',
-                    color: '#f2eee9',
-                    fontFamily: 'Lato, sans-serif',
-                    background: 'none',
-                    border: 'none'
-                }}
-            >
-                About us
-            </button>
-
-            <button
-                onClick={() => handleNavigation('/contact')}
-                className="absolute cursor-pointer hover:opacity-80 transition-opacity"
-                style={{
-                    top: '31.688rem',
-                    left: '3.75rem',
-                    fontSize: '3.75rem',
-                    color: '#f2eee9',
-                    fontFamily: 'Lato, sans-serif',
-                    background: 'none',
-                    border: 'none'
-                }}
-            >
-                Contact
-            </button>
+            {MENU_ITEMS.map((item) => (
+                <button
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className="absolute cursor-pointer hover:opacity-80 transition-opacity"
+                    style={{
+                        top: item.top,
+                        left: MENU_STYLES.itemLeft,
+                        fontSize: MENU_STYLES.text.fontSize,
+                        color: MENU_STYLES.text.color,
+                        fontFamily: MENU_STYLES.text.fontFamily,
+                        background: 'none',
+                        border: 'none'
+                    }}
+                >
+                    {item.label}
+                </button>
+            ))}
         </div>
     );
 };

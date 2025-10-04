@@ -85,15 +85,15 @@ const AdminDashboard: FunctionComponent = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Page Title */}
             <div>
-                <h1 className="text-3xl font-bold text-[#1b3c44]">Dashboard Overview</h1>
-                <p className="text-gray-600 mt-1">Welcome back! Here's what's happening.</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44]">Dashboard Overview</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">Welcome back! Here's what's happening.</p>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <StatCard
                     icon={Users}
                     label="Total Users"
@@ -125,10 +125,10 @@ const AdminDashboard: FunctionComponent = () => {
             </div>
 
             {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Popular Guides */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-bold text-[#1b3c44] mb-4">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                    <h2 className="text-lg sm:text-xl font-bold text-[#1b3c44] mb-4">
                         Popular Guides
                     </h2>
                     <div className="space-y-3">
@@ -137,15 +137,15 @@ const AdminDashboard: FunctionComponent = () => {
                                 key={guide.id}
                                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold">
+                                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                                    <div className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold text-sm">
                                         {index + 1}
                                     </div>
-                                    <span className="text-sm font-medium text-[#1b3c44]">
+                                    <span className="text-xs sm:text-sm font-medium text-[#1b3c44] truncate">
                                         {guide.title}
                                     </span>
                                 </div>
-                                <span className="text-sm text-gray-600">
+                                <span className="text-xs sm:text-sm text-gray-600 ml-2 whitespace-nowrap">
                                     {guide.views.toLocaleString()} views
                                 </span>
                             </div>
@@ -154,8 +154,8 @@ const AdminDashboard: FunctionComponent = () => {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-bold text-[#1b3c44] mb-4">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                    <h2 className="text-lg sm:text-xl font-bold text-[#1b3c44] mb-4">
                         Recent Activity
                     </h2>
                     <div className="space-y-3">
@@ -165,7 +165,7 @@ const AdminDashboard: FunctionComponent = () => {
                                 className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
                             >
                                 <div
-                                    className={`w-2 h-2 rounded-full mt-2 ${
+                                    className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
                                         activity.type === 'user_signup'
                                             ? 'bg-green-500'
                                             : activity.type === 'guide_created'
@@ -173,8 +173,8 @@ const AdminDashboard: FunctionComponent = () => {
                                             : 'bg-yellow-500'
                                     }`}
                                 />
-                                <div className="flex-1">
-                                    <p className="text-sm text-[#1b3c44]">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs sm:text-sm text-[#1b3c44] break-words">
                                         {activity.description}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">
@@ -188,11 +188,11 @@ const AdminDashboard: FunctionComponent = () => {
             </div>
 
             {/* User Growth Chart */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-[#1b3c44] mb-4">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-bold text-[#1b3c44] mb-4">
                     User Growth (Last 7 Days)
                 </h2>
-                <div className="h-64 flex items-end justify-between gap-2">
+                <div className="h-48 sm:h-64 flex items-end justify-between gap-1 sm:gap-2">
                     {analytics.userGrowth.map((data, index) => {
                         const maxCount = Math.max(...analytics.userGrowth.map(d => d.count));
                         const height = (data.count / maxCount) * 100;
@@ -202,7 +202,7 @@ const AdminDashboard: FunctionComponent = () => {
                                     style={{ height: `${height}%` }}
                                     title={`${data.count} users`}
                                 />
-                                <span className="text-xs text-gray-600">
+                                <span className="text-[10px] sm:text-xs text-gray-600 text-center">
                                     {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                 </span>
                             </div>
@@ -231,21 +231,21 @@ const StatCard: FunctionComponent<StatCardProps> = ({
     trendUp,
 }) => {
     return (
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <div className="flex items-start justify-between">
-                <div>
-                    <p className="text-sm text-gray-600 mb-1">{label}</p>
-                    <p className="text-3xl font-bold text-[#1b3c44]">{value}</p>
+                <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">{label}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-[#1b3c44] truncate">{value}</p>
                     <p
-                        className={`text-sm mt-2 ${
+                        className={`text-xs sm:text-sm mt-2 ${
                             trendUp ? 'text-green-600' : 'text-red-600'
                         }`}
                     >
                         {trend}
                     </p>
                 </div>
-                <div className="p-3 bg-[#cd8453]/10 rounded-lg">
-                    <Icon size={24} className="text-[#cd8453]" />
+                <div className="p-2 sm:p-3 bg-[#cd8453]/10 rounded-lg flex-shrink-0">
+                    <Icon size={20} className="text-[#cd8453] sm:w-6 sm:h-6" />
                 </div>
             </div>
         </div>

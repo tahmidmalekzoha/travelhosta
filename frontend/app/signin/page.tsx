@@ -1,12 +1,37 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
-import Image from 'next/image';
 import StickyNavbar from '../../components/StickyNavbar';
+import { isValidEmail, isAdminEmail, DEMO_CREDENTIALS } from '../../utils/authHelpers';
 
+// Page layout constants
+const LAYOUT = {
+    heading: {
+        text: "Let's Plan. Pack & Go.",
+        left: '52px',
+        top: '64px',
+        fontSize: '128px',
+    },
+    signpost: {
+        right: '100px',
+        bottom: '0px',
+        width: '500px',
+        height: '515px',
+    },
+    form: {
+        containerLeft: '29rem',
+        containerTop: '16rem',
+        containerWidth: '35.125rem',
+    },
+} as const;
+
+/**
+ * Sign In page component
+ * Handles user authentication with demo credentials support
+ */
 export default function SignIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,7 +41,7 @@ export default function SignIn() {
     const router = useRouter();
     const { login } = useAuth();
 
-    const handleSignIn = async (e: React.FormEvent) => {
+    const handleSignIn = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
@@ -32,9 +57,8 @@ export default function SignIn() {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // For demo purposes, accept any valid email/password
-        if (email.includes('@') && password.length >= 3) {
-            // Check if admin login
-            const isAdmin = email === 'admin@travelhosta.com' || email.includes('admin');
+        if (isValidEmail(email) && password.length >= 3) {
+            const isAdmin = isAdminEmail(email);
             
             // Simulate successful login
             const user = {
@@ -52,13 +76,11 @@ export default function SignIn() {
         }
 
         setLoading(false);
-    };
+    }, [email, password, login, router]);
 
     return (
         <div className="w-full h-screen bg-[#f2eee9] p-[18px] box-border overflow-hidden">
-            <div
-                className="bg-[#1b3c44] rounded-[39px] relative overflow-hidden w-full h-full"
-            >
+            <div className="bg-[#1b3c44] rounded-[39px] relative overflow-hidden w-full h-full">
                 {/* Navigation - Top Right */}
                 <StickyNavbar />
 
@@ -66,24 +88,24 @@ export default function SignIn() {
                 <div
                     className="absolute text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold whitespace-nowrap"
                     style={{
-                        left: '52px',
-                        top: '64px',
-                        fontSize: '128px',
+                        left: LAYOUT.heading.left,
+                        top: LAYOUT.heading.top,
+                        fontSize: LAYOUT.heading.fontSize,
                         lineHeight: '1',
                         letterSpacing: '0'
                     }}
                 >
-                    Let's Plan. Pack & Go.
+                    {LAYOUT.heading.text}
                 </div>
 
                 {/* Signpost Image */}
                 <div
                     className="absolute"
                     style={{
-                        right: '100px',
-                        bottom: '0px',
-                        width: '500px',
-                        height: '515px'
+                        right: LAYOUT.signpost.right,
+                        bottom: LAYOUT.signpost.bottom,
+                        width: LAYOUT.signpost.width,
+                        height: LAYOUT.signpost.height
                     }}
                 >
                     <img
@@ -97,7 +119,7 @@ export default function SignIn() {
                 <div
                     className="absolute bg-[#cd8453]/20 border border-[#cd8453] rounded-lg p-4"
                     style={{
-                        left: '52px',
+                        left: LAYOUT.heading.left,
                         bottom: '40px',
                         maxWidth: '400px'
                     }}
@@ -107,11 +129,11 @@ export default function SignIn() {
                     </h3>
                     <div className="text-[#f2eee9]/90 text-sm font-['Schibsted_Grotesk'] space-y-1">
                         <p><strong>Admin Access:</strong></p>
-                        <p>Email: admin@travelhosta.com</p>
-                        <p>Password: admin123</p>
+                        <p>Email: {DEMO_CREDENTIALS.admin.email}</p>
+                        <p>Password: {DEMO_CREDENTIALS.admin.password}</p>
                         <p className="mt-2"><strong>Regular User:</strong></p>
-                        <p>Any email with @ symbol</p>
-                        <p>Password: 3+ characters</p>
+                        <p>{DEMO_CREDENTIALS.user.emailHint}</p>
+                        <p>Password: {DEMO_CREDENTIALS.user.passwordHint}</p>
                     </div>
                 </div>
 
@@ -122,9 +144,9 @@ export default function SignIn() {
                         <div
                             className="absolute bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center p-4"
                             style={{
-                                left: '29rem',
-                                top: '16rem',
-                                width: '35.125rem',
+                                left: LAYOUT.form.containerLeft,
+                                top: LAYOUT.form.containerTop,
+                                width: LAYOUT.form.containerWidth,
                                 zIndex: 10
                             }}
                         >

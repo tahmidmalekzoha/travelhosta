@@ -1,10 +1,36 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import StickyNavbar from '../../components/StickyNavbar';
+import { isValidEmail } from '../../utils/authHelpers';
 
+// Page layout constants
+const LAYOUT = {
+    heading: {
+        text: "Let's Plan. Pack & Go.",
+        left: '52px',
+        top: '64px',
+        fontSize: '128px',
+    },
+    signpost: {
+        right: '100px',
+        bottom: '0px',
+        width: '500px',
+        height: '515px',
+    },
+} as const;
+
+// Form validation constants
+const VALIDATION = {
+    minPasswordLength: 6,
+} as const;
+
+/**
+ * Sign Up page component
+ * Handles user registration with form validation
+ */
 export default function SignUp() {
     const [formData, setFormData] = useState({
         fullName: '',
@@ -19,15 +45,15 @@ export default function SignUp() {
     const [success, setSuccess] = useState(false);
     const router = useRouter();
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
-    };
+    }, []);
 
-    const validateForm = () => {
+    const validateForm = useCallback((): boolean => {
         if (!formData.fullName.trim()) {
             setError('Full name is required');
             return false;
@@ -36,7 +62,7 @@ export default function SignUp() {
             setError('Email is required');
             return false;
         }
-        if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        if (!isValidEmail(formData.email)) {
             setError('Please enter a valid email');
             return false;
         }
@@ -44,8 +70,8 @@ export default function SignUp() {
             setError('Date of birth is required');
             return false;
         }
-        if (formData.password.length < 6) {
-            setError('Password must be at least 6 characters');
+        if (formData.password.length < VALIDATION.minPasswordLength) {
+            setError(`Password must be at least ${VALIDATION.minPasswordLength} characters`);
             return false;
         }
         if (formData.password !== formData.confirmPassword) {
@@ -57,9 +83,9 @@ export default function SignUp() {
             return false;
         }
         return true;
-    };
+    }, [formData, acceptTerms]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
@@ -81,8 +107,9 @@ export default function SignUp() {
         }, 2000);
 
         setLoading(false);
-    };
+    }, [formData, validateForm, router]);
 
+    // Success screen
     if (success) {
         return (
             <div className="min-h-screen bg-[#f2eee9] flex items-center justify-center">
@@ -101,9 +128,7 @@ export default function SignUp() {
 
     return (
         <div className="w-full h-screen bg-[#f2eee9] p-[18px] box-border overflow-hidden">
-            <div
-                className="bg-[#1b3c44] rounded-[39px] relative overflow-hidden w-full h-full"
-            >
+            <div className="bg-[#1b3c44] rounded-[39px] relative overflow-hidden w-full h-full">
                 {/* Navigation - Top Right */}
                 <StickyNavbar />
 
@@ -111,24 +136,24 @@ export default function SignUp() {
                 <div
                     className="absolute text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold whitespace-nowrap"
                     style={{
-                        left: '52px',
-                        top: '64px',
-                        fontSize: '128px',
+                        left: LAYOUT.heading.left,
+                        top: LAYOUT.heading.top,
+                        fontSize: LAYOUT.heading.fontSize,
                         lineHeight: '1',
                         letterSpacing: '0'
                     }}
                 >
-                    Let's Plan. Pack & Go.
+                    {LAYOUT.heading.text}
                 </div>
 
                 {/* Signpost Image */}
                 <div
                     className="absolute"
                     style={{
-                        right: '100px',
-                        bottom: '0px',
-                        width: '500px',
-                        height: '515px'
+                        right: LAYOUT.signpost.right,
+                        bottom: LAYOUT.signpost.bottom,
+                        width: LAYOUT.signpost.width,
+                        height: LAYOUT.signpost.height
                     }}
                 >
                     <img

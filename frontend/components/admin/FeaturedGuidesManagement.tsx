@@ -79,27 +79,27 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
     const featuredGuides = useMemo(() => getFeaturedGuides(), [getFeaturedGuides]);
 
     return (
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[#1b3c44] mb-2">Featured Guides</h1>
-                    <p className="text-gray-600">Select exactly 4 guides to feature on the homepage</p>
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44] mb-2">Featured Guides</h1>
+                    <p className="text-sm sm:text-base text-gray-600">Select exactly 4 guides to feature on the homepage</p>
                 </div>
 
                 {/* Current Featured Guides */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
                     <div className="flex items-center gap-2 mb-4">
-                        <Star className="text-[#cd8453]" size={24} />
-                        <h2 className="text-xl font-semibold text-[#1b3c44]">Current Featured Guides</h2>
+                        <Star className="text-[#cd8453] flex-shrink-0" size={20} />
+                        <h2 className="text-lg sm:text-xl font-semibold text-[#1b3c44]">Current Featured Guides</h2>
                     </div>
                     
                     {featuredGuides.length === 0 ? (
-                        <p className="text-gray-500 text-center py-8">No featured guides selected yet</p>
+                        <p className="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">No featured guides selected yet</p>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                             {featuredGuides.map((guide) => (
-                                <div key={guide.id} className="border border-gray-200 rounded-lg p-4 hover:border-[#cd8453] transition-colors">
+                                <div key={guide.id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:border-[#cd8453] transition-colors">
                                     <div className="aspect-video bg-gray-200 rounded-lg mb-3 overflow-hidden">
                                         {guide.imageUrl && guide.imageUrl !== '' && !guide.imageUrl.endsWith('dummy.jpg') ? (
                                             <img 
@@ -109,14 +109,14 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-                                                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
                                         )}
                                     </div>
-                                    <h3 className="font-semibold text-[#1b3c44] mb-1 truncate">{guide.title}</h3>
-                                    <p className="text-sm text-gray-600">{guide.division}</p>
+                                    <h3 className="font-semibold text-[#1b3c44] mb-1 truncate text-sm sm:text-base">{guide.title}</h3>
+                                    <p className="text-xs sm:text-sm text-gray-600">{guide.division}</p>
                                     <span className="inline-block mt-2 px-2 py-1 bg-[#cd8453]/10 text-[#cd8453] text-xs rounded">
                                         {guide.category}
                                     </span>
@@ -127,23 +127,23 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        <span className="text-xs sm:text-sm text-gray-600">
                             Selected: {selectedIds.length}/4 guides
                         </span>
                         {hasChanges && (
-                            <span className="text-sm text-orange-600 font-medium">
+                            <span className="text-xs sm:text-sm text-orange-600 font-medium">
                                 Unsaved changes
                             </span>
                         )}
                     </div>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                         {hasChanges && (
                             <button
                                 onClick={handleReset}
-                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                             >
                                 Reset
                             </button>
@@ -151,42 +151,42 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                         <button
                             onClick={handleSave}
                             disabled={selectedIds.length !== 4}
-                            className={`flex items-center gap-2 px-6 py-2 rounded-lg transition-colors ${
+                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2 text-xs sm:text-sm rounded-lg transition-colors ${
                                 selectedIds.length === 4
                                     ? 'bg-[#cd8453] text-white hover:bg-[#1b3c44]'
                                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }`}
                         >
-                            <Check size={16} />
+                            <Check size={14} className="sm:w-4 sm:h-4" />
                             Save Changes
                         </button>
                     </div>
                 </div>
 
                 {/* Search */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
                     <div className="relative">
-                        <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+                        <Search className="absolute left-3 top-3 text-gray-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Search guides by title, division, or category..."
+                            placeholder="Search guides..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
                         />
                     </div>
                 </div>
 
                 {/* Guides Grid */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-[#1b3c44] mb-6">All Guides</h2>
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                    <h2 className="text-lg sm:text-xl font-semibold text-[#1b3c44] mb-4 sm:mb-6">All Guides</h2>
                     
                     {filteredGuides.length === 0 ? (
-                        <p className="text-gray-500 text-center py-8">
+                        <p className="text-gray-500 text-center py-6 sm:py-8 text-sm sm:text-base">
                             {searchTerm ? 'No guides found matching your search.' : 'No guides available.'}
                         </p>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                             {filteredGuides.map((guide) => {
                                 const isSelected = selectedIds.includes(guide.id);
                                 const isFeatured = featuredGuideIds.includes(guide.id);
@@ -195,19 +195,19 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                                     <div
                                         key={guide.id}
                                         onClick={() => toggleGuide(guide.id)}
-                                        className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                                        className={`relative border-2 rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
                                             isSelected
                                                 ? 'border-[#cd8453] bg-[#cd8453]/5'
                                                 : 'border-gray-200 hover:border-[#cd8453]/50'
                                         }`}
                                     >
                                         {/* Selection indicator */}
-                                        <div className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                        <div className={`absolute top-2 right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center ${
                                             isSelected
                                                 ? 'bg-[#cd8453] border-[#cd8453]'
                                                 : 'border-gray-300'
                                         }`}>
-                                            {isSelected && <Check size={14} className="text-white" />}
+                                            {isSelected && <Check size={12} className="text-white sm:w-[14px] sm:h-[14px]" />}
                                         </div>
 
                                         {/* Featured badge */}
@@ -226,16 +226,16 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-                                                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
                                                 </div>
                                             )}
                                         </div>
                                         
-                                        <h3 className="font-semibold text-[#1b3c44] mb-2 truncate">{guide.title}</h3>
-                                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{guide.description}</p>
-                                        <p className="text-sm text-[#cd8453] font-medium">{guide.division}</p>
+                                        <h3 className="font-semibold text-[#1b3c44] mb-2 truncate text-sm sm:text-base">{guide.title}</h3>
+                                        <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{guide.description}</p>
+                                        <p className="text-xs sm:text-sm text-[#cd8453] font-medium">{guide.division}</p>
                                         <span className="inline-block mt-2 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
                                             {guide.category}
                                         </span>
@@ -247,9 +247,9 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                 </div>
 
                 {/* Info Box */}
-                <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 className="font-semibold text-[#1b3c44] mb-2">ℹ️ Information</h3>
-                    <ul className="text-sm text-gray-700 space-y-1">
+                <div className="mt-6 sm:mt-8 bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+                    <h3 className="font-semibold text-[#1b3c44] mb-2 text-sm sm:text-base">ℹ️ Information</h3>
+                    <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
                         <li>• Featured guides will appear on the homepage in a dedicated section</li>
                         <li>• You must select exactly 4 guides to feature</li>
                         <li>• Click on any guide card to select or deselect it</li>

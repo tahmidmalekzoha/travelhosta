@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import StickyNavbar from '../../../components/StickyNavbar';
 import Footer from '../../../components/Footer';
 import Timeline from '../../../components/Timeline';
 import ContentRenderer from '../../../components/ContentRenderer';
 import { useGuides } from '../../../contexts/GuidesContext';
-import { ArrowLeft, MapPin, Tag, Calendar, Users, Languages } from 'lucide-react';
+import { ArrowLeft, MapPin, Tag, Calendar, Languages } from 'lucide-react';
 import { Language } from '../../../types';
+import { isValidImageUrl } from '../../../utils/imageUtils';
 
 interface GuideDetailPageProps {
     params: Promise<{
@@ -16,6 +17,17 @@ interface GuideDetailPageProps {
     }>;
 }
 
+/**
+ * Helper function to check if a guide has any Bengali content
+ */
+const hasBengaliContent = (guide: any): boolean => {
+    return !!(guide.titleBn || guide.descriptionBn || (guide.contentBn && guide.contentBn.length > 0));
+};
+
+/**
+ * Guide detail page component displaying full guide information
+ * Supports multilingual content (English/Bengali) and flexible content blocks
+ */
 export default function GuideDetail({ params }: GuideDetailPageProps) {
     const router = useRouter();
     const { guides } = useGuides();
@@ -24,7 +36,10 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
     const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
 
     // Check if Bengali content is available
-    const hasBengaliContent = guide?.titleBn || guide?.descriptionBn || (guide?.contentBn && guide.contentBn.length > 0);
+    const hasBengali = useMemo(() => 
+        guide ? hasBengaliContent(guide) : false, 
+        [guide]
+    );
 
     if (!guide) {
         return (
@@ -35,11 +50,11 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                         <h1 className="text-4xl font-bold mb-4">Guide Not Found</h1>
                         <p className="text-gray-600 mb-8">The guide you're looking for doesn't exist.</p>
                         <button
-                            onClick={() => router.back()}
+                            onClick={() => router.push('/guides')}
                             className="inline-flex items-center gap-2 px-6 py-3 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors"
                         >
                             <ArrowLeft size={20} />
-                            Go Back
+                            Back to Guides
                         </button>
                     </div>
                 </div>
@@ -58,7 +73,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                 {/* Back Button and Language Toggle */}
                 <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/guides')}
                         className="inline-flex items-center gap-2 text-[#cd8453] hover:text-[#1b3c44] font-medium transition-colors"
                     >
                         <ArrowLeft size={20} />
@@ -66,7 +81,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                     </button>
 
                     {/* Language Toggle - Only show if Bengali content exists */}
-                    {hasBengaliContent && (
+                    {hasBengali && (
                         <div className="flex items-center gap-3 bg-white rounded-lg p-1 shadow-md">
                             <button
                                 onClick={() => setCurrentLanguage('en')}
@@ -81,7 +96,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                             </button>
                             <button
                                 onClick={() => setCurrentLanguage('bn')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all font-['Bengali'] ${
+                                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all font-bengali ${
                                     currentLanguage === 'bn'
                                         ? 'bg-green-600 text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-100'
@@ -98,7 +113,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-12">
                     {/* Image */}
                     <div className="aspect-video lg:aspect-square bg-gray-200 rounded-2xl overflow-hidden">
-                        {guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg' ? (
+                        {isValidImageUrl(guide.imageUrl) ? (
                             <img
                                 src={guide.imageUrl}
                                 alt={guide.title}
@@ -119,13 +134,13 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                     {/* Info */}
                     <div className="flex flex-col justify-center">
                         <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${
-                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                            currentLanguage === 'bn' ? "font-bengali" : ''
                         }`}>
                             {currentLanguage === 'en' ? guide.title : (guide.titleBn || guide.title)}
                         </h1>
                         
                         <p className={`text-lg md:text-xl text-gray-700 mb-8 leading-relaxed ${
-                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                            currentLanguage === 'bn' ? "font-bengali" : ''
                         }`}>
                             {currentLanguage === 'en' ? guide.description : (guide.descriptionBn || guide.description)}
                         </p>
@@ -144,6 +159,25 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                 </div>
                             )}
 
+                            {/* Tags Display */}
+                            {guide.tags && guide.tags.length > 0 && (
+                                <div className="space-y-2">
+                                    <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                                        Tags:
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {guide.tags.map((tag, index) => (
+                                            <span
+                                                key={index}
+                                                className="inline-block px-4 py-2 bg-[#1b3c44] text-white text-sm font-medium rounded-full shadow-sm hover:bg-[#cd8453] transition-colors"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {guide.itinerary && guide.itinerary.length > 0 && (
                                 <div className="flex items-center gap-3">
                                     <Calendar className="text-[#cd8453]" size={24} />
@@ -159,7 +193,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                 {/* Content Section - New flexible format */}
                 {((currentLanguage === 'en' && guide.content && guide.content.length > 0) ||
                   (currentLanguage === 'bn' && guide.contentBn && guide.contentBn.length > 0)) && (
-                    <div className={`mb-16 ${currentLanguage === 'bn' ? "font-['Bengali']" : ''}`}>
+                    <div className={`mb-16 ${currentLanguage === 'bn' ? "font-bengali" : ''}`}>
                         <ContentRenderer 
                             blocks={currentLanguage === 'en' ? guide.content! : guide.contentBn!} 
                         />

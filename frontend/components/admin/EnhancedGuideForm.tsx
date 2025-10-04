@@ -1,11 +1,12 @@
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
-import { GuideData, ContentBlock, Language } from '../../types';
+import { GuideData, Language, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock } from '../../types';
 import { parseGuideContent, contentToText, validateContent, sampleContent } from '../../utils/contentParser';
 import ContentRenderer from '../ContentRenderer';
 import TableEditor from './TableEditor';
 import Toast, { ToastType } from '../shared/Toast';
 import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages } from 'lucide-react';
-import { handleTablePaste, previewTableFromClipboard } from '../../utils/tablePasteHandler';
+import { previewTableFromClipboard } from '../../utils/tablePasteHandler';
+import { useCategories } from '../../contexts/CategoriesContext';
 
 interface EnhancedGuideFormProps {
     guide?: GuideData;
@@ -17,7 +18,8 @@ interface EnhancedGuideFormProps {
 
 /**
  * Enhanced guide form with flexible content blocks support
- * Supports: text, timeline, images, and galleries in any order
+ * Supports: text, timeline, images, galleries, tables, and tips in any order
+ * Features bilingual support (English/Bengali) with live preview and validation
  */
 const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     guide,
@@ -26,6 +28,10 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     divisions,
     categories
 }) => {
+    // Get tags from context
+    const { tags: availableTags } = useCategories();
+    
+    // Language and form state
     const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
     const [formData, setFormData] = useState<Omit<GuideData, 'id'>>({
         title: guide?.title || '',
@@ -40,17 +46,22 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         contentBn: guide?.contentBn || []
     });
 
+    // Content editor state
     const [contentText, setContentText] = useState('');
     const [contentTextBn, setContentTextBn] = useState('');
-    const [showPreview, setShowPreview] = useState(false);
     const [contentErrors, setContentErrors] = useState<string[]>([]);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // UI state
+    const [showPreview, setShowPreview] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
     const [showTableEditor, setShowTableEditor] = useState(false);
-    const [tablePasteDetected, setTablePasteDetected] = useState(false);
-    const [pastedTablePreview, setPastedTablePreview] = useState<string>('');
     const [tagInput, setTagInput] = useState('');
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Table paste detection state
+    const [tablePasteDetected, setTablePasteDetected] = useState(false);
+    const [pastedTablePreview, setPastedTablePreview] = useState<string>('');
 
     // Initialize content text from existing guide
     useEffect(() => {
@@ -85,6 +96,9 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         }
     }, [contentTextBn]);
 
+    /**
+     * Form submission handler - validates required fields and content before submitting
+     */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -101,56 +115,53 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         onSubmit(formData);
     };
 
+    /**
+     * Inserts a template at the current cursor position in the content editor
+     */
     const insertTemplate = (template: string) => {
-        if (currentLanguage === 'en') {
-            const cursorPos = textareaRef.current?.selectionStart || contentText.length;
-            const before = contentText.substring(0, cursorPos);
-            const after = contentText.substring(cursorPos);
-            setContentText(before + '\n\n' + template + '\n\n' + after);
-        } else {
-            const cursorPos = textareaRef.current?.selectionStart || contentTextBn.length;
-            const before = contentTextBn.substring(0, cursorPos);
-            const after = contentTextBn.substring(cursorPos);
-            setContentTextBn(before + '\n\n' + template + '\n\n' + after);
-        }
+        const isEnglish = currentLanguage === 'en';
+        const currentContent = isEnglish ? contentText : contentTextBn;
+        const setContent = isEnglish ? setContentText : setContentTextBn;
+        
+        const cursorPos = textareaRef.current?.selectionStart || currentContent.length;
+        const before = currentContent.substring(0, cursorPos);
+        const after = currentContent.substring(cursorPos);
+        
+        setContent(before + '\n\n' + template + '\n\n' + after);
     };
 
+    /**
+     * Handles paste events to detect and format table data
+     */
     const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
         const clipboardData = e.clipboardData;
         if (!clipboardData) return;
 
-        // Try to detect and parse table
         const htmlData = clipboardData.getData('text/html');
         const textData = clipboardData.getData('text/plain');
 
-        // Only try to parse as table if content has clear table indicators
-        // Check for: HTML table tags, tabs (TSV), or pipe separators (Markdown)
+        // Check for table indicators: HTML table tags, tabs (TSV), or pipe separators (Markdown)
         const hasTableIndicators = 
             (htmlData && htmlData.includes('<table')) ||
             (textData && (textData.includes('\t') || textData.includes('|')));
         
         if (!hasTableIndicators) {
-            // Not a table, let default paste behavior happen
-            return;
+            return; // Not a table, use default paste behavior
         }
 
-        // Check if it looks like a table
-        let pastedContent = htmlData || textData;
+        const pastedContent = htmlData || textData;
+        const result = previewTableFromClipboard(pastedContent);
         
-        if (pastedContent) {
-            const result = previewTableFromClipboard(pastedContent);
-            
-            if (result.success && result.preview) {
-                // Prevent default paste
-                e.preventDefault();
-                
-                // Show preview
-                setPastedTablePreview(result.preview);
-                setTablePasteDetected(true);
-            }
+        if (result.success && result.preview) {
+            e.preventDefault(); // Prevent default paste
+            setPastedTablePreview(result.preview);
+            setTablePasteDetected(true);
         }
     };
 
+    /**
+     * Confirms and inserts the detected table from paste
+     */
     const confirmTablePaste = () => {
         if (pastedTablePreview) {
             insertTemplate(pastedTablePreview);
@@ -159,11 +170,112 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         }
     };
 
+    /**
+     * Cancels the table paste operation
+     */
     const cancelTablePaste = () => {
         setTablePasteDetected(false);
         setPastedTablePreview('');
     };
 
+    /**
+     * Adds a tag to the guide
+     */
+    const addTag = () => {
+        const trimmedTag = tagInput.trim();
+        if (trimmedTag && !(formData.tags || []).includes(trimmedTag)) {
+            setFormData(prev => ({ 
+                ...prev, 
+                tags: [...(prev.tags || []), trimmedTag] 
+            }));
+            setTagInput('');
+        }
+    };
+
+    /**
+     * Removes a tag from the guide
+     */
+    const removeTag = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            tags: prev.tags?.filter((_, i) => i !== index) || []
+        }));
+    };
+
+    /**
+     * Updates form field based on current language
+     */
+    const updateLanguageField = (field: 'title' | 'description', value: string) => {
+        const fieldName = currentLanguage === 'en' ? field : `${field}Bn`;
+        setFormData(prev => ({ ...prev, [fieldName]: value }));
+    };
+
+    /**
+     * Gets the value of a language-specific field
+     */
+    const getLanguageFieldValue = (field: 'title' | 'description'): string => {
+        return currentLanguage === 'en' ? formData[field] : (formData[`${field}Bn` as keyof typeof formData] as string || '');
+    };
+
+    /**
+     * Counts blocks of a specific type in the current language content
+     */
+    const countBlocksByType = (type: string): number => {
+        const content = currentLanguage === 'en' ? formData.content : formData.contentBn;
+        return content?.filter(b => b.type === type).length || 0;
+    };
+
+    /**
+     * Gets the current language content
+     */
+    const getCurrentContent = () => {
+        return currentLanguage === 'en' ? formData.content : formData.contentBn;
+    };
+
+    /**
+     * Finds the line number where a block starts in the editor
+     */
+    const findBlockLineNumber = (blockIndex: number): number => {
+        const text = currentLanguage === 'en' ? contentText : contentTextBn;
+        const lines = text.split('\n');
+        let currentBlock = -1;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line.startsWith(':::') && !line.match(/^:::$/)) {
+                currentBlock++;
+                if (currentBlock === blockIndex) {
+                    return i + 1; // 1-indexed
+                }
+            }
+        }
+        return 1;
+    };
+
+    /**
+     * Scrolls the textarea to show a specific line
+     */
+    const scrollToLine = (lineNumber: number) => {
+        if (textareaRef.current) {
+            const lineHeight = 24; // Match the CSS line-height
+            const scrollTop = (lineNumber - 1) * lineHeight;
+            textareaRef.current.scrollTop = scrollTop;
+            textareaRef.current.focus();
+            
+            // Try to position cursor at that line
+            const text = currentLanguage === 'en' ? contentText : contentTextBn;
+            const lines = text.split('\n');
+            let position = 0;
+            for (let i = 0; i < lineNumber - 1 && i < lines.length; i++) {
+                position += lines[i].length + 1; // +1 for newline
+            }
+            textareaRef.current.setSelectionRange(position, position);
+        }
+    };
+
+    /**
+     * Content block templates for quick insertion
+     */
     const templates = {
         text: `:::text [heading="Section Title"]
 Write your content here. You can use **bold** and *italic* text.
@@ -234,10 +346,6 @@ Transport | 500 | 1000 | 3000
 :::`
     };
 
-    const handleTableInsert = (tableText: string) => {
-        insertTemplate(tableText);
-    };
-
     return (
         <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-md">
             <div className="p-6">
@@ -300,6 +408,50 @@ Transport | 500 | 1000 | 3000
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Tags (for filtering)
                         </label>
+                        
+                        {/* Quick Select Tags */}
+                        {availableTags.length > 0 && (
+                            <div className="mb-3">
+                                <p className="text-xs text-gray-600 mb-2">Quick select from managed tags:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {availableTags.map((tag) => {
+                                        const isSelected = formData.tags?.includes(tag.name);
+                                        return (
+                                            <button
+                                                key={tag.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    if (isSelected) {
+                                                        // Remove tag
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            tags: prev.tags?.filter(t => t !== tag.name) || []
+                                                        }));
+                                                    } else {
+                                                        // Add tag
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            tags: [...(prev.tags || []), tag.name]
+                                                        }));
+                                                    }
+                                                }}
+                                                className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                                                    isSelected
+                                                        ? 'bg-[#1b3c44] text-white'
+                                                        : 'bg-white border border-gray-300 text-gray-700 hover:border-[#cd8453] hover:text-[#cd8453]'
+                                                }`}
+                                            >
+                                                {tag.name}
+                                                {isSelected && ' ✓'}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div className="border-t border-gray-300 my-3"></div>
+                            </div>
+                        )}
+                        
+                        {/* Custom Tag Input */}
                         <div className="flex gap-2 mb-3">
                             <input
                                 type="text"
@@ -308,31 +460,15 @@ Transport | 500 | 1000 | 3000
                                 onKeyPress={(e) => {
                                     if (e.key === 'Enter') {
                                         e.preventDefault();
-                                        const trimmedTag = tagInput.trim();
-                                        if (trimmedTag && !(formData.tags || []).includes(trimmedTag)) {
-                                            setFormData(prev => ({ 
-                                                ...prev, 
-                                                tags: [...(prev.tags || []), trimmedTag] 
-                                            }));
-                                            setTagInput('');
-                                        }
+                                        addTag();
                                     }
                                 }}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
-                                placeholder="Type a tag and press Enter (e.g., Adventure, Budget, Family-Friendly)"
+                                placeholder="Type a custom tag and press Enter"
                             />
                             <button
                                 type="button"
-                                onClick={() => {
-                                    const trimmedTag = tagInput.trim();
-                                    if (trimmedTag && !(formData.tags || []).includes(trimmedTag)) {
-                                        setFormData(prev => ({ 
-                                            ...prev, 
-                                            tags: [...(prev.tags || []), trimmedTag] 
-                                        }));
-                                        setTagInput('');
-                                    }
-                                }}
+                                onClick={addTag}
                                 className="px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#b8744a] transition-colors"
                             >
                                 Add Tag
@@ -348,12 +484,7 @@ Transport | 500 | 1000 | 3000
                                         {tag}
                                         <button
                                             type="button"
-                                            onClick={() => {
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    tags: prev.tags?.filter((_, i) => i !== index) || []
-                                                }));
-                                            }}
+                                            onClick={() => removeTag(index)}
                                             className="ml-1 hover:text-red-300 transition-colors"
                                             aria-label={`Remove ${tag} tag`}
                                         >
@@ -364,7 +495,7 @@ Transport | 500 | 1000 | 3000
                             </div>
                         )}
                         <p className="text-xs text-gray-500 mt-2">
-                            Add tags to help users filter guides by theme, budget, activity type, etc.
+                            Select from managed tags above or add custom tags. Tags help users filter guides.
                         </p>
                     </div>
 
@@ -414,7 +545,7 @@ Transport | 500 | 1000 | 3000
                                     <button
                                         type="button"
                                         onClick={() => setCurrentLanguage('bn')}
-                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all font-['Bengali'] ${
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all font-bengali ${
                                             currentLanguage === 'bn'
                                                 ? 'bg-green-600 text-white shadow-sm'
                                                 : 'text-gray-600 hover:bg-gray-100'
@@ -444,13 +575,10 @@ Transport | 500 | 1000 | 3000
                                     </label>
                                     <input
                                         type="text"
-                                        value={currentLanguage === 'en' ? formData.title : formData.titleBn}
-                                        onChange={(e) => setFormData(prev => ({ 
-                                            ...prev, 
-                                            [currentLanguage === 'en' ? 'title' : 'titleBn']: e.target.value 
-                                        }))}
+                                        value={getLanguageFieldValue('title')}
+                                        onChange={(e) => updateLanguageField('title', e.target.value)}
                                         className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent ${
-                                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                                            currentLanguage === 'bn' ? "font-bengali" : ''
                                         }`}
                                         placeholder={currentLanguage === 'en' ? 'Enter guide title...' : 'গাইড শিরোনাম লিখুন...'}
                                     />
@@ -460,14 +588,11 @@ Transport | 500 | 1000 | 3000
                                         {currentLanguage === 'en' ? 'Description' : 'বর্ণনা'}
                                     </label>
                                     <textarea
-                                        value={currentLanguage === 'en' ? formData.description : formData.descriptionBn}
-                                        onChange={(e) => setFormData(prev => ({ 
-                                            ...prev, 
-                                            [currentLanguage === 'en' ? 'description' : 'descriptionBn']: e.target.value 
-                                        }))}
+                                        value={getLanguageFieldValue('description')}
+                                        onChange={(e) => updateLanguageField('description', e.target.value)}
                                         rows={2}
                                         className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent ${
-                                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                                            currentLanguage === 'bn' ? "font-bengali" : ''
                                         }`}
                                         placeholder={currentLanguage === 'en' ? 'Enter guide description...' : 'গাইড বর্ণনা লিখুন...'}
                                     />
@@ -630,21 +755,78 @@ Transport | 500 | 1000 | 3000
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     {currentLanguage === 'en' ? 'Content Editor (English)' : 'কন্টেন্ট এডিটর (বাংলা)'}
                                 </label>
-                                <textarea
-                                    ref={textareaRef}
-                                    id="content-editor"
-                                    value={currentLanguage === 'en' ? contentText : contentTextBn}
-                                    onChange={(e) => currentLanguage === 'en' ? setContentText(e.target.value) : setContentTextBn(e.target.value)}
-                                    onPaste={handlePaste}
-                                    rows={20}
-                                    className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent font-mono text-sm ${
-                                        currentLanguage === 'bn' ? "font-['Bengali']" : ''
-                                    }`}
-                                    placeholder={currentLanguage === 'en' 
-                                        ? 'Start typing or use Quick Insert buttons above...' 
-                                        : 'লেখা শুরু করুন বা উপরের Quick Insert বাটন ব্যবহার করুন...'
-                                    }
-                                />
+                                <div className="relative">
+                                    {/* Line numbers overlay */}
+                                    <div className="absolute left-0 top-0 bottom-0 w-12 bg-gray-100 border-r border-gray-300 rounded-l-lg overflow-hidden pointer-events-none z-10">
+                                        <div className="pt-2 pb-2 text-right pr-2 font-mono text-xs text-gray-500" style={{ lineHeight: '24px' }}>
+                                            {(currentLanguage === 'en' ? contentText : contentTextBn).split('\n').map((_, i) => (
+                                                <div key={i} style={{ height: '24px' }}>{i + 1}</div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Textarea with padding for line numbers */}
+                                    <textarea
+                                        ref={textareaRef}
+                                        id="content-editor"
+                                        value={currentLanguage === 'en' ? contentText : contentTextBn}
+                                        onChange={(e) => currentLanguage === 'en' ? setContentText(e.target.value) : setContentTextBn(e.target.value)}
+                                        onPaste={handlePaste}
+                                        onScroll={(e) => {
+                                            const lineNumbers = e.currentTarget.previousElementSibling;
+                                            if (lineNumbers) {
+                                                const firstChild = lineNumbers.firstElementChild as HTMLElement;
+                                                if (firstChild) {
+                                                    firstChild.style.marginTop = `-${e.currentTarget.scrollTop}px`;
+                                                }
+                                            }
+                                        }}
+                                        rows={20}
+                                        className={`w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent font-mono text-sm ${
+                                            currentLanguage === 'bn' ? "font-bengali" : ''
+                                        }`}
+                                        style={{
+                                            backgroundImage: `repeating-linear-gradient(
+                                                transparent,
+                                                transparent 23px,
+                                                #e5e7eb 23px,
+                                                #e5e7eb 24px
+                                            )`,
+                                            backgroundSize: '100% 24px',
+                                            lineHeight: '24px'
+                                        }}
+                                        placeholder={currentLanguage === 'en' 
+                                            ? 'Start typing or use Quick Insert buttons above...' 
+                                            : 'লেখা শুরু করুন বা উপরের Quick Insert বাটন ব্যবহার করুন...'
+                                        }
+                                    />
+                                </div>
+
+                                {/* Syntax Legend */}
+                                <div className="mt-2 p-3 bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 rounded-lg">
+                                    <div className="flex items-center gap-2 text-gray-700 font-medium mb-2 text-xs">
+                                        <FileText size={14} />
+                                        Syntax Guide
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                        <div className="flex items-center gap-2">
+                                            <code className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">:::type</code>
+                                            <span className="text-gray-600">Block start</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <code className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">:::</code>
+                                            <span className="text-gray-600">Block end</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <code className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">[key="val"]</code>
+                                            <span className="text-gray-600">Attributes</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <code className="px-2 py-0.5 bg-green-100 text-green-800 rounded font-mono">##</code>
+                                            <span className="text-gray-600">Heading/Step</span>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 {/* Errors */}
                                 {currentLanguage === 'en' && contentErrors.length > 0 && (
@@ -661,27 +843,98 @@ Transport | 500 | 1000 | 3000
                                     </div>
                                 )}
 
+                                {/* Block Structure Overview */}
+                                {getCurrentContent() && getCurrentContent()!.length > 0 && (
+                                    <div className="mt-3 p-3 bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+                                        <div className="flex items-center gap-2 text-purple-900 font-semibold mb-2 text-sm">
+                                            <Layout size={16} />
+                                            Block Structure ({getCurrentContent()!.length} blocks)
+                                        </div>
+                                        <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                                            {getCurrentContent()!.map((block, index) => {
+                                                const blockIcons: Record<string, string> = {
+                                                    text: '📝',
+                                                    timeline: '🗺️',
+                                                    image: '🖼️',
+                                                    imageGallery: '🎨',
+                                                    table: '📊',
+                                                    tips: '💡'
+                                                };
+                                                const blockColors: Record<string, string> = {
+                                                    text: 'bg-blue-100 border-blue-300 text-blue-800',
+                                                    timeline: 'bg-green-100 border-green-300 text-green-800',
+                                                    image: 'bg-purple-100 border-purple-300 text-purple-800',
+                                                    imageGallery: 'bg-pink-100 border-pink-300 text-pink-800',
+                                                    table: 'bg-indigo-100 border-indigo-300 text-indigo-800',
+                                                    tips: 'bg-amber-100 border-amber-300 text-amber-800'
+                                                };
+                                                const icon = blockIcons[block.type] || '📄';
+                                                const colorClass = blockColors[block.type] || 'bg-gray-100 border-gray-300 text-gray-800';
+                                                
+                                                // Get block title/preview
+                                                let blockTitle = '';
+                                                if (block.type === 'text' && (block as TextBlock).heading) {
+                                                    blockTitle = (block as TextBlock).heading!;
+                                                } else if (block.type === 'timeline' && (block as TimelineBlock).title) {
+                                                    blockTitle = (block as TimelineBlock).title!;
+                                                } else if (block.type === 'tips' && (block as TipsBlock).title) {
+                                                    blockTitle = (block as TipsBlock).title!;
+                                                } else if (block.type === 'imageGallery' && (block as ImageGalleryBlock).title) {
+                                                    blockTitle = (block as ImageGalleryBlock).title!;
+                                                } else if (block.type === 'table') {
+                                                    const tableBlock = block as TableBlock;
+                                                    blockTitle = tableBlock.title || `${tableBlock.headers.length} columns`;
+                                                } else if (block.type === 'image') {
+                                                    blockTitle = (block as ImageBlock).caption || 'Image';
+                                                } else {
+                                                    blockTitle = block.type.charAt(0).toUpperCase() + block.type.slice(1);
+                                                }
+                                                
+                                                const lineNumber = findBlockLineNumber(index);
+                                                
+                                                return (
+                                                    <button
+                                                        key={index}
+                                                        type="button"
+                                                        onClick={() => scrollToLine(lineNumber)}
+                                                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded border ${colorClass} text-xs font-medium hover:shadow-md transition-all cursor-pointer w-full text-left hover:scale-[1.02]`}
+                                                        title={`Click to jump to line ${lineNumber}`}
+                                                    >
+                                                        <span className="flex-shrink-0 w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs font-bold border border-current">
+                                                            {index + 1}
+                                                        </span>
+                                                        <span className="flex-shrink-0">{icon}</span>
+                                                        <span className="font-semibold uppercase text-[10px]">{block.type}</span>
+                                                        <span className="flex-1 truncate opacity-75">{blockTitle}</span>
+                                                        <span className="text-[10px] opacity-50">L{lineNumber}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Stats */}
                                 {currentLanguage === 'en' && formData.content && formData.content.length > 0 && (
                                     <div className="mt-2 text-xs text-gray-600 flex flex-wrap gap-4">
                                         <span>📦 {formData.content.length} block{formData.content.length !== 1 ? 's' : ''}</span>
-                                        <span>📝 {formData.content.filter(b => b.type === 'text').length} text</span>
-                                        <span>🗺️ {formData.content.filter(b => b.type === 'timeline').length} timeline</span>
-                                        <span>🖼️ {formData.content.filter(b => b.type === 'image').length} image</span>
-                                        <span>🎨 {formData.content.filter(b => b.type === 'imageGallery').length} gallery</span>
-                                        <span>📊 {formData.content.filter(b => b.type === 'table').length} table</span>
-                                        <span>💡 {formData.content.filter(b => b.type === 'tips').length} tips</span>
+                                        <span>📝 {countBlocksByType('text')} text</span>
+                                        <span>🗺️ {countBlocksByType('timeline')} timeline</span>
+                                        <span>🖼️ {countBlocksByType('image')} image</span>
+                                        <span>🎨 {countBlocksByType('imageGallery')} gallery</span>
+                                        <span>📊 {countBlocksByType('table')} table</span>
+                                        <span>💡 {countBlocksByType('tips')} tips</span>
                                     </div>
                                 )}
                                 {currentLanguage === 'bn' && formData.contentBn && formData.contentBn.length > 0 && (
-                                    <div className="mt-2 text-xs text-gray-600 flex flex-wrap gap-4 font-['Bengali']">
+                                    <div className="mt-2 text-xs text-gray-600 flex flex-wrap gap-4 font-bengali">
                                         <span>📦 {formData.contentBn.length} ব্লক</span>
-                                        <span>📝 {formData.contentBn.filter(b => b.type === 'text').length} টেক্সট</span>
-                                        <span>🗺️ {formData.contentBn.filter(b => b.type === 'timeline').length} টাইমলাইন</span>
-                                        <span>🖼️ {formData.contentBn.filter(b => b.type === 'image').length} ছবি</span>
-                                        <span>🎨 {formData.contentBn.filter(b => b.type === 'imageGallery').length} গ্যালারি</span>
-                                        <span>📊 {formData.contentBn.filter(b => b.type === 'table').length} টেবিল</span>
-                                        <span>💡 {formData.contentBn.filter(b => b.type === 'tips').length} টিপস</span>
+                                        <span>📝 {countBlocksByType('text')} টেক্সট</span>
+                                        <span>🗺️ {countBlocksByType('timeline')} টাইমলাইন</span>
+                                        <span>🖼️ {countBlocksByType('image')} ছবি</span>
+                                        <span>🎨 {countBlocksByType('imageGallery')} গ্যালারি</span>
+                                        <span>📊 {countBlocksByType('table')} টেবিল</span>
+                                        <span>💡 {countBlocksByType('tips')} টিপস</span>
                                     </div>
                                 )}
                             </div>
@@ -693,12 +946,10 @@ Transport | 500 | 1000 | 3000
                                         {currentLanguage === 'en' ? 'Live Preview (English)' : 'লাইভ প্রিভিউ (বাংলা)'}
                                     </label>
                                     <div className={`border border-gray-300 rounded-lg p-6 bg-[#f2eee9] max-h-[600px] overflow-y-auto ${
-                                        currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                                        currentLanguage === 'bn' ? "font-bengali" : ''
                                     }`}>
-                                        {currentLanguage === 'en' && formData.content && formData.content.length > 0 ? (
-                                            <ContentRenderer blocks={formData.content} />
-                                        ) : currentLanguage === 'bn' && formData.contentBn && formData.contentBn.length > 0 ? (
-                                            <ContentRenderer blocks={formData.contentBn} />
+                                        {getCurrentContent() && getCurrentContent()!.length > 0 ? (
+                                            <ContentRenderer blocks={getCurrentContent()!} />
                                         ) : (
                                             <div className="text-gray-500 text-center py-8">
                                                 {currentLanguage === 'en' 
@@ -735,7 +986,7 @@ Transport | 500 | 1000 | 3000
             {/* Table Editor Modal */}
             {showTableEditor && (
                 <TableEditor
-                    onInsert={handleTableInsert}
+                    onInsert={insertTemplate}
                     onClose={() => setShowTableEditor(false)}
                 />
             )}

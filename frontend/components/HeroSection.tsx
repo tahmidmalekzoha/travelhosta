@@ -1,6 +1,15 @@
 import { FunctionComponent } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
+// Constants for hero section content
+const HERO_CONFIG = {
+    logoAlt: 'TRAVELHOSTA',
+    logoSrc: '/images/logo.svg',
+    subtitle: 'Sajek, Hill of Wonders',
+    backgroundImage: '/images/hero-background.jpg',
+    overlayGradient: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.5))',
+} as const;
+
 /**
  * Hero section component with animated background image and text elements
  * Features responsive design and scroll-based animations
@@ -19,15 +28,15 @@ const HeroSection: FunctionComponent = () => {
             <div
                 className="absolute inset-0 bg-cover bg-center scroll-slide-up"
                 style={{
-                    backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url("/images/hero-background.jpg")`,
+                    backgroundImage: `${HERO_CONFIG.overlayGradient}, url("${HERO_CONFIG.backgroundImage}")`,
                 }}
             />
 
             {/* TRAVELHOSTA Logo */}
             <div className="absolute top-6 md:top-8 lg:top-12 left-4 md:left-8 lg:left-12 z-10 scroll-slide-left">
                 <img
-                    src="/images/logo.svg"
-                    alt="TRAVELHOSTA"
+                    src={HERO_CONFIG.logoSrc}
+                    alt={HERO_CONFIG.logoAlt}
                     className="w-[300px] md:w-[500px] lg:w-[600px] xl:w-[730px] h-[60px] md:h-[90px] lg:h-[110px] xl:h-[130px] drop-shadow-lg"
                 />
             </div>
@@ -35,7 +44,7 @@ const HeroSection: FunctionComponent = () => {
             {/* Subtitle */}
             <div className="absolute bottom-6 md:bottom-8 lg:bottom-12 left-4 md:left-8 lg:left-12 z-10 scroll-slide-up">
                 <h2 className="text-white text-2xl md:text-4xl lg:text-5xl xl:text-[64px] font-normal tracking-wide drop-shadow-lg" style={{ fontFamily: 'Lato, sans-serif' }}>
-                    Sajek, Hill of Wonders
+                    {HERO_CONFIG.subtitle}
                 </h2>
             </div>
         </div>

@@ -91,22 +91,22 @@ const GuidesManagement: FunctionComponent = () => {
         const hasBengaliContent = viewingGuide.titleBn || viewingGuide.descriptionBn || (viewingGuide.contentBn && viewingGuide.contentBn.length > 0);
         
         return (
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+            <div className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                         <button
                             onClick={() => setViewingGuide(null)}
-                            className="text-[#cd8453] hover:text-[#1b3c44] font-medium"
+                            className="text-[#cd8453] hover:text-[#1b3c44] font-medium self-start"
                         >
                             ← Back to Guides
                         </button>
-                        <h1 className={`text-3xl font-bold text-[#1b3c44] ${
-                            viewLanguage === 'bn' ? "font-['Bengali']" : ''
+                        <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold text-[#1b3c44] ${
+                            viewLanguage === 'bn' ? "font-bengali" : ''
                         }`}>
                             {viewLanguage === 'en' ? viewingGuide.title : (viewingGuide.titleBn || viewingGuide.title)}
                         </h1>
                         {viewingGuide.content && viewingGuide.content.length > 0 && (
-                            <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                            <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded w-fit">
                                 <Sparkles size={12} />
                                 Enhanced Content
                             </span>
@@ -115,63 +115,83 @@ const GuidesManagement: FunctionComponent = () => {
 
                     {/* Language Toggle for Admin View */}
                     {hasBengaliContent && (
-                        <div className="flex gap-2 bg-white rounded-lg p-1 shadow-md border border-gray-200">
+                        <div className="flex gap-2 bg-white rounded-lg p-1 shadow-md border border-gray-200 w-fit">
                             <button
                                 onClick={() => setViewLanguage('en')}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all ${
                                     viewLanguage === 'en'
                                         ? 'bg-blue-600 text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-100'
                                 }`}
                             >
                                 <Languages size={14} />
-                                English
+                                <span className="hidden sm:inline">English</span>
+                                <span className="sm:hidden">EN</span>
                             </button>
                             <button
                                 onClick={() => setViewLanguage('bn')}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all font-['Bengali'] ${
+                                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all font-bengali ${
                                     viewLanguage === 'bn'
                                         ? 'bg-green-600 text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-100'
                                 }`}
                             >
                                 <Languages size={14} />
-                                বাংলা
+                                <span className="hidden sm:inline">বাংলা</span>
+                                <span className="sm:hidden">বাং</span>
                             </button>
                         </div>
                     )}
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                         <div className="lg:col-span-2">
                             {viewingGuide.imageUrl && viewingGuide.imageUrl !== '' && viewingGuide.imageUrl !== 'dummy.jpg' && viewingGuide.imageUrl !== '/images/dummy.jpg' && viewingGuide.imageUrl !== 'images/dummy.jpg' && !viewingGuide.imageUrl.endsWith('dummy.jpg') ? (
                                 <img
                                     src={viewingGuide.imageUrl}
                                     alt={viewingGuide.title}
-                                    className="w-full h-64 object-cover rounded-lg"
+                                    className="w-full h-48 sm:h-64 object-cover rounded-lg"
                                 />
                             ) : (
-                                <div className="w-full h-64 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg">
+                                <div className="w-full h-48 sm:h-64 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg">
                                     <div className="text-center text-gray-500">
-                                        <svg className="w-20 h-20 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-16 sm:w-20 h-16 sm:h-20 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        <p className="text-base">No Image Available</p>
+                                        <p className="text-sm sm:text-base">No Image Available</p>
                                     </div>
                                 </div>
                             )}
                         </div>
                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-gray-600">
-                                <MapPin size={18} />
+                            <div className="flex items-center gap-2 text-sm sm:text-base text-gray-600">
+                                <MapPin size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" />
                                 <span>{viewingGuide.division}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-600">
-                                <Tag size={18} />
+                            <div className="flex items-center gap-2 text-sm sm:text-base text-gray-600">
+                                <Tag size={16} className="sm:w-[18px] sm:h-[18px] flex-shrink-0" />
                                 <span>{viewingGuide.category}</span>
                             </div>
-                            <p className={`text-gray-700 ${viewLanguage === 'bn' ? "font-['Bengali']" : ''}`}>
+                            
+                            {/* Tags Display */}
+                            {viewingGuide.tags && viewingGuide.tags.length > 0 && (
+                                <div className="space-y-2">
+                                    <div className="text-xs sm:text-sm font-medium text-gray-700">Tags:</div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {viewingGuide.tags.map((tag, index) => (
+                                            <span
+                                                key={index}
+                                                className="inline-block px-2 sm:px-3 py-1 bg-[#1b3c44] text-white text-xs rounded-full"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <p className={`text-sm sm:text-base text-gray-700 ${viewLanguage === 'bn' ? "font-bengali" : ''}`}>
                                 {viewLanguage === 'en' ? viewingGuide.description : (viewingGuide.descriptionBn || viewingGuide.description)}
                             </p>
                         </div>
@@ -180,8 +200,8 @@ const GuidesManagement: FunctionComponent = () => {
                     {/* New flexible content format */}
                     {((viewLanguage === 'en' && viewingGuide.content && viewingGuide.content.length > 0) ||
                       (viewLanguage === 'bn' && viewingGuide.contentBn && viewingGuide.contentBn.length > 0)) && (
-                        <div className={viewLanguage === 'bn' ? "font-['Bengali']" : ''}>
-                            <h3 className="text-xl font-semibold text-[#1b3c44] mb-4">
+                        <div className={viewLanguage === 'bn' ? "font-bengali" : ''}>
+                            <h3 className="text-lg sm:text-xl font-semibold text-[#1b3c44] mb-4">
                                 {viewLanguage === 'en' ? 'Guide Content' : 'গাইড কন্টেন্ট'}
                             </h3>
                             <ContentRenderer blocks={viewLanguage === 'en' ? viewingGuide.content! : viewingGuide.contentBn!} />
@@ -191,7 +211,7 @@ const GuidesManagement: FunctionComponent = () => {
                     {/* Legacy itinerary format */}
                     {!viewingGuide.content && viewingGuide.itinerary && viewingGuide.itinerary.length > 0 && (
                         <div>
-                            <h3 className="text-xl font-semibold text-[#1b3c44] mb-4">Travel Itinerary</h3>
+                            <h3 className="text-lg sm:text-xl font-semibold text-[#1b3c44] mb-4">Travel Itinerary</h3>
                             <Timeline steps={viewingGuide.itinerary} />
                         </div>
                     )}
@@ -242,38 +262,38 @@ const GuidesManagement: FunctionComponent = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#1b3c44]">Guides Management</h1>
-                    <p className="text-gray-600 mt-1">Create and manage travel guides with itineraries</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44]">Guides Management</h1>
+                    <p className="text-sm sm:text-base text-gray-600 mt-1">Create and manage travel guides with itineraries</p>
                 </div>
                 <button
                     onClick={handleCreateNew}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors text-sm sm:text-base w-full sm:w-auto"
                 >
-                    <Plus size={20} />
+                    <Plus size={18} className="sm:w-5 sm:h-5" />
                     Create New Guide
                 </button>
             </div>
 
             {/* Search Bar */}
-            <div className="bg-white rounded-lg shadow-md p-4">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-4">
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                     <input
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search guides by title, division, or category..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
                     />
                 </div>
             </div>
 
             {/* Guides Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredGuides.map((guide) => (
                     <div key={guide.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-video bg-gray-200 overflow-hidden">
@@ -290,27 +310,27 @@ const GuidesManagement: FunctionComponent = () => {
                                     onClick={() => setViewingGuide(guide)}
                                 >
                                     <div className="text-center text-gray-500">
-                                        <svg className="w-16 h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        <p className="text-sm">No Image</p>
+                                        <p className="text-xs sm:text-sm">No Image</p>
                                     </div>
                                 </div>
                             )}
                         </div>
                         
-                        <div className="p-4">
-                            <h3 className="font-semibold text-[#1b3c44] mb-2 line-clamp-1">{guide.title}</h3>
-                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{guide.description}</p>
+                        <div className="p-3 sm:p-4">
+                            <h3 className="text-sm sm:text-base font-semibold text-[#1b3c44] mb-2 line-clamp-1">{guide.title}</h3>
+                            <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">{guide.description}</p>
                             
-                            <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500 mb-3">
                                 <div className="flex items-center gap-1">
                                     <MapPin size={12} />
-                                    <span>{guide.division}</span>
+                                    <span className="truncate">{guide.division}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <Tag size={12} />
-                                    <span>{guide.category}</span>
+                                    <span className="truncate">{guide.category}</span>
                                 </div>
                                 {guide.itinerary && guide.itinerary.length > 0 && (
                                     <div className="flex items-center gap-1">
@@ -320,27 +340,27 @@ const GuidesManagement: FunctionComponent = () => {
                                 )}
                             </div>
                             
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between gap-2">
                                 <button
                                     onClick={() => setViewingGuide(guide)}
-                                    className="text-[#cd8453] hover:text-[#1b3c44] text-sm font-medium"
+                                    className="text-[#cd8453] hover:text-[#1b3c44] text-xs sm:text-sm font-medium"
                                 >
                                     View Details
                                 </button>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1 sm:gap-2">
                                     <button
                                         onClick={() => handleEdit(guide)}
-                                        className="p-2 text-[#cd8453] hover:text-[#1b3c44] hover:bg-gray-100 rounded"
+                                        className="p-1.5 sm:p-2 text-[#cd8453] hover:text-[#1b3c44] hover:bg-gray-100 rounded"
                                         title="Edit Guide"
                                     >
-                                        <Edit size={16} />
+                                        <Edit size={14} className="sm:w-4 sm:h-4" />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(guide.id)}
-                                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
+                                        className="p-1.5 sm:p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
                                         title="Delete Guide"
                                     >
-                                        <Trash2 size={16} />
+                                        <Trash2 size={14} className="sm:w-4 sm:h-4" />
                                     </button>
                                 </div>
                             </div>
@@ -351,20 +371,20 @@ const GuidesManagement: FunctionComponent = () => {
 
             {/* Empty State */}
             {filteredGuides.length === 0 && (
-                <div className="text-center py-12 bg-white rounded-lg shadow-md">
+                <div className="text-center py-8 sm:py-12 bg-white rounded-lg shadow-md">
                     <div className="text-gray-400 mb-4">
-                        <Calendar size={48} className="mx-auto" />
+                        <Calendar size={40} className="mx-auto sm:w-12 sm:h-12" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No guides found</h3>
-                    <p className="text-gray-500 mb-4">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No guides found</h3>
+                    <p className="text-sm sm:text-base text-gray-500 mb-4 px-4">
                         {searchTerm ? 'No guides match your search criteria.' : 'Create your first travel guide to get started!'}
                     </p>
                     {!searchTerm && (
                         <button
                             onClick={handleCreateNew}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors text-sm sm:text-base"
                         >
-                            <Plus size={20} />
+                            <Plus size={18} className="sm:w-5 sm:h-5" />
                             Create New Guide
                         </button>
                     )}

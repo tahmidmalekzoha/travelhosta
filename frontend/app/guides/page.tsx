@@ -1,24 +1,38 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import StickyNavbar from '../../components/StickyNavbar';
 import GuideCard from '../../components/shared/GuideCard';
 import Footer from '../../components/Footer';
 import { useGuides } from '../../contexts/GuidesContext';
 import { useCategories } from '../../contexts/CategoriesContext';
-import type { GuideData } from '../../types';
 
+// Constants for filter options
+const ALL_DIVISIONS = 'All Divisions';
+const ALL_GUIDES = 'All Guides';
+
+/**
+ * Guides page component displaying filterable and searchable travel guides
+ * Features division, category, and tag filtering with search functionality
+ */
 export default function Guides() {
     const { guides } = useGuides();
     const { categories, divisions } = useCategories();
-    const [selectedDivision, setSelectedDivision] = useState('All Divisions');
-    const [selectedCategory, setSelectedCategory] = useState('All Guides');
+    const [selectedDivision, setSelectedDivision] = useState(ALL_DIVISIONS);
+    const [selectedCategory, setSelectedCategory] = useState(ALL_GUIDES);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
     // Create arrays with "All" options
-    const divisionsWithAll = [{ id: 'all-div', name: 'All Divisions' }, ...divisions];
-    const categoriesWithAll = [{ id: 'all-cat', name: 'All Guides' }, ...categories];
+    const divisionsWithAll = useMemo(() => 
+        [{ id: 'all-div', name: ALL_DIVISIONS }, ...divisions], 
+        [divisions]
+    );
+    
+    const categoriesWithAll = useMemo(() => 
+        [{ id: 'all-cat', name: ALL_GUIDES }, ...categories], 
+        [categories]
+    );
 
     // Extract all unique tags from guides
     const allTags = useMemo(() => {
@@ -29,10 +43,11 @@ export default function Guides() {
         return Array.from(tagsSet).sort();
     }, [guides]);
 
+    // Filter guides based on all active filters
     const filteredGuides = useMemo(() => {
         return guides.filter(guide => {
-            const matchesDivision = selectedDivision === 'All Divisions' || guide.division === selectedDivision;
-            const matchesCategory = selectedCategory === 'All Guides' || guide.category === selectedCategory;
+            const matchesDivision = selectedDivision === ALL_DIVISIONS || guide.division === selectedDivision;
+            const matchesCategory = selectedCategory === ALL_GUIDES || guide.category === selectedCategory;
             const matchesTags = selectedTags.length === 0 || selectedTags.every(tag => guide.tags?.includes(tag));
             const matchesSearch = guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 guide.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -40,17 +55,22 @@ export default function Guides() {
         });
     }, [guides, selectedDivision, selectedCategory, selectedTags, searchTerm]);
 
-    const toggleTag = (tag: string) => {
+    // Toggle tag selection
+    const toggleTag = useCallback((tag: string) => {
         setSelectedTags(prev => 
             prev.includes(tag) 
                 ? prev.filter(t => t !== tag)
                 : [...prev, tag]
         );
-    };
+    }, []);
 
-    const handleGuideView = (guide: GuideData) => {
-        // Navigation is now handled within GuideCard component
-    };
+    // Clear all filters
+    const clearAllFilters = useCallback(() => {
+        setSelectedDivision(ALL_DIVISIONS);
+        setSelectedCategory(ALL_GUIDES);
+        setSelectedTags([]);
+        setSearchTerm('');
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#f2eee9] text-[#1b3c44] font-['Schibsted_Grotesk']">
@@ -176,8 +196,8 @@ export default function Guides() {
                 {filteredGuides.length > 0 && (
                     <div className="mb-8 text-lg font-['Lato'] text-gray-600">
                         Showing {filteredGuides.length} guide{filteredGuides.length !== 1 ? 's' : ''} 
-                        {selectedDivision !== 'All Divisions' && ` in ${selectedDivision}`}
-                        {selectedCategory !== 'All Guides' && ` for ${selectedCategory}`}
+                        {selectedDivision !== ALL_DIVISIONS && ` in ${selectedDivision}`}
+                        {selectedCategory !== ALL_GUIDES && ` for ${selectedCategory}`}
                         {selectedTags.length > 0 && ` with tag${selectedTags.length > 1 ? 's' : ''}: ${selectedTags.join(', ')}`}
                         {searchTerm && ` matching "${searchTerm}"`}
                     </div>
@@ -204,12 +224,7 @@ export default function Guides() {
                             Try adjusting your filters or search term
                         </p>
                         <button
-                            onClick={() => {
-                                setSelectedDivision('All Divisions');
-                                setSelectedCategory('All Guides');
-                                setSelectedTags([]);
-                                setSearchTerm('');
-                            }}
+                            onClick={clearAllFilters}
                             className="px-8 py-4 bg-[#cd8453] text-white rounded-full text-lg font-medium hover:bg-[#b8744a] transition-colors duration-200"
                         >
                             Clear all filters

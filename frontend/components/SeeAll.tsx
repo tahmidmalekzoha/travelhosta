@@ -1,8 +1,15 @@
 "use client";
 
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './SeeAll.module.css';
+
+// Constants for button configuration
+const BUTTON_CONFIG = {
+    text: 'See All',
+    arrowIcon: 'Group.svg',
+    targetRoute: '/guides',
+} as const;
 
 /**
  * "See All" button component with animated hover effects
@@ -12,9 +19,9 @@ import styles from './SeeAll.module.css';
 const SeeAll: FunctionComponent = () => {
     const router = useRouter();
     
-    const handleSeeAll = () => {
-        router.push('/guides');
-    };
+    const handleSeeAll = useCallback(() => {
+        router.push(BUTTON_CONFIG.targetRoute);
+    }, [router]);
 
     return (
         <button
@@ -30,8 +37,8 @@ const SeeAll: FunctionComponent = () => {
             {/* Text with sliding animation */}
             <div className={styles.textTrackContainer}>
                 <div className={styles.textTrack}>
-                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">See All</div>
-                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">See All</div>
+                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">{BUTTON_CONFIG.text}</div>
+                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">{BUTTON_CONFIG.text}</div>
                 </div>
             </div>
 
@@ -39,7 +46,7 @@ const SeeAll: FunctionComponent = () => {
             <img
                 className="absolute top-[32px] left-[238px] w-[31px] h-[32px] z-10"
                 alt="Arrow"
-                src="Group.svg"
+                src={BUTTON_CONFIG.arrowIcon}
             />
         </button>
     );

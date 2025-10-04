@@ -93,69 +93,69 @@ const UsersManagement: FunctionComponent = () => {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold text-[#1b3c44]">Users Management</h1>
-                <p className="text-gray-600 mt-1">View and manage user accounts</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44]">Users Management</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">View and manage user accounts</p>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-600">Total Users</p>
-                            <p className="text-3xl font-bold text-[#1b3c44] mt-1">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm text-gray-600">Total Users</p>
+                            <p className="text-2xl sm:text-3xl font-bold text-[#1b3c44] mt-1">
                                 {users.length}
                             </p>
                         </div>
-                        <UserCheck size={40} className="text-[#cd8453]" />
+                        <UserCheck size={32} className="text-[#cd8453] flex-shrink-0 sm:w-10 sm:h-10" />
                     </div>
                 </div>
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-600">Admins</p>
-                            <p className="text-3xl font-bold text-[#1b3c44] mt-1">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm text-gray-600">Admins</p>
+                            <p className="text-2xl sm:text-3xl font-bold text-[#1b3c44] mt-1">
                                 {users.filter(u => u.role === 'admin').length}
                             </p>
                         </div>
-                        <Shield size={40} className="text-[#cd8453]" />
+                        <Shield size={32} className="text-[#cd8453] flex-shrink-0 sm:w-10 sm:h-10" />
                     </div>
                 </div>
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-600">Regular Users</p>
-                            <p className="text-3xl font-bold text-[#1b3c44] mt-1">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm text-gray-600">Regular Users</p>
+                            <p className="text-2xl sm:text-3xl font-bold text-[#1b3c44] mt-1">
                                 {users.filter(u => u.role === 'user').length}
                             </p>
                         </div>
-                        <UserCheck size={40} className="text-[#cd8453]" />
+                        <UserCheck size={32} className="text-[#cd8453] flex-shrink-0 sm:w-10 sm:h-10" />
                     </div>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow-md p-4">
-                <div className="flex flex-col md:flex-row gap-4">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-4">
+                <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                     {/* Search */}
                     <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search by name or email..."
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
                         />
                     </div>
                     {/* Role Filter */}
                     <div className="flex gap-2">
                         <button
                             onClick={() => setFilterRole('all')}
-                            className={`px-4 py-2 rounded-lg transition-colors ${
+                            className={`flex-1 md:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-colors ${
                                 filterRole === 'all'
                                     ? 'bg-[#cd8453] text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -165,7 +165,7 @@ const UsersManagement: FunctionComponent = () => {
                         </button>
                         <button
                             onClick={() => setFilterRole('admin')}
-                            className={`px-4 py-2 rounded-lg transition-colors ${
+                            className={`flex-1 md:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-colors ${
                                 filterRole === 'admin'
                                     ? 'bg-[#cd8453] text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -175,7 +175,7 @@ const UsersManagement: FunctionComponent = () => {
                         </button>
                         <button
                             onClick={() => setFilterRole('user')}
-                            className={`px-4 py-2 rounded-lg transition-colors ${
+                            className={`flex-1 md:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg transition-colors ${
                                 filterRole === 'user'
                                     ? 'bg-[#cd8453] text-white'
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -187,28 +187,28 @@ const UsersManagement: FunctionComponent = () => {
                 </div>
             </div>
 
-            {/* Users Table */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            {/* Users Table - Desktop */}
+            <div className="hidden md:block bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-200">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     User
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Email
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Role
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Joined
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Last Login
                                 </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
@@ -216,24 +216,24 @@ const UsersManagement: FunctionComponent = () => {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {filteredUsers.map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
-                                            <div className="w-10 h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold">
+                                            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold text-sm">
                                                 {user.name.charAt(0).toUpperCase()}
                                             </div>
-                                            <div className="ml-4">
+                                            <div className="ml-3 lg:ml-4">
                                                 <div className="text-sm font-medium text-[#1b3c44]">
                                                     {user.name}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {user.email}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                                         <span
-                                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                            className={`px-2 lg:px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                                 user.role === 'admin'
                                                     ? 'bg-purple-100 text-purple-800'
                                                     : 'bg-green-100 text-green-800'
@@ -242,28 +242,28 @@ const UsersManagement: FunctionComponent = () => {
                                             {user.role}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {new Date(user.createdAt).toLocaleDateString()}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {user.lastLogin
                                             ? new Date(user.lastLogin).toLocaleDateString()
                                             : 'Never'}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button
                                             onClick={() => handleToggleRole(user.id)}
                                             className="text-[#cd8453] hover:text-[#1b3c44] mr-4"
                                             title={`Make ${user.role === 'admin' ? 'user' : 'admin'}`}
                                         >
-                                            <Shield size={18} />
+                                            <Shield size={16} className="lg:w-[18px] lg:h-[18px]" />
                                         </button>
                                         <button
                                             onClick={() => handleDeleteUser(user.id)}
                                             className="text-red-600 hover:text-red-900"
                                             title="Delete user"
                                         >
-                                            <Trash2 size={18} />
+                                            <Trash2 size={16} className="lg:w-[18px] lg:h-[18px]" />
                                         </button>
                                     </td>
                                 </tr>
@@ -273,11 +273,67 @@ const UsersManagement: FunctionComponent = () => {
                 </div>
             </div>
 
+            {/* Users Cards - Mobile */}
+            <div className="md:hidden space-y-3">
+                {filteredUsers.map((user) => (
+                    <div key={user.id} className="bg-white rounded-lg shadow-md p-4">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className="w-10 h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold flex-shrink-0">
+                                    {user.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="text-sm font-medium text-[#1b3c44] truncate">
+                                        {user.name}
+                                    </div>
+                                    <div className="text-xs text-gray-600 truncate">
+                                        {user.email}
+                                    </div>
+                                </div>
+                            </div>
+                            <span
+                                className={`px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap flex-shrink-0 ${
+                                    user.role === 'admin'
+                                        ? 'bg-purple-100 text-purple-800'
+                                        : 'bg-green-100 text-green-800'
+                                }`}
+                            >
+                                {user.role}
+                            </span>
+                        </div>
+                        <div className="text-xs text-gray-600 space-y-1 mb-3">
+                            <div>Joined: {new Date(user.createdAt).toLocaleDateString()}</div>
+                            <div>
+                                Last Login: {user.lastLogin
+                                    ? new Date(user.lastLogin).toLocaleDateString()
+                                    : 'Never'}
+                            </div>
+                        </div>
+                        <div className="flex gap-2 pt-3 border-t border-gray-200">
+                            <button
+                                onClick={() => handleToggleRole(user.id)}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-[#cd8453] hover:text-[#1b3c44] hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <Shield size={16} />
+                                Toggle Role
+                            </button>
+                            <button
+                                onClick={() => handleDeleteUser(user.id)}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                                <Trash2 size={16} />
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
             {/* Empty State */}
             {filteredUsers.length === 0 && (
-                <div className="text-center py-12">
-                    <UserX size={48} className="mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-500">No users found matching your filters.</p>
+                <div className="text-center py-8 sm:py-12">
+                    <UserX size={40} className="mx-auto text-gray-400 mb-4 sm:w-12 sm:h-12" />
+                    <p className="text-sm sm:text-base text-gray-500">No users found matching your filters.</p>
                 </div>
             )}
         </div>

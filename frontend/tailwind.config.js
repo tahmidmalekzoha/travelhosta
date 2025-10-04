@@ -11,6 +11,7 @@ module.exports = {
                 'schibsted': ['Schibsted Grotesk', 'sans-serif'],
                 'schibsted-grotesk': ['Schibsted Grotesk', 'sans-serif'],
                 'lato': ['Lato', 'sans-serif'],
+                'bengali': ['var(--font-anek-bangla)', 'sans-serif'],
             },
             animation: {
                 'in': 'fadeIn 0.3s ease-out',
