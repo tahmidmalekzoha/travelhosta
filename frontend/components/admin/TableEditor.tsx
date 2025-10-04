@@ -1,9 +1,16 @@
-import { FunctionComponent, useState } from 'react';
-import { Plus, Trash2, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { FunctionComponent, useState, useEffect, useCallback } from 'react';
+import { Plus, Trash2, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Undo, Redo } from 'lucide-react';
 
 interface TableEditorProps {
     onInsert: (tableText: string) => void;
     onClose: () => void;
+}
+
+interface TableState {
+    title: string;
+    caption: string;
+    headers: string[];
+    rows: string[][];
 }
 
 /**
@@ -18,7 +25,78 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
         ['Row 2, Cell 1', 'Row 2, Cell 2', 'Row 2, Cell 3']
     ]);
 
+    // Undo/Redo state
+    const [history, setHistory] = useState<TableState[]>([{
+        title: '',
+        caption: '',
+        headers: ['Column 1', 'Column 2', 'Column 3'],
+        rows: [
+            ['Row 1, Cell 1', 'Row 1, Cell 2', 'Row 1, Cell 3'],
+            ['Row 2, Cell 1', 'Row 2, Cell 2', 'Row 2, Cell 3']
+        ]
+    }]);
+    const [historyIndex, setHistoryIndex] = useState(0);
+
+    // Save current state to history
+    const saveToHistory = useCallback(() => {
+        const currentState: TableState = { title, caption, headers, rows };
+        const newHistory = history.slice(0, historyIndex + 1);
+        newHistory.push(currentState);
+        
+        // Limit history to 50 states
+        if (newHistory.length > 50) {
+            newHistory.shift();
+        } else {
+            setHistoryIndex(historyIndex + 1);
+        }
+        
+        setHistory(newHistory);
+    }, [title, caption, headers, rows, history, historyIndex]);
+
+    // Undo function
+    const handleUndo = useCallback(() => {
+        if (historyIndex > 0) {
+            const newIndex = historyIndex - 1;
+            const prevState = history[newIndex];
+            setTitle(prevState.title);
+            setCaption(prevState.caption);
+            setHeaders(prevState.headers);
+            setRows(prevState.rows);
+            setHistoryIndex(newIndex);
+        }
+    }, [historyIndex, history]);
+
+    // Redo function
+    const handleRedo = useCallback(() => {
+        if (historyIndex < history.length - 1) {
+            const newIndex = historyIndex + 1;
+            const nextState = history[newIndex];
+            setTitle(nextState.title);
+            setCaption(nextState.caption);
+            setHeaders(nextState.headers);
+            setRows(nextState.rows);
+            setHistoryIndex(newIndex);
+        }
+    }, [historyIndex, history]);
+
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey && !e.shiftKey && e.key === 'z') {
+                e.preventDefault();
+                handleUndo();
+            } else if (e.ctrlKey && e.shiftKey && e.key === 'Z') {
+                e.preventDefault();
+                handleRedo();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleUndo, handleRedo]);
+
     const addColumn = () => {
+        saveToHistory();
         setHeaders([...headers, `Column ${headers.length + 1}`]);
         setRows(rows.map(row => [...row, '']));
     };
@@ -28,6 +106,7 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
             alert('Table must have at least one column');
             return;
         }
+        saveToHistory();
         setHeaders(headers.filter((_, i) => i !== colIndex));
         setRows(rows.map(row => row.filter((_, i) => i !== colIndex)));
     };
@@ -35,6 +114,7 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
     const moveColumn = (fromIndex: number, toIndex: number) => {
         if (toIndex < 0 || toIndex >= headers.length) return;
         
+        saveToHistory();
         const newHeaders = [...headers];
         [newHeaders[fromIndex], newHeaders[toIndex]] = [newHeaders[toIndex], newHeaders[fromIndex]];
         setHeaders(newHeaders);
@@ -48,6 +128,7 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
     };
 
     const addRow = () => {
+        saveToHistory();
         setRows([...rows, Array(headers.length).fill('')]);
     };
 
@@ -56,24 +137,28 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
             alert('Table must have at least one row');
             return;
         }
+        saveToHistory();
         setRows(rows.filter((_, i) => i !== rowIndex));
     };
 
     const moveRow = (fromIndex: number, toIndex: number) => {
         if (toIndex < 0 || toIndex >= rows.length) return;
         
+        saveToHistory();
         const newRows = [...rows];
         [newRows[fromIndex], newRows[toIndex]] = [newRows[toIndex], newRows[fromIndex]];
         setRows(newRows);
     };
 
     const updateHeader = (index: number, value: string) => {
+        saveToHistory();
         const newHeaders = [...headers];
         newHeaders[index] = value;
         setHeaders(newHeaders);
     };
 
     const updateCell = (rowIndex: number, colIndex: number, value: string) => {
+        saveToHistory();
         const newRows = [...rows];
         newRows[rowIndex][colIndex] = value;
         setRows(newRows);
@@ -116,6 +201,29 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
 
                 {/* Content */}
                 <div className="p-6 space-y-6">
+                    {/* Undo/Redo Buttons */}
+                    <div className="flex items-center gap-2 border-b border-gray-200 pb-4">
+                        <button
+                            onClick={handleUndo}
+                            disabled={historyIndex === 0}
+                            className="flex items-center gap-1 px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Undo (Ctrl+Z)"
+                        >
+                            <Undo size={16} /> Undo
+                        </button>
+                        <button
+                            onClick={handleRedo}
+                            disabled={historyIndex === history.length - 1}
+                            className="flex items-center gap-1 px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Redo (Ctrl+Shift+Z)"
+                        >
+                            <Redo size={16} /> Redo
+                        </button>
+                        <span className="text-sm text-gray-500 ml-2">
+                            {historyIndex + 1} / {history.length}
+                        </span>
+                    </div>
+
                     {/* Title and Caption */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -125,7 +233,10 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
                             <input
                                 type="text"
                                 value={title}
-                                onChange={(e) => setTitle(e.target.value)}
+                                onChange={(e) => {
+                                    saveToHistory();
+                                    setTitle(e.target.value);
+                                }}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453]"
                                 placeholder="e.g., Price Comparison"
                             />
@@ -137,7 +248,10 @@ const TableEditor: FunctionComponent<TableEditorProps> = ({ onInsert, onClose })
                             <input
                                 type="text"
                                 value={caption}
-                                onChange={(e) => setCaption(e.target.value)}
+                                onChange={(e) => {
+                                    saveToHistory();
+                                    setCaption(e.target.value);
+                                }}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453]"
                                 placeholder="e.g., All prices in Taka"
                             />

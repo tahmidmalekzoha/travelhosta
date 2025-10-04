@@ -46,7 +46,7 @@ export const COLORS = {
 } as const;
 
 // Default card data
-export const DEFAULT_CARD_IMAGE = 'images/dummy.jpg';
+export const DEFAULT_CARD_IMAGE = '/images/dummy.jpg';
 export const DEFAULT_YEAR = '2025';
 
 // Navigation data
@@ -164,7 +164,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Explore Old Dhaka\'s heritage sites and cultural landmarks',
         division: 'Dhaka',
         category: 'Day Tour',
-        imageUrl: 'images/dummy.jpg',
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Budget-Friendly', 'Historical', 'Cultural', 'Photography'],
         itinerary: [
             {
                 id: 'step-1',
@@ -189,7 +190,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'World\'s longest natural beach with stunning sunsets',
         division: 'Chittagong',
         category: 'Beach',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Family-Friendly', 'Beach', 'Relaxation', 'Photography']
     },
     {
         id: 3,
@@ -197,7 +199,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Royal Bengal Tiger sanctuary and mangrove exploration',
         division: 'Khulna',
         category: 'Adventure',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Adventure', 'Wildlife', 'Nature', 'Boat Tour']
     },
     {
         id: 4,
@@ -205,7 +208,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Journey from Sylhet city to the amazing Ratargul Swamp Forest',
         division: 'Sylhet',
         category: 'Trekking',
-        imageUrl: 'images/dummy.jpg',
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Adventure', 'Nature', 'Budget-Friendly', 'Boat Tour'],
         itinerary: [
             {
                 id: 'step-1',
@@ -238,7 +242,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Tropical rainforest and wildlife sanctuary',
         division: 'Sylhet',
         category: 'Camping',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Nature', 'Camping', 'Wildlife', 'Tea Gardens']
     },
     {
         id: 6,
@@ -246,7 +251,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Historical silk production and cultural heritage',
         division: 'Rajshahi',
         category: 'Cultural',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Cultural', 'Historical', 'Shopping', 'Budget-Friendly']
     },
     {
         id: 7,
@@ -254,7 +260,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Panoramic sea beach with both sunrise and sunset views',
         division: 'Barisal',
         category: 'Staycation',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Beach', 'Relaxation', 'Photography', 'Family-Friendly']
     },
     {
         id: 8,
@@ -262,7 +269,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Rural Bangladesh experience with local communities',
         division: 'Rangpur',
         category: 'Cultural',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Cultural', 'Budget-Friendly', 'Village Tour', 'Food']
     },
     {
         id: 9,
@@ -270,7 +278,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Highest peaks and indigenous culture exploration',
         division: 'Chittagong',
         category: 'Adventure',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Adventure', 'Trekking', 'Cultural', 'Nature']
     },
     {
         id: 10,
@@ -278,7 +287,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'UNESCO World Heritage archaeological site',
         division: 'Rajshahi',
         category: 'Day Tour',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Historical', 'Cultural', 'UNESCO', 'Photography']
     },
     {
         id: 11,
@@ -286,7 +296,8 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Historic paddle steamer river cruise experience',
         division: 'Barisal',
         category: 'Cultural',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Cultural', 'Historical', 'Boat Tour', 'Unique Experience']
     },
     {
         id: 12,
@@ -294,6 +305,7 @@ export const GUIDES_DATA: GuideData[] = [
         description: 'Indigenous culture and pristine natural beauty',
         division: 'Chittagong',
         category: 'Trekking',
-        imageUrl: 'images/dummy.jpg'
+        imageUrl: '/images/dummy.jpg',
+        tags: ['Adventure', 'Cultural', 'Nature', 'Trekking']
     }
 ] as const;

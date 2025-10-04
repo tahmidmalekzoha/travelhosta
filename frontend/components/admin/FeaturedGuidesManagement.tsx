@@ -1,9 +1,18 @@
 "use client";
 
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, useCallback, useMemo } from 'react';
 import { Star, Search, Check } from 'lucide-react';
 import { useGuides } from '../../contexts/GuidesContext';
-import { GuideData } from '../../types';
+
+// Maximum number of featured guides allowed
+const MAX_FEATURED_GUIDES = 4;
+
+/**
+ * Checks if two arrays of IDs are equal (order-independent)
+ */
+const areIdsEqual = (ids1: number[], ids2: number[]): boolean => {
+    return JSON.stringify([...ids1].sort()) === JSON.stringify([...ids2].sort());
+};
 
 /**
  * Featured guides management component for admin panel
@@ -13,51 +22,61 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
     const { guides, featuredGuideIds, setFeaturedGuides, getFeaturedGuides } = useGuides();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedIds, setSelectedIds] = useState<number[]>(featuredGuideIds);
-    const [hasChanges, setHasChanges] = useState(false);
 
+    // Sync selectedIds with context when featuredGuideIds changes
     useEffect(() => {
         setSelectedIds(featuredGuideIds);
     }, [featuredGuideIds]);
 
-    useEffect(() => {
-        const changed = JSON.stringify(selectedIds.sort()) !== JSON.stringify([...featuredGuideIds].sort());
-        setHasChanges(changed);
-    }, [selectedIds, featuredGuideIds]);
-
-    const filteredGuides = guides.filter(guide =>
-        guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        guide.division.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        guide.category.toLowerCase().includes(searchTerm.toLowerCase())
+    // Check if there are unsaved changes
+    const hasChanges = useMemo(
+        () => !areIdsEqual(selectedIds, featuredGuideIds),
+        [selectedIds, featuredGuideIds]
     );
 
-    const toggleGuide = (id: number) => {
-        if (selectedIds.includes(id)) {
-            setSelectedIds(prev => prev.filter(guideId => guideId !== id));
-        } else {
-            if (selectedIds.length < 4) {
-                setSelectedIds(prev => [...prev, id]);
-            } else {
-                alert('You can only feature 4 guides. Please deselect one first.');
-            }
-        }
-    };
+    // Filter guides based on search term
+    const filteredGuides = useMemo(() => {
+        if (!searchTerm.trim()) return guides;
+        
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        return guides.filter(guide =>
+            guide.title.toLowerCase().includes(lowerSearchTerm) ||
+            guide.division.toLowerCase().includes(lowerSearchTerm) ||
+            guide.category.toLowerCase().includes(lowerSearchTerm)
+        );
+    }, [guides, searchTerm]);
 
-    const handleSave = () => {
-        if (selectedIds.length !== 4) {
-            alert(`Please select exactly 4 guides. Currently selected: ${selectedIds.length}`);
+    const toggleGuide = useCallback((id: number) => {
+        setSelectedIds(prev => {
+            if (prev.includes(id)) {
+                // Remove guide from selection
+                return prev.filter(guideId => guideId !== id);
+            } else {
+                // Add guide to selection if under limit
+                if (prev.length < MAX_FEATURED_GUIDES) {
+                    return [...prev, id];
+                } else {
+                    alert(`You can only feature ${MAX_FEATURED_GUIDES} guides. Please deselect one first.`);
+                    return prev;
+                }
+            }
+        });
+    }, []);
+
+    const handleSave = useCallback(() => {
+        if (selectedIds.length !== MAX_FEATURED_GUIDES) {
+            alert(`Please select exactly ${MAX_FEATURED_GUIDES} guides. Currently selected: ${selectedIds.length}`);
             return;
         }
         setFeaturedGuides(selectedIds);
         alert('Featured guides updated successfully!');
-        setHasChanges(false);
-    };
+    }, [selectedIds, setFeaturedGuides]);
 
-    const handleReset = () => {
+    const handleReset = useCallback(() => {
         setSelectedIds(featuredGuideIds);
-        setHasChanges(false);
-    };
+    }, [featuredGuideIds]);
 
-    const featuredGuides = getFeaturedGuides();
+    const featuredGuides = useMemo(() => getFeaturedGuides(), [getFeaturedGuides]);
 
     return (
         <div className="p-8">
@@ -82,11 +101,19 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                             {featuredGuides.map((guide) => (
                                 <div key={guide.id} className="border border-gray-200 rounded-lg p-4 hover:border-[#cd8453] transition-colors">
                                     <div className="aspect-video bg-gray-200 rounded-lg mb-3 overflow-hidden">
-                                        <img 
-                                            src={guide.imageUrl} 
-                                            alt={guide.title}
-                                            className="w-full h-full object-cover"
-                                        />
+                                        {guide.imageUrl && guide.imageUrl !== '' && !guide.imageUrl.endsWith('dummy.jpg') ? (
+                                            <img 
+                                                src={guide.imageUrl} 
+                                                alt={guide.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+                                                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                        )}
                                     </div>
                                     <h3 className="font-semibold text-[#1b3c44] mb-1 truncate">{guide.title}</h3>
                                     <p className="text-sm text-gray-600">{guide.division}</p>
@@ -191,11 +218,19 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                                         )}
 
                                         <div className="aspect-video bg-gray-200 rounded-lg mb-3 overflow-hidden">
-                                            <img 
-                                                src={guide.imageUrl} 
-                                                alt={guide.title}
-                                                className="w-full h-full object-cover"
-                                            />
+                                            {guide.imageUrl && guide.imageUrl !== '' && !guide.imageUrl.endsWith('dummy.jpg') ? (
+                                                <img 
+                                                    src={guide.imageUrl} 
+                                                    alt={guide.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+                                                    <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                            )}
                                         </div>
                                         
                                         <h3 className="font-semibold text-[#1b3c44] mb-2 truncate">{guide.title}</h3>

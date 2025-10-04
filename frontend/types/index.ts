@@ -78,6 +78,15 @@ export interface TableBlock {
 
 export type ContentBlock = TextBlock | TimelineBlock | ImageBlock | ImageGalleryBlock | TableBlock | TipsBlock;
 
+// Language support types
+export type Language = 'en' | 'bn';
+
+export interface GuideTranslations {
+    title: string;
+    description: string;
+    content?: ContentBlock[];
+}
+
 export interface GuideData {
     id: number;
     title: string;
@@ -85,8 +94,13 @@ export interface GuideData {
     division: string;
     category: string;
     imageUrl: string;
+    tags?: string[]; // Optional tags for filtering guides
     itinerary?: ItineraryStep[]; // Legacy support
-    content?: ContentBlock[]; // New flexible content structure
+    content?: ContentBlock[]; // New flexible content structure (English by default)
+    // Bilingual support
+    titleBn?: string; // Bengali title
+    descriptionBn?: string; // Bengali description
+    contentBn?: ContentBlock[]; // Bengali content
 }
 
 // Animation related types

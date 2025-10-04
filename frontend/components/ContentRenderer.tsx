@@ -1,7 +1,9 @@
-import { FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock } from '../types';
 import Timeline from './Timeline';
+import ImagePlaceholder from './shared/ImagePlaceholder';
 import { Lightbulb } from 'lucide-react';
+import { isValidImageUrl, getImageAltText } from '../utils/imageUtils';
 
 interface ContentRendererProps {
     blocks: ContentBlock[];
@@ -9,6 +11,7 @@ interface ContentRendererProps {
 
 /**
  * Renders flexible content blocks in order
+ * Supports: text, timeline, images, galleries, tables, and tips
  */
 const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks }) => {
     return (
@@ -36,29 +39,32 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks }) =>
 };
 
 /**
+ * Formats markdown text to HTML with basic styling
+ * Supports: **bold**, *italic*
+ */
+const formatMarkdownText = (text: string): React.ReactElement[] => {
+    return text
+        .split('\n\n')
+        .map((paragraph, i) => {
+            // Apply bold formatting
+            let formatted = paragraph.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            // Apply italic formatting
+            formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            
+            return (
+                <p 
+                    key={i} 
+                    className="text-lg text-gray-700 leading-relaxed mb-4"
+                    dangerouslySetInnerHTML={{ __html: formatted }}
+                />
+            );
+        });
+};
+
+/**
  * Renders a text block with optional heading
  */
 const TextBlockRenderer: FunctionComponent<{ block: TextBlock }> = ({ block }) => {
-    // Simple markdown to HTML conversion
-    const formatText = (text: string) => {
-        return text
-            .split('\n\n')
-            .map((paragraph, i) => {
-                // Bold text
-                let formatted = paragraph.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-                // Italic text
-                formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-                
-                return (
-                    <p 
-                        key={i} 
-                        className="text-lg text-gray-700 leading-relaxed mb-4"
-                        dangerouslySetInnerHTML={{ __html: formatted }}
-                    />
-                );
-            });
-    };
-
     return (
         <div className="max-w-4xl mx-auto">
             {block.heading && (
@@ -67,7 +73,7 @@ const TextBlockRenderer: FunctionComponent<{ block: TextBlock }> = ({ block }) =
                 </h2>
             )}
             <div className="prose prose-lg max-w-none">
-                {formatText(block.content)}
+                {formatMarkdownText(block.content)}
             </div>
         </div>
     );
@@ -130,7 +136,8 @@ const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock }> = ({ bl
  * Renders a single image with caption
  */
 const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock }> = ({ block }) => {
-    const hasValidUrl = block.url && block.url !== '' && block.url !== 'dummy.jpg' && block.url !== '/images/dummy.jpg';
+    const hasValidUrl = isValidImageUrl(block.url);
+    const altText = getImageAltText(block.alt, block.caption, 'Guide image');
     
     return (
         <div className="max-w-4xl mx-auto">
@@ -138,18 +145,11 @@ const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock }> = ({ block })
                 {hasValidUrl ? (
                     <img
                         src={block.url}
-                        alt={block.alt || block.caption || 'Guide image'}
+                        alt={altText}
                         className="w-full h-auto object-cover"
                     />
                 ) : (
-                    <div className="w-full h-64 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-                        <div className="text-center text-gray-500">
-                            <svg className="w-16 h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <p className="text-sm">No Image URL</p>
-                        </div>
-                    </div>
+                    <ImagePlaceholder text="No Image URL" size="medium" />
                 )}
                 {block.caption && (
                     <figcaption className="bg-white px-6 py-4 text-center text-gray-600 italic">
@@ -162,7 +162,7 @@ const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock }> = ({ block })
 };
 
 /**
- * Renders an image gallery
+ * Renders an image gallery with grid layout
  */
 const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock }> = ({ block }) => {
     return (
@@ -174,25 +174,19 @@ const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock }> = ({
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {block.images.map((image: { url: string; caption?: string; alt?: string }, index: number) => {
-                    const hasValidUrl = image.url && image.url !== '' && image.url !== 'dummy.jpg' && image.url !== '/images/dummy.jpg';
+                    const hasValidUrl = isValidImageUrl(image.url);
+                    const altText = getImageAltText(image.alt, image.caption, `Gallery image ${index + 1}`);
                     
                     return (
                         <figure key={index} className="rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                             {hasValidUrl ? (
                                 <img
                                     src={image.url}
-                                    alt={image.alt || image.caption || `Gallery image ${index + 1}`}
+                                    alt={altText}
                                     className="w-full h-64 object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-64 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-                                    <div className="text-center text-gray-500">
-                                        <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <p className="text-xs">No Image</p>
-                                    </div>
-                                </div>
+                                <ImagePlaceholder text="No Image" size="small" />
                             )}
                             {image.caption && (
                                 <figcaption className="bg-white px-4 py-3 text-sm text-gray-600 text-center">

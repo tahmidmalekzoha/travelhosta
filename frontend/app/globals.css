@@ -1,26 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap');
+
+/* Bengali Font */
+@font-face {
+  font-family: 'Bengali';
+  src: url('/font/Bengali/Li_Abu_JM_Akkas_Unicode.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bengali';
+  src: url('/font/Bengali/Li_Abu_JM_Akkas_Unicode_Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Lenis smooth scrolling setup */
 html.lenis {
-    height: auto;
+  height: auto;
 }
 
 .lenis.lenis-smooth {
-    scroll-behavior: auto !important;
+  scroll-behavior: auto !important;
 }
 
 .lenis.lenis-smooth [data-lenis-prevent] {
-    overscroll-behavior: contain;
+  overscroll-behavior: contain;
 }
 
 body {
-    margin: 0;
-    line-height: normal;
-    font-family: 'Schibsted Grotesk', sans-serif;
+  margin: 0;
+  line-height: normal;
+  font-family: 'Schibsted Grotesk', sans-serif;
 }
 
 /* Scroll-triggered animations */
@@ -28,20 +46,20 @@ body {
 .scroll-slide-up,
 .scroll-slide-left,
 .scroll-slide-right {
-    opacity: 0;
-    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .scroll-slide-up {
-    transform: translateY(50px);
+  transform: translateY(50px);
 }
 
 .scroll-slide-left {
-    transform: translateX(-50px);
+  transform: translateX(-50px);
 }
 
 .scroll-slide-right {
-    transform: translateX(50px);
+  transform: translateX(50px);
 }
 
 /* Animation states when in view */
@@ -49,45 +67,61 @@ body {
 .scroll-slide-up.animate,
 .scroll-slide-left.animate,
 .scroll-slide-right.animate {
-    opacity: 1;
-    transform: translate(0, 0);
+  opacity: 1;
+  transform: translate(0, 0);
 }
 
 /* Staggered animation delays */
 .scroll-slide-right.animate {
-    transition-delay: 0.2s;
+  transition-delay: 0.2s;
 }
 
 .scroll-slide-left.animate {
-    transition-delay: 0.4s;
+  transition-delay: 0.4s;
 }
 
 .scroll-slide-up.animate {
-    transition-delay: 0.6s;
+  transition-delay: 0.6s;
 }
 
 /* GSAP word-by-word scroll reveal animation */
 .scroll-reveal {
-    margin: 0;
-    will-change: transform;
-    backface-visibility: hidden;
-    perspective: 1000px;
-    transform-style: preserve-3d;
+  margin: 0;
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform-style: preserve-3d;
 }
 
 .scroll-reveal-text {
-    line-height: 1.5;
-    font-weight: 300;
+  line-height: 1.5;
+  font-weight: 300;
 }
 
 .word {
-    display: inline-block;
-    will-change: opacity, filter, transform, scale;
-    backface-visibility: hidden;
-    font-kerning: auto;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transform: translateZ(0);
-    transition: none;
+  display: inline-block;
+  will-change: opacity, filter, transform, scale;
+  backface-visibility: hidden;
+  font-kerning: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translateZ(0);
+  transition: none;
+}
+
+/* Toast notification animations */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
 }

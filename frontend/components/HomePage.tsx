@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from 'react';
 import HeroSection from './HeroSection';
 import SeeAll from './SeeAll';
 import GuideCard from './shared/GuideCard';
@@ -9,6 +10,13 @@ import ScrollReveal from './ScrollReveal';
 import StickyNavbar from './StickyNavbar';
 import { useGuides } from '../contexts/GuidesContext';
 
+// Theme colors used throughout the homepage
+const THEME_COLORS = {
+    background: 'linear-gradient(135deg, #f8f6f1 0%, #f2eee9 50%, #ede8e0 100%)',
+    heading: '#1b3c44',
+    faqBackground: '#213c44',
+} as const;
+
 /**
  * Main homepage component containing all sections
  * Features responsive design with hero, description, cards, FAQ, and footer sections
@@ -16,14 +24,14 @@ import { useGuides } from '../contexts/GuidesContext';
 export default function HomePage() {
     const { getFeaturedGuides } = useGuides();
     
-    // Get featured guides from context
-    const featuredGuides = getFeaturedGuides();
+    // Memoize featured guides to avoid recalculation on every render
+    const featuredGuides = useMemo(() => getFeaturedGuides(), [getFeaturedGuides]);
     
     return (
         <div
             className="w-full relative overflow-hidden text-left text-black min-h-screen"
             style={{
-                background: 'linear-gradient(135deg, #f8f6f1 0%, #f2eee9 50%, #ede8e0 100%)',
+                background: THEME_COLORS.background,
                 fontFamily: 'Schibsted Grotesk, sans-serif'
             }}
         >
@@ -58,7 +66,7 @@ export default function HomePage() {
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 md:mb-16 lg:mb-20 gap-8">
                     <h2
                         className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight"
-                        style={{ color: '#1b3c44' }}
+                        style={{ color: THEME_COLORS.heading }}
                     >
                         Featured Travel Guides
                     </h2>
@@ -81,7 +89,10 @@ export default function HomePage() {
             </div>
 
             {/* FAQ Section */}
-            <div className="w-full h-[100vh] bg-[#213c44] flex items-center justify-center">
+            <div 
+                className="w-full h-[100vh] flex items-center justify-center"
+                style={{ backgroundColor: THEME_COLORS.faqBackground }}
+            >
                 <Group4 />
             </div>
 

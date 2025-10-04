@@ -18,7 +18,7 @@ const Card1: FunctionComponent = () => {
             cardId="canoply-chalet"
             year="2025"
             title="How to Make the Most of Your Stay at Canoply Chalet"
-            imageUrl="images/dummy.jpg"
+            imageUrl="/images/dummy.jpg"
             onViewClick={handleViewClick}
         />
     );

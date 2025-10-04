@@ -1,9 +1,10 @@
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
-import { GuideData, ContentBlock } from '../../types';
+import { GuideData, ContentBlock, Language } from '../../types';
 import { parseGuideContent, contentToText, validateContent, sampleContent } from '../../utils/contentParser';
 import ContentRenderer from '../ContentRenderer';
 import TableEditor from './TableEditor';
-import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb } from 'lucide-react';
+import Toast, { ToastType } from '../shared/Toast';
+import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages } from 'lucide-react';
 import { handleTablePaste, previewTableFromClipboard } from '../../utils/tablePasteHandler';
 
 interface EnhancedGuideFormProps {
@@ -25,28 +26,39 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     divisions,
     categories
 }) => {
+    const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
     const [formData, setFormData] = useState<Omit<GuideData, 'id'>>({
         title: guide?.title || '',
         description: guide?.description || '',
         division: guide?.division || '',
         category: guide?.category || '',
         imageUrl: guide?.imageUrl || '',
-        content: guide?.content || []
+        tags: guide?.tags || [],
+        content: guide?.content || [],
+        titleBn: guide?.titleBn || '',
+        descriptionBn: guide?.descriptionBn || '',
+        contentBn: guide?.contentBn || []
     });
 
     const [contentText, setContentText] = useState('');
+    const [contentTextBn, setContentTextBn] = useState('');
     const [showPreview, setShowPreview] = useState(false);
     const [contentErrors, setContentErrors] = useState<string[]>([]);
     const [showHelp, setShowHelp] = useState(false);
     const [showTableEditor, setShowTableEditor] = useState(false);
     const [tablePasteDetected, setTablePasteDetected] = useState(false);
     const [pastedTablePreview, setPastedTablePreview] = useState<string>('');
+    const [tagInput, setTagInput] = useState('');
+    const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Initialize content text from existing guide
     useEffect(() => {
         if (guide?.content) {
             setContentText(contentToText(guide.content));
+        }
+        if (guide?.contentBn) {
+            setContentTextBn(contentToText(guide.contentBn));
         }
     }, [guide]);
 
@@ -63,16 +75,26 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         }
     }, [contentText]);
 
+    // Parse Bengali content text and update form data
+    useEffect(() => {
+        if (contentTextBn.trim()) {
+            const parsedBlocks = parseGuideContent(contentTextBn);
+            setFormData(prev => ({ ...prev, contentBn: parsedBlocks }));
+        } else {
+            setFormData(prev => ({ ...prev, contentBn: [] }));
+        }
+    }, [contentTextBn]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!formData.title || !formData.description || !formData.division) {
-            alert('Please fill in all required fields');
+            setToast({ message: 'Please fill in all required fields', type: 'error' });
             return;
         }
 
         if (contentErrors.length > 0) {
-            alert('Please fix the content errors before submitting');
+            setToast({ message: 'Please fix the content errors before submitting', type: 'error' });
             return;
         }
 
@@ -80,10 +102,17 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     };
 
     const insertTemplate = (template: string) => {
-        const cursorPos = textareaRef.current?.selectionStart || contentText.length;
-        const before = contentText.substring(0, cursorPos);
-        const after = contentText.substring(cursorPos);
-        setContentText(before + '\n\n' + template + '\n\n' + after);
+        if (currentLanguage === 'en') {
+            const cursorPos = textareaRef.current?.selectionStart || contentText.length;
+            const before = contentText.substring(0, cursorPos);
+            const after = contentText.substring(cursorPos);
+            setContentText(before + '\n\n' + template + '\n\n' + after);
+        } else {
+            const cursorPos = textareaRef.current?.selectionStart || contentTextBn.length;
+            const before = contentTextBn.substring(0, cursorPos);
+            const after = contentTextBn.substring(cursorPos);
+            setContentTextBn(before + '\n\n' + template + '\n\n' + after);
+        }
     };
 
     const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -93,6 +122,17 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         // Try to detect and parse table
         const htmlData = clipboardData.getData('text/html');
         const textData = clipboardData.getData('text/plain');
+
+        // Only try to parse as table if content has clear table indicators
+        // Check for: HTML table tags, tabs (TSV), or pipe separators (Markdown)
+        const hasTableIndicators = 
+            (htmlData && htmlData.includes('<table')) ||
+            (textData && (textData.includes('\t') || textData.includes('|')));
+        
+        if (!hasTableIndicators) {
+            // Not a table, let default paste behavior happen
+            return;
+        }
 
         // Check if it looks like a table
         let pastedContent = htmlData || textData;
@@ -206,22 +246,8 @@ Transport | 500 | 1000 | 3000
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Title *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
-                                placeholder="Enter guide title..."
-                                required
-                            />
-                        </div>
-
+                    {/* Basic Info - Shared fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Cover Image URL
@@ -269,19 +295,77 @@ Transport | 500 | 1000 | 3000
                         </div>
                     </div>
 
-                    {/* Description */}
-                    <div>
+                    {/* Tags Section */}
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Description *
+                            Tags (for filtering)
                         </label>
-                        <textarea
-                            value={formData.description}
-                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                            rows={3}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
-                            placeholder="Enter guide description..."
-                            required
-                        />
+                        <div className="flex gap-2 mb-3">
+                            <input
+                                type="text"
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const trimmedTag = tagInput.trim();
+                                        if (trimmedTag && !(formData.tags || []).includes(trimmedTag)) {
+                                            setFormData(prev => ({ 
+                                                ...prev, 
+                                                tags: [...(prev.tags || []), trimmedTag] 
+                                            }));
+                                            setTagInput('');
+                                        }
+                                    }
+                                }}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                                placeholder="Type a tag and press Enter (e.g., Adventure, Budget, Family-Friendly)"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const trimmedTag = tagInput.trim();
+                                    if (trimmedTag && !(formData.tags || []).includes(trimmedTag)) {
+                                        setFormData(prev => ({ 
+                                            ...prev, 
+                                            tags: [...(prev.tags || []), trimmedTag] 
+                                        }));
+                                        setTagInput('');
+                                    }
+                                }}
+                                className="px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#b8744a] transition-colors"
+                            >
+                                Add Tag
+                            </button>
+                        </div>
+                        {formData.tags && formData.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {formData.tags.map((tag, index) => (
+                                    <span
+                                        key={index}
+                                        className="inline-flex items-center gap-1 px-3 py-1 bg-[#1b3c44] text-white rounded-full text-sm"
+                                    >
+                                        {tag}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    tags: prev.tags?.filter((_, i) => i !== index) || []
+                                                }));
+                                            }}
+                                            className="ml-1 hover:text-red-300 transition-colors"
+                                            aria-label={`Remove ${tag} tag`}
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                        <p className="text-xs text-gray-500 mt-2">
+                            Add tags to help users filter guides by theme, budget, activity type, etc.
+                        </p>
                     </div>
 
                     {/* Content Section */}
@@ -305,6 +389,89 @@ Transport | 500 | 1000 | 3000
                                     {showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
                                     {showPreview ? 'Hide Preview' : 'Show Preview'}
                                 </button>
+                            </div>
+                        </div>
+
+                        {/* Language Toggle */}
+                        <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Languages size={20} className="text-blue-600" />
+                                    <span className="text-sm font-medium text-gray-700">Writing Language:</span>
+                                </div>
+                                <div className="flex gap-2 bg-white rounded-lg p-1 shadow-sm">
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentLanguage('en')}
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                                            currentLanguage === 'en'
+                                                ? 'bg-blue-600 text-white shadow-sm'
+                                                : 'text-gray-600 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        English
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentLanguage('bn')}
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all font-['Bengali'] ${
+                                            currentLanguage === 'bn'
+                                                ? 'bg-green-600 text-white shadow-sm'
+                                                : 'text-gray-600 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        বাংলা
+                                    </button>
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-2">
+                                {currentLanguage === 'en' 
+                                    ? 'You are currently writing in English. Switch to Bengali to add translated content.'
+                                    : 'আপনি বর্তমানে বাংলায় লিখছেন। ইংরেজি কন্টেন্ট যোগ করতে English এ পরিবর্তন করুন।'
+                                }
+                            </p>
+                        </div>
+
+                        {/* Title and Description fields based on current language */}
+                        <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                                {currentLanguage === 'en' ? 'English Content' : 'বাংলা কন্টেন্ট'}
+                            </h4>
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        {currentLanguage === 'en' ? 'Title' : 'শিরোনাম'}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={currentLanguage === 'en' ? formData.title : formData.titleBn}
+                                        onChange={(e) => setFormData(prev => ({ 
+                                            ...prev, 
+                                            [currentLanguage === 'en' ? 'title' : 'titleBn']: e.target.value 
+                                        }))}
+                                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent ${
+                                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                                        }`}
+                                        placeholder={currentLanguage === 'en' ? 'Enter guide title...' : 'গাইড শিরোনাম লিখুন...'}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        {currentLanguage === 'en' ? 'Description' : 'বর্ণনা'}
+                                    </label>
+                                    <textarea
+                                        value={currentLanguage === 'en' ? formData.description : formData.descriptionBn}
+                                        onChange={(e) => setFormData(prev => ({ 
+                                            ...prev, 
+                                            [currentLanguage === 'en' ? 'description' : 'descriptionBn']: e.target.value 
+                                        }))}
+                                        rows={2}
+                                        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent ${
+                                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                                        }`}
+                                        placeholder={currentLanguage === 'en' ? 'Enter guide description...' : 'গাইড বর্ণনা লিখুন...'}
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -371,7 +538,7 @@ Transport | 500 | 1000 | 3000
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setContentText(sampleContent)}
+                                    onClick={() => currentLanguage === 'en' ? setContentText(sampleContent) : setContentTextBn(sampleContent)}
                                     className="flex items-center gap-2 px-3 py-2 text-sm bg-[#cd8453] text-white rounded-lg hover:bg-[#1b3c44] transition-colors"
                                 >
                                     Load Sample
@@ -442,14 +609,13 @@ Transport | 500 | 1000 | 3000
                                     </div>
                                     <div>
                                         <p className="font-medium mb-1">📊 Table Block:</p>
-                                        <p className="ml-4">Create tables for pricing, comparisons, schedules, etc. You can paste directly from Google Docs or Excel!</p>
+                                        <p className="ml-4">Create tables for pricing, comparisons, schedules, etc.</p>
                                     </div>
                                     <div className="mt-3 pt-3 border-t border-blue-300">
                                         <p className="font-medium">💡 Pro Tips:</p>
                                         <ul className="ml-4 mt-1 space-y-1 list-disc">
                                             <li>Mix and match blocks in any order</li>
                                             <li>Add multiple timelines for multi-day trips</li>
-                                            <li>Paste tables directly from Google Docs/Sheets or Excel</li>
                                             <li>Use text blocks between timelines for context</li>
                                             <li>Add images to break up long content</li>
                                         </ul>
@@ -462,24 +628,26 @@ Transport | 500 | 1000 | 3000
                             {/* Input */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Content Editor
-                                    <span className="ml-2 text-xs text-green-600 font-normal">
-                                        💡 Paste tables directly from Google Docs or Excel!
-                                    </span>
+                                    {currentLanguage === 'en' ? 'Content Editor (English)' : 'কন্টেন্ট এডিটর (বাংলা)'}
                                 </label>
                                 <textarea
                                     ref={textareaRef}
                                     id="content-editor"
-                                    value={contentText}
-                                    onChange={(e) => setContentText(e.target.value)}
+                                    value={currentLanguage === 'en' ? contentText : contentTextBn}
+                                    onChange={(e) => currentLanguage === 'en' ? setContentText(e.target.value) : setContentTextBn(e.target.value)}
                                     onPaste={handlePaste}
                                     rows={20}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent font-mono text-sm"
-                                    placeholder="Start typing or use Quick Insert buttons above... You can also paste tables directly from Google Docs or Excel!"
+                                    className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent font-mono text-sm ${
+                                        currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                                    }`}
+                                    placeholder={currentLanguage === 'en' 
+                                        ? 'Start typing or use Quick Insert buttons above...' 
+                                        : 'লেখা শুরু করুন বা উপরের Quick Insert বাটন ব্যবহার করুন...'
+                                    }
                                 />
 
                                 {/* Errors */}
-                                {contentErrors.length > 0 && (
+                                {currentLanguage === 'en' && contentErrors.length > 0 && (
                                     <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                                         <div className="flex items-center gap-2 text-red-800 font-medium mb-2">
                                             <AlertCircle size={16} />
@@ -494,7 +662,7 @@ Transport | 500 | 1000 | 3000
                                 )}
 
                                 {/* Stats */}
-                                {formData.content && formData.content.length > 0 && (
+                                {currentLanguage === 'en' && formData.content && formData.content.length > 0 && (
                                     <div className="mt-2 text-xs text-gray-600 flex flex-wrap gap-4">
                                         <span>📦 {formData.content.length} block{formData.content.length !== 1 ? 's' : ''}</span>
                                         <span>📝 {formData.content.filter(b => b.type === 'text').length} text</span>
@@ -502,6 +670,18 @@ Transport | 500 | 1000 | 3000
                                         <span>🖼️ {formData.content.filter(b => b.type === 'image').length} image</span>
                                         <span>🎨 {formData.content.filter(b => b.type === 'imageGallery').length} gallery</span>
                                         <span>📊 {formData.content.filter(b => b.type === 'table').length} table</span>
+                                        <span>💡 {formData.content.filter(b => b.type === 'tips').length} tips</span>
+                                    </div>
+                                )}
+                                {currentLanguage === 'bn' && formData.contentBn && formData.contentBn.length > 0 && (
+                                    <div className="mt-2 text-xs text-gray-600 flex flex-wrap gap-4 font-['Bengali']">
+                                        <span>📦 {formData.contentBn.length} ব্লক</span>
+                                        <span>📝 {formData.contentBn.filter(b => b.type === 'text').length} টেক্সট</span>
+                                        <span>🗺️ {formData.contentBn.filter(b => b.type === 'timeline').length} টাইমলাইন</span>
+                                        <span>🖼️ {formData.contentBn.filter(b => b.type === 'image').length} ছবি</span>
+                                        <span>🎨 {formData.contentBn.filter(b => b.type === 'imageGallery').length} গ্যালারি</span>
+                                        <span>📊 {formData.contentBn.filter(b => b.type === 'table').length} টেবিল</span>
+                                        <span>💡 {formData.contentBn.filter(b => b.type === 'tips').length} টিপস</span>
                                     </div>
                                 )}
                             </div>
@@ -510,14 +690,21 @@ Transport | 500 | 1000 | 3000
                             {showPreview && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Live Preview
+                                        {currentLanguage === 'en' ? 'Live Preview (English)' : 'লাইভ প্রিভিউ (বাংলা)'}
                                     </label>
-                                    <div className="border border-gray-300 rounded-lg p-6 bg-[#f2eee9] max-h-[600px] overflow-y-auto">
-                                        {formData.content && formData.content.length > 0 ? (
+                                    <div className={`border border-gray-300 rounded-lg p-6 bg-[#f2eee9] max-h-[600px] overflow-y-auto ${
+                                        currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                                    }`}>
+                                        {currentLanguage === 'en' && formData.content && formData.content.length > 0 ? (
                                             <ContentRenderer blocks={formData.content} />
+                                        ) : currentLanguage === 'bn' && formData.contentBn && formData.contentBn.length > 0 ? (
+                                            <ContentRenderer blocks={formData.contentBn} />
                                         ) : (
                                             <div className="text-gray-500 text-center py-8">
-                                                No content to preview. Start adding blocks on the left.
+                                                {currentLanguage === 'en' 
+                                                    ? 'No content to preview. Start adding blocks on the left.'
+                                                    : 'প্রিভিউ করার জন্য কোনো কন্টেন্ট নেই। বামে ব্লক যোগ করা শুরু করুন।'
+                                                }
                                             </div>
                                         )}
                                     </div>
@@ -550,6 +737,15 @@ Transport | 500 | 1000 | 3000
                 <TableEditor
                     onInsert={handleTableInsert}
                     onClose={() => setShowTableEditor(false)}
+                />
+            )}
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
                 />
             )}
         </div>

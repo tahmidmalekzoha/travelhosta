@@ -63,15 +63,26 @@ function parseHTMLTable(content: string): ParsedTable | null {
         const headerCells = Array.from(firstRow.querySelectorAll('th, td'));
         const headers = headerCells.map(cell => cell.textContent?.trim() || '');
 
+        // Validate headers: must have at least one non-empty header
+        if (headers.length === 0 || headers.every(h => !h)) {
+            return null;
+        }
+
         // Extract data rows
         const dataRows = rows.slice(1).map(row => {
             const cells = Array.from(row.querySelectorAll('td, th'));
             return cells.map(cell => cell.textContent?.trim() || '');
         }).filter(row => row.some(cell => cell !== '')); // Filter empty rows
 
+        // Validate: must have at least one data row with correct column count
+        const validRows = dataRows.filter(row => row.length === headers.length);
+        if (validRows.length === 0) {
+            return null;
+        }
+
         return {
             headers,
-            rows: dataRows
+            rows: validRows
         };
     } catch (error) {
         console.error('Error parsing HTML table:', error);

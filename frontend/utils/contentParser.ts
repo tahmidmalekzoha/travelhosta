@@ -49,12 +49,28 @@ import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, 
  * :::
  */
 
+/**
+ * Main parser function for guide content
+ * Parses structured content blocks and returns an array of typed content blocks
+ * 
+ * @param text - The raw content text to parse
+ * @returns Array of parsed content blocks
+ * 
+ * @example
+ * const blocks = parseGuideContent(`
+ *   :::text [heading="Introduction"]
+ *   Welcome to our guide!
+ *   :::
+ * `);
+ */
 export function parseGuideContent(text: string): ContentBlock[] {
-    if (!text || !text.trim()) return [];
+    if (!text || !text.trim()) {
+        return [];
+    }
 
     const blocks: ContentBlock[] = [];
     
-    // Match all content blocks with their type and content
+    // Regex to match content blocks: :::type [attributes] content :::
     const blockRegex = /:::(\w+)(?:\s+\[([^\]]+)\])?\s*([\s\S]*?):::/g;
     let match;
     let blockIndex = 0;
@@ -62,26 +78,31 @@ export function parseGuideContent(text: string): ContentBlock[] {
     while ((match = blockRegex.exec(text)) !== null) {
         const [, blockType, attributes, content] = match;
         const parsedAttributes = parseAttributes(attributes || '');
+        const trimmedContent = content.trim();
         
+        // Parse each block type accordingly
         switch (blockType.toLowerCase()) {
             case 'text':
-                blocks.push(parseTextBlock(content.trim(), parsedAttributes, blockIndex++));
+                blocks.push(parseTextBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
             case 'tips':
-                blocks.push(parseTipsBlock(content.trim(), parsedAttributes, blockIndex++));
+                blocks.push(parseTipsBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
             case 'timeline':
-                blocks.push(parseTimelineBlock(content.trim(), parsedAttributes, blockIndex++));
+                blocks.push(parseTimelineBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
             case 'image':
-                blocks.push(parseImageBlock(content.trim(), parsedAttributes, blockIndex++));
+                blocks.push(parseImageBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
             case 'gallery':
-                blocks.push(parseGalleryBlock(content.trim(), parsedAttributes, blockIndex++));
+                blocks.push(parseGalleryBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
             case 'table':
-                blocks.push(parseTableBlock(content.trim(), parsedAttributes, blockIndex++));
+                blocks.push(parseTableBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
+            default:
+                // Skip unknown block types
+                console.warn(`Unknown block type: ${blockType}`);
         }
     }
 
@@ -90,6 +111,9 @@ export function parseGuideContent(text: string): ContentBlock[] {
 
 /**
  * Parse attributes from block header
+ * Extracts key="value" pairs from attribute strings
+ * @example parseAttributes('title="My Title" caption="My Caption"')
+ * @returns Object with parsed attributes
  */
 function parseAttributes(attrString: string): Record<string, string> {
     const attrs: Record<string, string> = {};
@@ -97,38 +121,45 @@ function parseAttributes(attrString: string): Record<string, string> {
     let match;
 
     while ((match = attrRegex.exec(attrString)) !== null) {
-        attrs[match[1]] = match[2];
+        const [, key, value] = match;
+        attrs[key] = value;
     }
 
     return attrs;
 }
 
 /**
- * Parse text block
+ * Parse text block with optional heading
+ * @param content - The text content to parse
+ * @param attributes - Block attributes (e.g., heading)
+ * @param index - Block index for unique ID
  */
 function parseTextBlock(content: string, attributes: Record<string, string>, index: number): TextBlock {
     return {
         type: 'text',
         id: `text-${index}`,
-        content: content,
+        content,
         heading: attributes.heading
     };
 }
 
 /**
- * Parse tips block
+ * Parse tips block extracting individual tip items
+ * Supports both markdown list format (- Tip) and plain text lines
+ * @param content - The tips content to parse
+ * @param attributes - Block attributes (e.g., title)
+ * @param index - Block index for unique ID
  */
 function parseTipsBlock(content: string, attributes: Record<string, string>, index: number): TipsBlock {
     const lines = content.split('\n').map(line => line.trim()).filter(line => line);
     const tips: string[] = [];
 
     for (const line of lines) {
-        // Check for tip item (- Tip text)
+        // Check for markdown list item (- Tip text)
         if (line.startsWith('- ')) {
-            const tip = line.substring(2).trim();
-            tips.push(tip);
+            tips.push(line.substring(2).trim());
         }
-        // Also support plain lines as tips
+        // Support plain text lines as tips (but skip headings)
         else if (line && !line.startsWith('#')) {
             tips.push(line);
         }

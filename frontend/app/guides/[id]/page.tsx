@@ -7,7 +7,8 @@ import Footer from '../../../components/Footer';
 import Timeline from '../../../components/Timeline';
 import ContentRenderer from '../../../components/ContentRenderer';
 import { useGuides } from '../../../contexts/GuidesContext';
-import { ArrowLeft, MapPin, Tag, Calendar, Users } from 'lucide-react';
+import { ArrowLeft, MapPin, Tag, Calendar, Users, Languages } from 'lucide-react';
+import { Language } from '../../../types';
 
 interface GuideDetailPageProps {
     params: Promise<{
@@ -20,6 +21,10 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
     const { guides } = useGuides();
     const unwrappedParams = React.use(params);
     const guide = guides.find(g => g.id === parseInt(unwrappedParams.id));
+    const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
+
+    // Check if Bengali content is available
+    const hasBengaliContent = guide?.titleBn || guide?.descriptionBn || (guide?.contentBn && guide.contentBn.length > 0);
 
     if (!guide) {
         return (
@@ -50,8 +55,8 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
 
             {/* Main Content */}
             <div className="pt-24 md:pt-32 lg:pt-[167px] px-6 md:px-12 lg:px-20">
-                {/* Back Button */}
-                <div className="mb-8">
+                {/* Back Button and Language Toggle */}
+                <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <button
                         onClick={() => router.back()}
                         className="inline-flex items-center gap-2 text-[#cd8453] hover:text-[#1b3c44] font-medium transition-colors"
@@ -59,6 +64,34 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                         <ArrowLeft size={20} />
                         Back to Guides
                     </button>
+
+                    {/* Language Toggle - Only show if Bengali content exists */}
+                    {hasBengaliContent && (
+                        <div className="flex items-center gap-3 bg-white rounded-lg p-1 shadow-md">
+                            <button
+                                onClick={() => setCurrentLanguage('en')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                                    currentLanguage === 'en'
+                                        ? 'bg-blue-600 text-white shadow-sm'
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                <Languages size={16} />
+                                English
+                            </button>
+                            <button
+                                onClick={() => setCurrentLanguage('bn')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all font-['Bengali'] ${
+                                    currentLanguage === 'bn'
+                                        ? 'bg-green-600 text-white shadow-sm'
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                <Languages size={16} />
+                                বাংলা
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Hero Section */}
@@ -85,12 +118,16 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
 
                     {/* Info */}
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                            {guide.title}
+                        <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight ${
+                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                        }`}>
+                            {currentLanguage === 'en' ? guide.title : (guide.titleBn || guide.title)}
                         </h1>
                         
-                        <p className="text-lg md:text-xl text-gray-700 mb-8 leading-relaxed">
-                            {guide.description}
+                        <p className={`text-lg md:text-xl text-gray-700 mb-8 leading-relaxed ${
+                            currentLanguage === 'bn' ? "font-['Bengali']" : ''
+                        }`}>
+                            {currentLanguage === 'en' ? guide.description : (guide.descriptionBn || guide.description)}
                         </p>
 
                         {/* Meta Info */}
@@ -120,9 +157,12 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                 </div>
 
                 {/* Content Section - New flexible format */}
-                {guide.content && guide.content.length > 0 && (
-                    <div className="mb-16">
-                        <ContentRenderer blocks={guide.content} />
+                {((currentLanguage === 'en' && guide.content && guide.content.length > 0) ||
+                  (currentLanguage === 'bn' && guide.contentBn && guide.contentBn.length > 0)) && (
+                    <div className={`mb-16 ${currentLanguage === 'bn' ? "font-['Bengali']" : ''}`}>
+                        <ContentRenderer 
+                            blocks={currentLanguage === 'en' ? guide.content! : guide.contentBn!} 
+                        />
                     </div>
                 )}
 

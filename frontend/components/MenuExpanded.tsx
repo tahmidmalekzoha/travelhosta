@@ -1,10 +1,7 @@
 "use client";
 
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import SigninButton from './SigninButton';
-import AnimatedButton from './shared/AnimatedButton';
-import { NAVIGATION_LINKS } from '../constants';
 
 interface MenuExpandedProps {
     isOpen: boolean;
@@ -14,14 +11,15 @@ interface MenuExpandedProps {
 /**
  * Expanded menu overlay component with navigation links
  * Features animated entrance/exit and navigation functionality
+ * Positioned at top-right corner below the sticky navbar
  */
 const MenuExpanded: FunctionComponent<MenuExpandedProps> = ({ isOpen, onClose }) => {
     const router = useRouter();
 
-    const handleNavigation = (path: string) => {
+    const handleNavigation = useCallback((path: string) => {
         router.push(path);
         onClose();
-    };
+    }, [router, onClose]);
 
     if (!isOpen) return null;
 

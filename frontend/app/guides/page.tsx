@@ -13,21 +13,40 @@ export default function Guides() {
     const { categories, divisions } = useCategories();
     const [selectedDivision, setSelectedDivision] = useState('All Divisions');
     const [selectedCategory, setSelectedCategory] = useState('All Guides');
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
     // Create arrays with "All" options
     const divisionsWithAll = [{ id: 'all-div', name: 'All Divisions' }, ...divisions];
     const categoriesWithAll = [{ id: 'all-cat', name: 'All Guides' }, ...categories];
 
+    // Extract all unique tags from guides
+    const allTags = useMemo(() => {
+        const tagsSet = new Set<string>();
+        guides.forEach(guide => {
+            guide.tags?.forEach(tag => tagsSet.add(tag));
+        });
+        return Array.from(tagsSet).sort();
+    }, [guides]);
+
     const filteredGuides = useMemo(() => {
         return guides.filter(guide => {
             const matchesDivision = selectedDivision === 'All Divisions' || guide.division === selectedDivision;
             const matchesCategory = selectedCategory === 'All Guides' || guide.category === selectedCategory;
+            const matchesTags = selectedTags.length === 0 || selectedTags.every(tag => guide.tags?.includes(tag));
             const matchesSearch = guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                 guide.description.toLowerCase().includes(searchTerm.toLowerCase());
-            return matchesDivision && matchesCategory && matchesSearch;
+            return matchesDivision && matchesCategory && matchesTags && matchesSearch;
         });
-    }, [selectedDivision, selectedCategory, searchTerm]);
+    }, [guides, selectedDivision, selectedCategory, selectedTags, searchTerm]);
+
+    const toggleTag = (tag: string) => {
+        setSelectedTags(prev => 
+            prev.includes(tag) 
+                ? prev.filter(t => t !== tag)
+                : [...prev, tag]
+        );
+    };
 
     const handleGuideView = (guide: GuideData) => {
         // Navigation is now handled within GuideCard component
@@ -112,6 +131,45 @@ export default function Guides() {
                             );
                         })}
                     </div>
+
+                    {/* Tags Filter */}
+                    {allTags.length > 0 && (
+                        <div className="mt-6">
+                            <h3 className="text-center text-lg font-medium text-gray-700 mb-3 font-['Lato']">
+                                Filter by Tags:
+                            </h3>
+                            <div className="flex flex-wrap gap-3 justify-center">
+                                {allTags.map((tag) => {
+                                    const isSelected = selectedTags.includes(tag);
+                                    
+                                    return (
+                                        <button 
+                                            key={tag}
+                                            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm ${
+                                                isSelected 
+                                                    ? 'bg-[#cd8453] text-white shadow-md' 
+                                                    : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-[#cd8453]'
+                                            }`}
+                                            onClick={() => toggleTag(tag)}
+                                        >
+                                            {isSelected && '✓ '}
+                                            {tag}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {selectedTags.length > 0 && (
+                                <div className="text-center mt-3">
+                                    <button
+                                        onClick={() => setSelectedTags([])}
+                                        className="text-sm text-gray-600 hover:text-[#cd8453] underline"
+                                    >
+                                        Clear all tags
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Results Count */}
@@ -120,6 +178,7 @@ export default function Guides() {
                         Showing {filteredGuides.length} guide{filteredGuides.length !== 1 ? 's' : ''} 
                         {selectedDivision !== 'All Divisions' && ` in ${selectedDivision}`}
                         {selectedCategory !== 'All Guides' && ` for ${selectedCategory}`}
+                        {selectedTags.length > 0 && ` with tag${selectedTags.length > 1 ? 's' : ''}: ${selectedTags.join(', ')}`}
                         {searchTerm && ` matching "${searchTerm}"`}
                     </div>
                 )}
@@ -148,6 +207,7 @@ export default function Guides() {
                             onClick={() => {
                                 setSelectedDivision('All Divisions');
                                 setSelectedCategory('All Guides');
+                                setSelectedTags([]);
                                 setSearchTerm('');
                             }}
                             className="px-8 py-4 bg-[#cd8453] text-white rounded-full text-lg font-medium hover:bg-[#b8744a] transition-colors duration-200"

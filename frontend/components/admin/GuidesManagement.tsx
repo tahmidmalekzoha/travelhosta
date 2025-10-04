@@ -1,17 +1,33 @@
 "use client";
 
-import { FunctionComponent, useState } from 'react';
-import { GuideData } from '../../types';
+import { FunctionComponent, useState, useCallback, useMemo } from 'react';
+import { GuideData, Language } from '../../types';
 import { useGuides } from '../../contexts/GuidesContext';
 import { useCategories } from '../../contexts/CategoriesContext';
-import { Plus, Edit, Trash2, Search, Calendar, MapPin, Tag, Sparkles } from 'lucide-react';
-import GuideForm from './GuideForm';
+import { Plus, Edit, Trash2, Search, Calendar, MapPin, Tag, Sparkles, Languages } from 'lucide-react';
 import EnhancedGuideForm from './EnhancedGuideForm';
 import Timeline from '../Timeline';
 import ContentRenderer from '../ContentRenderer';
+import Toast, { ToastType } from '../shared/Toast';
+import { isValidImageUrl } from '../../utils/imageUtils';
+
+/**
+ * Filters guides based on search term
+ */
+const filterGuides = (guides: GuideData[], searchTerm: string): GuideData[] => {
+    if (!searchTerm.trim()) return guides;
+    
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return guides.filter(guide =>
+        guide.title.toLowerCase().includes(lowerSearchTerm) ||
+        guide.division.toLowerCase().includes(lowerSearchTerm) ||
+        guide.category.toLowerCase().includes(lowerSearchTerm)
+    );
+};
 
 /**
  * Guides management component for creating, editing, and deleting guides
+ * Provides CRUD operations and preview functionality
  */
 const GuidesManagement: FunctionComponent = () => {
     const { guides, addGuide, updateGuide, deleteGuide } = useGuides();
@@ -20,74 +36,116 @@ const GuidesManagement: FunctionComponent = () => {
     const [editingGuide, setEditingGuide] = useState<GuideData | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewingGuide, setViewingGuide] = useState<GuideData | null>(null);
-
-    const handleSubmit = (formData: Omit<GuideData, 'id'>) => {
-        if (editingGuide) {
-            updateGuide(editingGuide.id, formData);
-            alert('Guide updated successfully!');
-        } else {
-            addGuide(formData);
-            alert('Guide created successfully!');
-        }
-        resetForm();
-    };
-
-    const handleEdit = (guide: GuideData) => {
-        setEditingGuide(guide);
-        setShowForm(true);
-    };
-
-    const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this guide?')) {
-            deleteGuide(id);
-            alert('Guide deleted successfully!');
-        }
-    };
-
-    const resetForm = () => {
-        setEditingGuide(null);
-        setShowForm(false);
-    };
-
-    const handleCreateNew = () => {
-        setEditingGuide(null);
-        setShowForm(true);
-    };
-
-    const filteredGuides = guides.filter(guide =>
-        guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        guide.division.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        guide.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const [viewLanguage, setViewLanguage] = useState<Language>('en');
+    const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Extract division and category names for the form
-    const divisionNames = divisions.map(d => d.name);
-    const categoryNames = categories.map(c => c.name);
+    const divisionNames = useMemo(() => divisions.map(d => d.name), [divisions]);
+    const categoryNames = useMemo(() => categories.map(c => c.name), [categories]);
+    
+    // Memoize filtered guides to avoid recalculating on every render
+    const filteredGuides = useMemo(
+        () => filterGuides(guides, searchTerm),
+        [guides, searchTerm]
+    );
+
+    const handleSubmit = useCallback((formData: Omit<GuideData, 'id'>) => {
+        if (editingGuide) {
+            updateGuide(editingGuide.id, formData);
+            setToast({ message: 'Guide updated successfully!', type: 'success' });
+            // Keep the form open with updated data
+            setEditingGuide({ ...formData, id: editingGuide.id });
+        } else {
+            addGuide(formData);
+            setToast({ message: 'Guide created successfully!', type: 'success' });
+            // Close form after creating new guide
+            setEditingGuide(null);
+            setShowForm(false);
+        }
+    }, [editingGuide, updateGuide, addGuide]);
+
+    const handleEdit = useCallback((guide: GuideData) => {
+        setEditingGuide(guide);
+        setShowForm(true);
+    }, []);
+
+    const handleDelete = useCallback((id: number) => {
+        if (window.confirm('Are you sure you want to delete this guide?')) {
+            deleteGuide(id);
+            setToast({ message: 'Guide deleted successfully!', type: 'success' });
+        }
+    }, [deleteGuide]);
+
+    const resetForm = useCallback(() => {
+        setEditingGuide(null);
+        setShowForm(false);
+    }, []);
+
+    const handleCreateNew = useCallback(() => {
+        setEditingGuide(null);
+        setShowForm(true);
+    }, []);
 
     // If viewing a specific guide's details
     if (viewingGuide) {
+        const hasBengaliContent = viewingGuide.titleBn || viewingGuide.descriptionBn || (viewingGuide.contentBn && viewingGuide.contentBn.length > 0);
+        
         return (
             <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => setViewingGuide(null)}
-                        className="text-[#cd8453] hover:text-[#1b3c44] font-medium"
-                    >
-                        ← Back to Guides
-                    </button>
-                    <h1 className="text-3xl font-bold text-[#1b3c44]">{viewingGuide.title}</h1>
-                    {viewingGuide.content && viewingGuide.content.length > 0 && (
-                        <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                            <Sparkles size={12} />
-                            Enhanced Content
-                        </span>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setViewingGuide(null)}
+                            className="text-[#cd8453] hover:text-[#1b3c44] font-medium"
+                        >
+                            ← Back to Guides
+                        </button>
+                        <h1 className={`text-3xl font-bold text-[#1b3c44] ${
+                            viewLanguage === 'bn' ? "font-['Bengali']" : ''
+                        }`}>
+                            {viewLanguage === 'en' ? viewingGuide.title : (viewingGuide.titleBn || viewingGuide.title)}
+                        </h1>
+                        {viewingGuide.content && viewingGuide.content.length > 0 && (
+                            <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                                <Sparkles size={12} />
+                                Enhanced Content
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Language Toggle for Admin View */}
+                    {hasBengaliContent && (
+                        <div className="flex gap-2 bg-white rounded-lg p-1 shadow-md border border-gray-200">
+                            <button
+                                onClick={() => setViewLanguage('en')}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                                    viewLanguage === 'en'
+                                        ? 'bg-blue-600 text-white shadow-sm'
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                <Languages size={14} />
+                                English
+                            </button>
+                            <button
+                                onClick={() => setViewLanguage('bn')}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all font-['Bengali'] ${
+                                    viewLanguage === 'bn'
+                                        ? 'bg-green-600 text-white shadow-sm'
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                <Languages size={14} />
+                                বাংলা
+                            </button>
+                        </div>
                     )}
                 </div>
 
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <div className="lg:col-span-2">
-                            {viewingGuide.imageUrl && viewingGuide.imageUrl !== '' && viewingGuide.imageUrl !== 'dummy.jpg' && viewingGuide.imageUrl !== '/images/dummy.jpg' ? (
+                            {viewingGuide.imageUrl && viewingGuide.imageUrl !== '' && viewingGuide.imageUrl !== 'dummy.jpg' && viewingGuide.imageUrl !== '/images/dummy.jpg' && viewingGuide.imageUrl !== 'images/dummy.jpg' && !viewingGuide.imageUrl.endsWith('dummy.jpg') ? (
                                 <img
                                     src={viewingGuide.imageUrl}
                                     alt={viewingGuide.title}
@@ -113,15 +171,20 @@ const GuidesManagement: FunctionComponent = () => {
                                 <Tag size={18} />
                                 <span>{viewingGuide.category}</span>
                             </div>
-                            <p className="text-gray-700">{viewingGuide.description}</p>
+                            <p className={`text-gray-700 ${viewLanguage === 'bn' ? "font-['Bengali']" : ''}`}>
+                                {viewLanguage === 'en' ? viewingGuide.description : (viewingGuide.descriptionBn || viewingGuide.description)}
+                            </p>
                         </div>
                     </div>
 
                     {/* New flexible content format */}
-                    {viewingGuide.content && viewingGuide.content.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-semibold text-[#1b3c44] mb-4">Guide Content</h3>
-                            <ContentRenderer blocks={viewingGuide.content} />
+                    {((viewLanguage === 'en' && viewingGuide.content && viewingGuide.content.length > 0) ||
+                      (viewLanguage === 'bn' && viewingGuide.contentBn && viewingGuide.contentBn.length > 0)) && (
+                        <div className={viewLanguage === 'bn' ? "font-['Bengali']" : ''}>
+                            <h3 className="text-xl font-semibold text-[#1b3c44] mb-4">
+                                {viewLanguage === 'en' ? 'Guide Content' : 'গাইড কন্টেন্ট'}
+                            </h3>
+                            <ContentRenderer blocks={viewLanguage === 'en' ? viewingGuide.content! : viewingGuide.contentBn!} />
                         </div>
                     )}
 
@@ -133,6 +196,15 @@ const GuidesManagement: FunctionComponent = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Toast Notification */}
+                {toast && (
+                    <Toast
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => setToast(null)}
+                    />
+                )}
             </div>
         );
     }
@@ -156,6 +228,15 @@ const GuidesManagement: FunctionComponent = () => {
                     divisions={divisionNames}
                     categories={categoryNames}
                 />
+
+                {/* Toast Notification */}
+                {toast && (
+                    <Toast
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => setToast(null)}
+                    />
+                )}
             </div>
         );
     }
@@ -196,7 +277,7 @@ const GuidesManagement: FunctionComponent = () => {
                 {filteredGuides.map((guide) => (
                     <div key={guide.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                         <div className="aspect-video bg-gray-200 overflow-hidden">
-                            {guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg' ? (
+                            {guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg' && guide.imageUrl !== 'images/dummy.jpg' && !guide.imageUrl.endsWith('dummy.jpg') ? (
                                 <img
                                     src={guide.imageUrl}
                                     alt={guide.title}
@@ -288,6 +369,15 @@ const GuidesManagement: FunctionComponent = () => {
                         </button>
                     )}
                 </div>
+            )}
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
             )}
         </div>
     );

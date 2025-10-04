@@ -17,7 +17,7 @@ const Card3: FunctionComponent = () => {
             cardId="budget-travel-tips"
             year="2025"
             title="Budget Travel Tips for Amazing Adventures"
-            imageUrl="images/dummy.jpg"
+            imageUrl="/images/dummy.jpg"
             onViewClick={handleViewClick}
         />
     );

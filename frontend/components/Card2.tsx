@@ -16,7 +16,7 @@ const Card2: FunctionComponent = () => {
             cardId="budget-destinations"
             year="2025"
             title="Explore New Destinations That Cost Less Than Standard"
-            imageUrl="images/dummy.jpg"
+            imageUrl="/images/dummy.jpg"
             onViewClick={handleViewClick}
         />
     );

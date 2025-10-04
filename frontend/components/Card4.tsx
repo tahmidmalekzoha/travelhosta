@@ -17,7 +17,7 @@ const Card4: FunctionComponent = () => {
             cardId="solo-travel-gems"
             year="2025"
             title="Hidden Gems Around the World for Solo Travelers"
-            imageUrl="images/dummy.jpg"
+            imageUrl="/images/dummy.jpg"
             onViewClick={handleViewClick}
         />
     );

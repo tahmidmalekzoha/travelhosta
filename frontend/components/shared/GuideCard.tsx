@@ -1,34 +1,43 @@
 "use client";
 
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './TravelCard.module.css';
 import type { GuideData } from '../../types';
+import { isValidImageUrl } from '../../utils/imageUtils';
 
 interface GuideCardProps {
-    /** Guide data */
+    /** Guide data to display */
     guide: GuideData;
 }
 
 /**
  * Reusable guide card component displaying a guide preview
- * with image background, title, duration, and view button.
- * Styled consistently with the homepage travel cards.
+ * Features image background, title, description, and view button
+ * Styled consistently with the homepage travel cards
  */
 const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
     const router = useRouter();
 
-    const handleViewClick = (e: React.MouseEvent) => {
+    const handleViewClick = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
         router.push(`/guides/${guide.id}`);
-    };
+    }, [router, guide.id]);
 
-    const hasValidImage = guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg';
+    const hasValidImage = useMemo(() => isValidImageUrl(guide.imageUrl), [guide.imageUrl]);
+    
+    // Determine background style based on image availability
+    const backgroundStyle = useMemo(() => {
+        if (hasValidImage) {
+            return { backgroundImage: `url("${guide.imageUrl}")` };
+        }
+        return { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' };
+    }, [hasValidImage, guide.imageUrl]);
 
     return (
         <div className={styles.itemBlog}>
             <div
-                style={hasValidImage ? { backgroundImage: `url("${guide.imageUrl}")` } : { background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
+                style={backgroundStyle}
                 className={styles.imageBlog}
                 role="img"
                 aria-label={guide.title}
@@ -61,6 +70,25 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
                             </span>
                         )}
                     </div>
+                    
+                    {/* Tags */}
+                    {guide.tags && guide.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            {guide.tags.slice(0, 3).map((tag, index) => (
+                                <span
+                                    key={index}
+                                    className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-full border border-white/30 font-['Schibsted_Grotesk']"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                            {guide.tags.length > 3 && (
+                                <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-full border border-white/30 font-['Schibsted_Grotesk']">
+                                    +{guide.tags.length - 3} more
+                                </span>
+                            )}
+                        </div>
+                    )}
                     
                     {/* View Button - matching homepage style */}
                     <button
