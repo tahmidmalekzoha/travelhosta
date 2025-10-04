@@ -1,4 +1,4 @@
-import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock, ItineraryStep } from '../types';
+import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock, NotesBlock, ItineraryStep } from '../types';
 
 /**
  * Enhanced content parser for flexible guide structure
@@ -88,6 +88,9 @@ export function parseGuideContent(text: string): ContentBlock[] {
             case 'tips':
                 blocks.push(parseTipsBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
+            case 'notes':
+                blocks.push(parseNotesBlock(trimmedContent, parsedAttributes, blockIndex++));
+                break;
             case 'timeline':
                 blocks.push(parseTimelineBlock(trimmedContent, parsedAttributes, blockIndex++));
                 break;
@@ -174,18 +177,67 @@ function parseTipsBlock(content: string, attributes: Record<string, string>, ind
 }
 
 /**
+ * Parse notes block extracting individual note items
+ * Supports both markdown list format (- Note) and plain text lines
+ * @param content - The notes content to parse
+ * @param attributes - Block attributes (e.g., title)
+ * @param index - Block index for unique ID
+ */
+function parseNotesBlock(content: string, attributes: Record<string, string>, index: number): NotesBlock {
+    const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+    const notes: string[] = [];
+
+    for (const line of lines) {
+        // Check for markdown list item (- Note text)
+        if (line.startsWith('- ')) {
+            notes.push(line.substring(2).trim());
+        }
+        // Support plain text lines as notes (but skip headings)
+        else if (line && !line.startsWith('#')) {
+            notes.push(line);
+        }
+    }
+
+    return {
+        type: 'notes',
+        id: `notes-${index}`,
+        title: attributes.title,
+        notes
+    };
+}
+
+/**
  * Parse timeline block
+ * Format:
+ * - First line is the title
+ * - Following lines are details/data
+ * - Empty line starts a new title
  */
 function parseTimelineBlock(content: string, attributes: Record<string, string>, index: number): TimelineBlock {
-    const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+    const lines = content.split('\n');
     const steps: ItineraryStep[] = [];
     let currentStep: ItineraryStep | null = null;
     let inTipsSection = false;
+    let inNotesSection = false;
 
-    for (const line of lines) {
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Empty line - save current step and prepare for next title
+        if (!line) {
+            if (currentStep) {
+                steps.push(currentStep);
+                currentStep = null;
+                inTipsSection = false;
+                inNotesSection = false;
+            }
+            continue;
+        }
+
         // Check for tips section markers
         if (line === '[tips]') {
             inTipsSection = true;
+            inNotesSection = false;
             if (currentStep && !currentStep.tips) {
                 currentStep.tips = [];
             }
@@ -194,49 +246,67 @@ function parseTimelineBlock(content: string, attributes: Record<string, string>,
             inTipsSection = false;
             continue;
         }
-
-        // Check for step header (## Title)
-        if (line.startsWith('## ')) {
-            // Save previous step if exists
-            if (currentStep) {
-                steps.push(currentStep);
+        
+        // Check for notes section markers
+        if (line === '[notes]') {
+            inNotesSection = true;
+            inTipsSection = false;
+            if (currentStep && !currentStep.notes) {
+                currentStep.notes = [];
             }
+            continue;
+        } else if (line === '[/notes]') {
+            inNotesSection = false;
+            continue;
+        }
 
-            // Create new step
-            const title = line.substring(3).trim();
+        // If no current step, this line is a new title
+        if (!currentStep) {
             currentStep = {
                 id: `step-${steps.length + 1}`,
-                title,
+                title: line,
                 details: []
             };
-            inTipsSection = false; // Reset tips section for new step
         }
-        // Check for detail/tip item (- Item)
-        else if (line.startsWith('- ') && currentStep) {
-            const item = line.substring(2).trim();
-            if (inTipsSection) {
-                if (!currentStep.tips) {
-                    currentStep.tips = [];
+        // Otherwise, this line is data under the current title
+        else {
+            // Check for detail/tip/note item (- Item)
+            if (line.startsWith('- ')) {
+                const item = line.substring(2).trim();
+                if (inTipsSection) {
+                    if (!currentStep.tips) {
+                        currentStep.tips = [];
+                    }
+                    currentStep.tips.push(item);
+                } else if (inNotesSection) {
+                    if (!currentStep.notes) {
+                        currentStep.notes = [];
+                    }
+                    currentStep.notes.push(item);
+                } else {
+                    currentStep.details.push(item);
                 }
-                currentStep.tips.push(item);
-            } else {
-                currentStep.details.push(item);
             }
-        }
-        // Handle non-markdown lines as additional details/tips
-        else if (line && currentStep && !line.startsWith('#')) {
-            if (inTipsSection) {
-                if (!currentStep.tips) {
-                    currentStep.tips = [];
+            // Handle non-markdown lines as additional details/tips/notes
+            else {
+                if (inTipsSection) {
+                    if (!currentStep.tips) {
+                        currentStep.tips = [];
+                    }
+                    currentStep.tips.push(line);
+                } else if (inNotesSection) {
+                    if (!currentStep.notes) {
+                        currentStep.notes = [];
+                    }
+                    currentStep.notes.push(line);
+                } else {
+                    currentStep.details.push(line);
                 }
-                currentStep.tips.push(line);
-            } else {
-                currentStep.details.push(line);
             }
         }
     }
 
-    // Add the last step
+    // Add the last step if exists
     if (currentStep) {
         steps.push(currentStep);
     }
@@ -351,6 +421,8 @@ export function contentToText(blocks: ContentBlock[]): string {
                 return textBlockToString(block);
             case 'tips':
                 return tipsBlockToString(block);
+            case 'notes':
+                return notesBlockToString(block);
             case 'timeline':
                 return timelineBlockToString(block);
             case 'image':
@@ -376,10 +448,16 @@ function tipsBlockToString(block: TipsBlock): string {
     return `:::tips${attrs}\n${tips}\n:::`;
 }
 
+function notesBlockToString(block: NotesBlock): string {
+    const attrs = block.title ? ` [title="${block.title}"]` : '';
+    const notes = block.notes.map(note => `- ${note}`).join('\n');
+    return `:::notes${attrs}\n${notes}\n:::`;
+}
+
 function timelineBlockToString(block: TimelineBlock): string {
     const attrs = block.title ? ` [title="${block.title}"]` : '';
     const steps = block.steps.map(step => {
-        const lines = [`## ${step.title}`];
+        const lines = [step.title]; // First line is the title (no ## prefix)
         step.details.forEach(detail => lines.push(`- ${detail}`));
         
         // Add tips section if present
@@ -389,8 +467,15 @@ function timelineBlockToString(block: TimelineBlock): string {
             lines.push('[/tips]');
         }
         
+        // Add notes section if present
+        if (step.notes && step.notes.length > 0) {
+            lines.push('[notes]');
+            step.notes.forEach(note => lines.push(`- ${note}`));
+            lines.push('[/notes]');
+        }
+        
         return lines.join('\n');
-    }).join('\n\n');
+    }).join('\n\n'); // Empty line separates steps
     
     return `:::timeline${attrs}\n${steps}\n:::`;
 }
@@ -455,6 +540,11 @@ export function validateContent(blocks: ContentBlock[]): string[] {
                     errors.push(`Tips block ${index + 1}: At least one tip is required`);
                 }
                 break;
+            case 'notes':
+                if (block.notes.length === 0) {
+                    errors.push(`Notes block ${index + 1}: At least one note is required`);
+                }
+                break;
             case 'timeline':
                 if (block.steps.length === 0) {
                     errors.push(`Timeline block ${index + 1}: At least one step is required`);
@@ -508,25 +598,35 @@ Welcome to this **amazing travel guide**! This journey will take you through som
 Get ready for an unforgettable adventure filled with stunning landscapes, delicious food, and wonderful memories.
 :::
 
-:::tips [title="Before You Go"]
+:::tips
 - Always carry sufficient cash as many places don't accept cards
 - Book train/bus tickets at least 2-3 days in advance
 - Carry a power bank and portable charger
 - Download offline maps before the journey
-- Keep emergency contact numbers handy
+:::
+
+:::notes
+- Best time to visit: October to March
+- Local language: Bengali (English widely understood in tourist areas)
+- Currency: Bangladeshi Taka (BDT)
+- Emergency numbers: Police 999, Tourist Police 01320-014140
 :::
 
 :::timeline [title="Day 1: Getting There"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Journey time: 6 hours
 [tips]
 - Book window seats for better views
 - Carry snacks and water bottles
-- Keep your ticket safe throughout the journey
 [/tips]
+[notes]
+- Trains depart from Kamalapur Railway Station
+- Book tickets online at railway.gov.bd
+- Intercity trains are more comfortable than mail trains
+[/notes]
 
-## Sylhet Railway Station to Shahjalal Mazar
+Sylhet Railway Station to Shahjalal Mazar
 - CNG Auto: 25 Taka per person
 - Reserve CNG: 125 Taka
 - Breakfast: 100 Taka per person
@@ -543,15 +643,19 @@ After reaching the destination, take some time to explore the local markets and 
 :::
 
 :::timeline [title="Day 2: Exploring"]
-## Shahjalal Mazar to Ratargul Swamp Forest
+Shahjalal Mazar to Ratargul Swamp Forest
 - Reserve car: 2500 Taka
 - Entry fee: 50 Taka per person
 - Boat ride: 200 Taka per boat
 [tips]
 - Visit early morning for the best experience
 - Wear comfortable shoes suitable for water
-- Bring a waterproof bag for your electronics
 [/tips]
+[notes]
+- Forest is closed during monsoon season (June-August)
+- Boat capacity is 4-6 people
+- Life jackets are provided and mandatory
+[/notes]
 :::
 
 :::table [title="Budget Breakdown" caption="Estimated costs per person"]

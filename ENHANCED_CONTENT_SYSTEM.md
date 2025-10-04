@@ -117,7 +117,7 @@ Create step-by-step itineraries with routes, costs, and details.
 
 ```
 :::timeline [title="Day 1: Getting There"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Journey time: 6 hours
 [tips]
@@ -126,7 +126,7 @@ Create step-by-step itineraries with routes, costs, and details.
 - Keep ticket accessible for checks
 [/tips]
 
-## Hotel Check-in
+Hotel Check-in
 - Budget: 1,500-2,000 Taka
 - Location: City center
 [tips]
@@ -136,16 +136,18 @@ Create step-by-step itineraries with routes, costs, and details.
 :::
 ```
 
+**Format:** First line = title, empty line = new step
+
 **Example:**
 
 ```
 :::timeline [title="Day 1: Getting There"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Journey time: 6 hours
 - Departure: 7:00 AM
 
-## Sylhet Railway Station to Shahjalal Mazar
+Sylhet Railway Station to Shahjalal Mazar
 - CNG Auto: 25 Taka per person
 - Reserve CNG: 125 Taka
 - Duration: 15 minutes
@@ -258,16 +260,16 @@ This comprehensive guide covers everything you need for a perfect 3-day trip.
 :::
 
 :::timeline [title="Day 1: Arrival & City Exploration"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Flight: 3,500-5,000 Taka
 - Journey time: 6 hours by train, 1 hour by flight
 
-## Sylhet Railway Station to Hotel
+Sylhet Railway Station to Hotel
 - CNG Auto: 25 Taka per person
 - Reserve CNG: 125 Taka
 
-## Shahjalal Mazar Visit
+Shahjalal Mazar Visit
 - Entry: Free
 - Recommended time: Sunset
 - Dress modestly
@@ -290,12 +292,12 @@ All hotels are located in the city center with easy access to attractions.
 :::
 
 :::timeline [title="Day 2: Nature & Adventure"]
-## Hotel to Ratargul Swamp Forest
+Hotel to Ratargul Swamp Forest
 - Reserve car: 2,500 Taka (full day)
 - Entry fee: 50 Taka per person
 - Boat ride: 200 Taka per boat
 
-## Ratargul to Jaflong
+Ratargul to Jaflong
 - Already included in car rental
 - Border permit: Not required for viewing area
 - Entry: 20 Taka per person
@@ -321,12 +323,12 @@ fish curry and fresh river fish - it's absolutely delicious!
 :::
 
 :::timeline [title="Day 3: Tea Gardens & Departure"]
-## Sreemangal Tea Gardens Tour
+Sreemangal Tea Gardens Tour
 - Transport: 3,000 Taka for car
 - Tea tasting: Free at most estates
 - Duration: Full morning
 
-## Return to Sylhet City
+Return to Sylhet City
 - Lunch at Panshi Restaurant
 - Shopping at Zinda Bazar
 - Evening train back to Dhaka

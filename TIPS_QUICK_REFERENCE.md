@@ -41,7 +41,7 @@ A dedicated content block for highlighting travel advice, recommendations, and i
 
 ```
 :::timeline [title="Day 1: Getting There"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Journey time: 6 hours
 [tips]
@@ -49,7 +49,7 @@ A dedicated content block for highlighting travel advice, recommendations, and i
 - Carry snacks and water bottles
 [/tips]
 
-## Hotel Check-in
+Hotel Check-in
 - Budget: 1,500-2,000 Taka
 [tips]
 - Check-in time is usually 2 PM
@@ -57,6 +57,8 @@ A dedicated content block for highlighting travel advice, recommendations, and i
 [/tips]
 :::
 ```
+
+**Note:** First line = title, empty line = new step
 
 **Visual:**
 
@@ -169,7 +171,7 @@ In the **Quick Insert** toolbar, you'll find:
 
 ```
 :::timeline
-## Visit to Ratargul Forest
+Visit to Ratargul Forest
 - Entry: 50 Taka
 - Boat: 200 Taka
 [tips]
@@ -199,7 +201,7 @@ Experience the natural beauty of Bangladesh's tea capital...
 :::
 
 :::timeline [title="Day 1: Arrival"]
-## Dhaka to Sylhet by Train
+Dhaka to Sylhet by Train
 - Train: 395 Taka
 - Duration: 6 hours
 [tips]
@@ -207,7 +209,7 @@ Experience the natural beauty of Bangladesh's tea capital...
 - Keep ticket accessible for multiple checks
 [/tips]
 
-## Shahjalal Mazar Visit
+Shahjalal Mazar Visit
 - Entry: Free
 - CNG: 50 Taka
 [tips]
@@ -241,7 +243,7 @@ Experience the natural beauty of Bangladesh's tea capital...
 
 ```
 :::timeline [title="Title"]
-## Step Name
+Step Name
 - Detail 1
 - Detail 2
 [tips]
@@ -250,6 +252,8 @@ Experience the natural beauty of Bangladesh's tea capital...
 [/tips]
 :::
 ```
+
+**Note:** First line = title, empty line = new step
 
 ---
 

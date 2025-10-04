@@ -20,7 +20,7 @@ help you plan a **memorable 2-day trip**.
 :::
 
 :::timeline [title="Complete Itinerary"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka (Parabat Express)
 - Departure: 6:30 AM
 - Arrival: 12:30 PM
@@ -30,12 +30,12 @@ help you plan a **memorable 2-day trip**.
 - Keep your ticket accessible for checks
 [/tips]
 
-## Hotel Check-in
+Hotel Check-in
 - Budget: 1,500-2,000 Taka
 - Mid-range: 3,000-4,000 Taka
 - Location: City center recommended
 
-## Shahjalal Mazar Visit
+Shahjalal Mazar Visit
 - CNG Auto: 25 Taka per person
 - Free entry
 - Best time: Sunset
@@ -70,15 +70,15 @@ and spiritual sites.
 :::
 
 :::timeline [title="Day 1: Arrival & City Tour"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Flight: 3,500-5,000 Taka (50 minutes)
 - Train: 395 Taka (6 hours)
 
-## Hotel to Shahjalal Mazar
+Hotel to Shahjalal Mazar
 - CNG: 100 Taka for round trip
 - Visit duration: 1-2 hours
 
-## Keane Bridge Sunset
+Keane Bridge Sunset
 - Walk or CNG: 50 Taka
 - Perfect photo spot
 - Nearby cafes for evening tea
@@ -90,19 +90,19 @@ Take it easy after your journey!
 :::
 
 :::timeline [title="Day 2: Nature & Adventure"]
-## Ratargul Swamp Forest Trip
+Ratargul Swamp Forest Trip
 - Car rental: 2,500 Taka (full day)
 - Entry: 50 Taka per person
 - Boat ride: 200 Taka per boat
 - Best time: Morning (6 AM - 11 AM)
 
-## Jaflong Stone Collection
+Jaflong Stone Collection
 - Same car continues to Jaflong
 - Entry: 20 Taka
 - Boat ride on Piyain River: 300 Taka
 - Lunch at local restaurants: 200-300 Taka
 
-## Tamabil Border
+Tamabil Border
 - 15 minutes from Jaflong
 - Free entry
 - Great views of Meghalaya hills
@@ -114,13 +114,13 @@ sunscreen, water, and a hat.
 :::
 
 :::timeline [title="Day 3: Tea Gardens & Return"]
-## Sreemangal Day Trip
+Sreemangal Day Trip
 - Car: 3,000 Taka
 - Tea garden tours: Usually free
 - Tea tasting: Complimentary
 - Madhabkunda Waterfall: 20 Taka entry
 
-## Return to Sylhet
+Return to Sylhet
 - Arrive by evening
 - Last-minute shopping at Zinda Bazar
 - Evening train/flight to Dhaka
@@ -163,7 +163,7 @@ from Sylhet city, the drive takes you through rural villages and tea gardens.
 :::
 
 :::timeline [title="Getting There"]
-## Sylhet City to Ratargul
+Sylhet City to Ratargul
 - Private car: 1,500-2,000 Taka (one way)
 - CNG reserve: 800-1,000 Taka (one way)
 - Local bus: 50 Taka (takes longer)
@@ -232,14 +232,14 @@ per person** for a 2-day trip.
 :::
 
 :::timeline [title="Transportation Costs"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train (Economy): 395 Taka
 - Train (Shovan): 580 Taka
 - AC Bus: 600-800 Taka
 - Non-AC Bus: 400-500 Taka
 - **Budget Choice**: Economy Train (395 Taka)
 
-## Local Transport in Sylhet
+Local Transport in Sylhet
 - CNG Auto (city): 20-50 Taka per trip
 - Reserve CNG (half day): 500-800 Taka
 - Reserve CNG (full day): 1,200-1,500 Taka
@@ -252,13 +252,13 @@ per person** for a 2-day trip.
 :::
 
 :::timeline [title="Accommodation Options"]
-## Budget Hotels
+Budget Hotels
 - Hotel Green View: 800-1,000 Taka/night
 - Sylhet Guest House: 600-800 Taka/night
 - Moonlight Hotel: 700-900 Taka/night
 - **Budget Choice**: Sylhet Guest House (1,200 Taka for 2 nights)
 
-## Where to Eat
+Where to Eat
 - Street food breakfast: 50-80 Taka
 - Local restaurant lunch: 100-150 Taka
 - Local restaurant dinner: 150-200 Taka
@@ -271,13 +271,13 @@ per person** for a 2-day trip.
 :::
 
 :::timeline [title="Activities & Entry Fees"]
-## Day 1
+Day 1
 - Shahjalal Mazar: Free
 - Keane Bridge: Free
 - Museum: 20 Taka
 - **Day 1 Total**: 20 Taka
 
-## Day 2
+Day 2
 - Ratargul entry: 50 Taka
 - Boat ride (shared): 50 Taka per person
 - Jaflong entry: 20 Taka
@@ -323,25 +323,25 @@ on weather, crowds, and activities.
 :::
 
 :::timeline [title="Winter (November - February)"]
-## Weather
+Weather
 - Temperature: 10-25°C
 - Rainfall: Minimal
 - Humidity: Low
 - Sunshine: Abundant
 
-## Best For
+Best For
 - Tea garden visits
 - Outdoor activities
 - Photography
 - Comfortable sightseeing
 
-## What to Pack
+What to Pack
 - Light jacket for mornings
 - Comfortable walking clothes
 - Sunscreen
 - Camera
 
-## Tourist Volume
+Tourist Volume
 - High season
 - Crowds at popular spots
 - Book accommodation in advance
@@ -354,25 +354,25 @@ all activities available, stunning landscapes.
 :::
 
 :::timeline [title="Monsoon (June - September)"]
-## Weather
+Weather
 - Temperature: 25-32°C
 - Rainfall: Heavy and frequent
 - Humidity: Very high
 - Cloud cover: Constant
 
-## Best For
+Best For
 - Ratargul at full water level
 - Waterfall visits (strongest flow)
 - Lush green landscapes
 - Photography (if you can keep camera dry!)
 
-## What to Pack
+What to Pack
 - Waterproof jacket/poncho
 - Waterproof bag for electronics
 - Extra clothes
 - Closed shoes with good grip
 
-## Tourist Volume
+Tourist Volume
 - Low season
 - Fewer crowds
 - Better hotel deals

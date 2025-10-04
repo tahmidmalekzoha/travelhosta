@@ -24,21 +24,27 @@ Multiple paragraphs supported.
 
 ```
 :::timeline [title="Optional Title"]
-## Step Title
+Step Title
 - Detail 1: Info
 - Detail 2: More info
 
-## Next Step
+Next Step
 - Detail 1
 - Detail 2
 :::
 ```
 
+**Format:**
+
+- First line = title (no ## prefix needed)
+- Following lines = data/details
+- Empty line = starts new title
+
 ## Timeline with Tips
 
 ```
 :::timeline [title="Day by Day"]
-## Day 1: Arrival
+Day 1: Arrival
 - Train ticket: 400 Taka
 - Hotel check-in
 [tips]
@@ -46,7 +52,7 @@ Multiple paragraphs supported.
 - Carry snacks for the journey
 [/tips]
 
-## Day 2: Sightseeing
+Day 2: Sightseeing
 - Entry fee: 50 Taka
 - Guide: 500 Taka
 [tips]
@@ -89,7 +95,7 @@ Welcome to this amazing journey!
 :::
 
 :::timeline [title="Day 1"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Time: 6 hours
 :::

@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
-import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock } from '../types';
+import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock, NotesBlock } from '../types';
 import Timeline from './Timeline';
 import ImagePlaceholder from './shared/ImagePlaceholder';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, Info } from 'lucide-react';
 import { isValidImageUrl, getImageAltText } from '../utils/imageUtils';
 
 interface ContentRendererProps {
@@ -30,6 +30,8 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks }) =>
                         return <TableBlockRenderer key={block.id} block={block} />;
                     case 'tips':
                         return <TipsBlockRenderer key={block.id} block={block} />;
+                    case 'notes':
+                        return <NotesBlockRenderer key={block.id} block={block} />;
                     default:
                         return null;
                 }
@@ -80,29 +82,40 @@ const TextBlockRenderer: FunctionComponent<{ block: TextBlock }> = ({ block }) =
 };
 
 /**
- * Renders a tips block with highlighted styling
+ * Renders a tips block with compact styling
  */
 const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock }> = ({ block }) => {
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl shadow-lg p-6 md:p-8 border-2 border-amber-200">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
-                        <Lightbulb className="text-white" size={24} />
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-amber-900">
-                        {block.title || 'Pro Tips'}
-                    </h3>
-                </div>
-                
-                <div className="space-y-3">
+            <div className="bg-amber-50 rounded-lg border-l-4 border-amber-400 p-4">
+                <div className="space-y-2">
                     {block.tips.map((tip, index) => (
-                        <div key={index} className="flex items-start gap-3 bg-white/60 rounded-lg p-4 hover:bg-white/80 transition-colors">
-                            <div className="flex-shrink-0 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold text-sm mt-0.5">
-                                {index + 1}
-                            </div>
-                            <p className="text-gray-800 text-base leading-relaxed flex-grow">
+                        <div key={index} className="flex items-start gap-3">
+                            <Lightbulb className="text-amber-600 flex-shrink-0 mt-0.5" size={16} />
+                            <p className="text-gray-700 text-sm leading-relaxed flex-grow">
                                 {tip}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+/**
+ * Renders a notes block with compact styling
+ */
+const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock }> = ({ block }) => {
+    return (
+        <div className="max-w-4xl mx-auto">
+            <div className="bg-blue-50 rounded-lg border-l-4 border-blue-400 p-4">
+                <div className="space-y-2">
+                    {block.notes.map((note, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                            <Info className="text-blue-600 flex-shrink-0 mt-0.5" size={16} />
+                            <p className="text-gray-700 text-sm leading-relaxed flex-grow">
+                                {note}
                             </p>
                         </div>
                     ))}

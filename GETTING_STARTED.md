@@ -109,16 +109,18 @@ Multiple paragraphs work great!
 
 ```
 :::timeline [title="Day 1"]
-## From Location A to Location B
+From Location A to Location B
 - Cost: 500 Taka
 - Time: 2 hours
 - Transport: Train
 
-## Location B to Location C
+Location B to Location C
 - Cost: 200 Taka
 - Duration: 30 minutes
 :::
 ```
+
+**Note:** First line is the title, following lines are details. Empty line starts a new step.
 
 ### Image Block
 
@@ -158,12 +160,12 @@ and natural beauty. This guide covers a perfect weekend trip.
 :::
 
 :::timeline [title="Getting There"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Duration: 6 hours
 - Departure: 6:30 AM
 
-## Railway Station to Hotel
+Railway Station to Hotel
 - CNG Auto: 25 Taka per person
 - Duration: 15 minutes
 :::

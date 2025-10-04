@@ -1,10 +1,10 @@
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
-import { GuideData, Language, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock } from '../../types';
+import { GuideData, Language, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock, NotesBlock } from '../../types';
 import { parseGuideContent, contentToText, validateContent, sampleContent } from '../../utils/contentParser';
 import ContentRenderer from '../ContentRenderer';
 import TableEditor from './TableEditor';
 import Toast, { ToastType } from '../shared/Toast';
-import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages, Info } from 'lucide-react';
 import { previewTableFromClipboard } from '../../utils/tablePasteHandler';
 import { useCategories } from '../../contexts/CategoriesContext';
 
@@ -282,20 +282,26 @@ Write your content here. You can use **bold** and *italic* text.
 
 Add multiple paragraphs as needed.
 :::`,
-        tips: `:::tips [title="Pro Tips"]
+        tips: `:::tips
 - Always carry sufficient cash as many places don't accept cards
 - Book train/bus tickets at least 2-3 days in advance
 - Download offline maps before the journey
 - Keep emergency contact numbers handy
 - Pack light but bring layers for changing weather
 :::`,
+        notes: `:::notes
+- Entry times may vary by season - check before visiting
+- Some locations require advance booking
+- Photography restrictions may apply in certain areas
+- Carry a copy of your ID for verification
+:::`,
         timeline: `:::timeline [title="Day 1: Journey"]
-## Location A to Location B
+Location A to Location B
 - Transportation: Cost
 - Duration: Time
 - Notes: Additional info
 
-## Location B to Location C
+Location B to Location C
 - Transportation: Cost
 - Tips: Helpful advice
 :::`,
@@ -303,8 +309,12 @@ Add multiple paragraphs as needed.
 - Tip for this step
 - Another tip
 [/tips]`,
+        timelineNotes: `[notes]
+- Note for this step
+- Another note
+[/notes]`,
         timelineWithTips: `:::timeline [title="Day 1: Getting There"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka
 - Journey time: 6 hours
 - Departure: 6:30 AM
@@ -314,7 +324,7 @@ Add multiple paragraphs as needed.
 - Keep ticket accessible for checks
 [/tips]
 
-## Sylhet Railway Station to Hotel
+Sylhet Railway Station to Hotel
 - CNG Auto: 100 Taka
 - Duration: 20 minutes
 [tips]
@@ -622,6 +632,14 @@ Transport | 500 | 1000 | 3000
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertTemplate(templates.notes)}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-100 text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-200 transition-colors"
+                                >
+                                    <Info size={16} />
+                                    Notes Block
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => insertTemplate(templates.timeline)}
                                     className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                                 >
@@ -636,6 +654,15 @@ Transport | 500 | 1000 | 3000
                                 >
                                     <Lightbulb size={16} />
                                     Timeline Tips
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => insertTemplate(templates.timelineNotes)}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                                    title="Add notes section inside a timeline step"
+                                >
+                                    <Info size={16} />
+                                    Timeline Notes
                                 </button>
                                 <button
                                     type="button"
@@ -858,7 +885,8 @@ Transport | 500 | 1000 | 3000
                                                     image: '🖼️',
                                                     imageGallery: '🎨',
                                                     table: '📊',
-                                                    tips: '💡'
+                                                    tips: '💡',
+                                                    notes: 'ℹ️'
                                                 };
                                                 const blockColors: Record<string, string> = {
                                                     text: 'bg-blue-100 border-blue-300 text-blue-800',
@@ -866,7 +894,8 @@ Transport | 500 | 1000 | 3000
                                                     image: 'bg-purple-100 border-purple-300 text-purple-800',
                                                     imageGallery: 'bg-pink-100 border-pink-300 text-pink-800',
                                                     table: 'bg-indigo-100 border-indigo-300 text-indigo-800',
-                                                    tips: 'bg-amber-100 border-amber-300 text-amber-800'
+                                                    tips: 'bg-amber-100 border-amber-300 text-amber-800',
+                                                    notes: 'bg-blue-100 border-blue-300 text-blue-800'
                                                 };
                                                 const icon = blockIcons[block.type] || '📄';
                                                 const colorClass = blockColors[block.type] || 'bg-gray-100 border-gray-300 text-gray-800';
@@ -879,6 +908,8 @@ Transport | 500 | 1000 | 3000
                                                     blockTitle = (block as TimelineBlock).title!;
                                                 } else if (block.type === 'tips' && (block as TipsBlock).title) {
                                                     blockTitle = (block as TipsBlock).title!;
+                                                } else if (block.type === 'notes' && (block as NotesBlock).title) {
+                                                    blockTitle = (block as NotesBlock).title!;
                                                 } else if (block.type === 'imageGallery' && (block as ImageGalleryBlock).title) {
                                                     blockTitle = (block as ImageGalleryBlock).title!;
                                                 } else if (block.type === 'table') {

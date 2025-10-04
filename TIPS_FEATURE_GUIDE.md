@@ -87,7 +87,7 @@ Add specific tips directly within timeline steps for context-relevant advice.
 
 ```
 :::timeline [title="Day 1: Journey to Sylhet"]
-## Dhaka to Sylhet by Train
+Dhaka to Sylhet by Train
 - Train: 395 Taka (Parabat Express)
 - Departure: 6:30 AM
 - Journey time: 6 hours
@@ -97,7 +97,7 @@ Add specific tips directly within timeline steps for context-relevant advice.
 - Keep your ticket accessible as it will be checked multiple times
 [/tips]
 
-## Sylhet Railway Station to Hotel
+Sylhet Railway Station to Hotel
 - CNG Auto: 100 Taka
 - Reserve CNG: 300 Taka
 - Duration: 20 minutes
@@ -107,7 +107,7 @@ Add specific tips directly within timeline steps for context-relevant advice.
 - Keep small change ready for easier transactions
 [/tips]
 
-## Shahjalal Mazar Visit
+Shahjalal Mazar Visit
 - Entry: Free
 - CNG from hotel: 50 Taka round trip
 - Best time: Sunset
@@ -154,7 +154,7 @@ spots all mapped out.
 :::
 
 :::timeline [title="Day 1: Arrival & City Exploration"]
-## Dhaka to Sylhet
+Dhaka to Sylhet
 - Train: 395 Taka (Parabat Express)
 - Departure: 6:30 AM from Kamalapur
 - Arrival: 12:30 PM
@@ -164,7 +164,7 @@ spots all mapped out.
 - Keep your ticket safe - it's checked multiple times
 [/tips]
 
-## Hotel Check-in
+Hotel Check-in
 - Budget: 1,500-2,000 Taka
 - Mid-range: 3,000-4,000 Taka
 - Location: City center near Zindabazar
@@ -174,7 +174,7 @@ spots all mapped out.
 - Confirm if breakfast is included
 [/tips]
 
-## Shahjalal Mazar & Keane Bridge
+Shahjalal Mazar & Keane Bridge
 - CNG to Mazar: 50 Taka
 - Mazar entry: Free
 - Walk to Keane Bridge: 10 minutes
@@ -194,7 +194,7 @@ spots all mapped out.
 :::
 
 :::timeline [title="Day 2: Nature & Return"]
-## Ratargul Swamp Forest
+Ratargul Swamp Forest
 - Reserve car from hotel: 2,500 Taka full day
 - Entry fee: 50 Taka per person
 - Boat ride: 200 Taka per boat (seats 4-5)
@@ -206,7 +206,7 @@ spots all mapped out.
 - Apply sunscreen - there's limited shade on boats
 [/tips]
 
-## Jaflong Border Area
+Jaflong Border Area
 - Continue in same car (included in daily rate)
 - Entry: 20 Taka
 - Boat on Piyain River: 300 Taka
@@ -216,7 +216,7 @@ spots all mapped out.
 - Don't cross the border markers - stay in Bangladesh side
 [/tips]
 
-## Return to Sylhet
+Return to Sylhet
 - Car back to Sylhet city: 1.5 hours
 - Evening train to Dhaka: 6:00 PM
 [tips]
