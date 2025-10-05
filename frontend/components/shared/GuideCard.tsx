@@ -2,7 +2,6 @@
 
 import { FunctionComponent, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from './TravelCard.module.css';
 import type { GuideData } from '../../types';
 import { isValidImageUrl } from '../../utils/imageUtils';
 
@@ -35,22 +34,25 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
     }, [hasValidImage, guide.imageUrl]);
 
     return (
-        <div className={styles.itemBlog}>
+        <div className="w-full relative h-[521px] md:h-[400px] rounded-[47px] overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
             <div
                 style={backgroundStyle}
-                className={styles.imageBlog}
+                className="w-full h-full rounded-[47px] bg-cover bg-center relative overflow-hidden shadow-lg transition-all duration-400 hover:shadow-2xl"
                 role="img"
                 aria-label={guide.title}
             >
-                <div className={styles.imageOverlay} />
-                <div className={styles.contentBlog}>
+                {/* Gradient Overlay */}
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/80 to-black/20 rounded-[47px] transition-all duration-300 hover:from-black/75 hover:to-black/15" />
+                
+                {/* Content Container */}
+                <div className="absolute bottom-6 md:bottom-4 left-6 md:left-4 right-6 md:right-4 z-[2] flex flex-col gap-4 md:gap-3">
                     {/* Category */}
-                    <div className={styles.paragraph}>
+                    <div className="text-white/80 font-['Schibsted_Grotesk'] text-lg md:text-base font-medium leading-tight uppercase tracking-wider">
                         {guide.category}
                     </div>
                     
                     {/* Title - matching homepage card style */}
-                    <h3 className={styles.h3Styling}>
+                    <h3 className="text-white font-['Schibsted_Grotesk'] text-[32px] md:text-2xl font-bold leading-tight m-0 flex-grow">
                         {guide.title}
                     </h3>
                     
@@ -93,16 +95,16 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
                     {/* View Button - matching homepage style */}
                     <button
                         onClick={handleViewClick}
-                        className={styles.button}
+                        className="flex items-center justify-between bg-white/10 border border-white/20 rounded-[32px] py-3 px-6 md:py-2.5 md:px-5 cursor-pointer transition-all duration-300 backdrop-blur-md min-h-[56px] md:min-h-[48px] hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5 group"
                         aria-label={`View details for ${guide.title}`}
                     >
-                        <div className={styles.buttonText}>
+                        <div className="text-white font-['Schibsted_Grotesk'] text-xl md:text-lg font-semibold flex-grow">
                             <div>View Guide</div>
                         </div>
-                        <div className={styles.arrowCircle}>
-                            <div className={styles.arrowContainer}>
+                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 group-hover:bg-white/30 group-hover:scale-110">
+                            <div className="flex items-center justify-center w-full h-full">
                                 <svg
-                                    className={styles.iconArrow}
+                                    className="w-4 h-4 text-white transition-transform duration-300 group-hover:translate-x-0.5"
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 15 15"
                                     aria-hidden="true"
