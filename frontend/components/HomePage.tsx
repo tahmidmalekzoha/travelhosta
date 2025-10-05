@@ -2,9 +2,9 @@
 
 import { useMemo } from 'react';
 import HeroSection from './HeroSection';
-import SeeAll from './SeeAll';
+import ViewAllGuidesButton from './ViewAllGuidesButton';
 import GuideCard from './shared/GuideCard';
-import Group4 from './Group4';
+import FAQSection from './FAQSection';
 import Footer from './Footer';
 import ScrollReveal from './ScrollReveal';
 import StickyNavbar from './StickyNavbar';
@@ -73,7 +73,7 @@ export default function HomePage() {
 
                     {/* See All Button */}
                     <div className="w-[297px] h-[92px] flex-shrink-0 p-0">
-                        <SeeAll />
+                        <ViewAllGuidesButton />
                     </div>
                 </div>
 
@@ -93,7 +93,7 @@ export default function HomePage() {
                 className="w-full h-[100vh] flex items-center justify-center"
                 style={{ backgroundColor: THEME_COLORS.faqBackground }}
             >
-                <Group4 />
+                <FAQSection />
             </div>
 
             {/* Footer Section */}

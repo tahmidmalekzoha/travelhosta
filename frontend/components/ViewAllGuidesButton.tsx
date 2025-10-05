@@ -2,31 +2,25 @@
 
 import { FunctionComponent, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from './SeeAll.module.css';
-
-// Constants for button configuration
-const BUTTON_CONFIG = {
-    text: 'See All',
-    arrowIcon: 'Group.svg',
-    targetRoute: '/guides',
-} as const;
+import styles from './ViewAllGuidesButton.module.css';
 
 /**
- * "See All" button component with animated hover effects
+ * "View All Guides" button component with animated hover effects
  * Features background color transitions and sliding text animation
  * Navigates to the Guides page when clicked
  */
-const SeeAll: FunctionComponent = () => {
+const ViewAllGuidesButton: FunctionComponent = () => {
     const router = useRouter();
     
-    const handleSeeAll = useCallback(() => {
-        router.push(BUTTON_CONFIG.targetRoute);
+    const handleClick = useCallback(() => {
+        router.push('/guides');
     }, [router]);
 
     return (
         <button
-            onClick={handleSeeAll}
+            onClick={handleClick}
             className={`group w-full h-full relative text-left text-[48px] color-[#f2eee9] font-['Schibsted_Grotesk'] border-none bg-transparent cursor-pointer ${styles.interactive}`}
+            aria-label="View all travel guides"
         >
             {/* Background */}
             <div className="absolute top-0 left-0 rounded-[52px] bg-[#1b3c44] w-[297px] h-[92px] transition-colors duration-300 group-hover:bg-[#0f2a30]" />
@@ -37,19 +31,19 @@ const SeeAll: FunctionComponent = () => {
             {/* Text with sliding animation */}
             <div className={styles.textTrackContainer}>
                 <div className={styles.textTrack}>
-                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">{BUTTON_CONFIG.text}</div>
-                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">{BUTTON_CONFIG.text}</div>
+                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">See All</div>
+                    <div className="text-[#f2eee9] whitespace-nowrap text-[48px]">See All</div>
                 </div>
             </div>
 
-            {/* Arrow - no animation */}
+            {/* Arrow */}
             <img
                 className="absolute top-[32px] left-[238px] w-[31px] h-[32px] z-10"
                 alt="Arrow"
-                src={BUTTON_CONFIG.arrowIcon}
+                src="Group.svg"
             />
         </button>
     );
 };
 
-export default SeeAll;
+export default ViewAllGuidesButton;
