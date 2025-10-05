@@ -3,6 +3,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import { GuidesProvider } from '../../contexts/GuidesContext';
+import { CategoriesProvider } from '../../contexts/CategoriesContext';
+import { HeroProvider } from '../../contexts/HeroContext';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import AdminHeader from '../../components/admin/AdminHeader';
 
@@ -46,14 +49,20 @@ export default function AdminLayout({
     }
 
     return (
-        <div className="flex h-screen bg-[#f2eee9] overflow-hidden">
-            <AdminSidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <AdminHeader onMenuClick={handleSidebarOpen} />
-                <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-                    {children}
-                </main>
-            </div>
-        </div>
+        <GuidesProvider>
+            <CategoriesProvider>
+                <HeroProvider>
+                    <div className="flex h-screen bg-[#f2eee9] overflow-hidden">
+                        <AdminSidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
+                        <div className="flex-1 flex flex-col overflow-hidden">
+                            <AdminHeader onMenuClick={handleSidebarOpen} />
+                            <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+                                {children}
+                            </main>
+                        </div>
+                    </div>
+                </HeroProvider>
+            </CategoriesProvider>
+        </GuidesProvider>
     );
 }

@@ -5,6 +5,7 @@ import LenisProvider from '@/components/LenisProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { GuidesProvider } from '@/contexts/GuidesContext';
 import { CategoriesProvider } from '@/contexts/CategoriesContext';
+import { HeroProvider } from '@/contexts/HeroContext';
 
 const inter = Inter({ subsets: ['latin'] });
 const anekBangla = Anek_Bangla({ 
@@ -35,9 +36,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 <AuthProvider>
                     <CategoriesProvider>
                         <GuidesProvider>
-                            <LenisProvider>
-                                {children}
-                            </LenisProvider>
+                            <HeroProvider>
+                                <LenisProvider>
+                                    {children}
+                                </LenisProvider>
+                            </HeroProvider>
                         </GuidesProvider>
                     </CategoriesProvider>
                 </AuthProvider>

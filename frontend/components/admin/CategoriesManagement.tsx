@@ -1,9 +1,9 @@
 "use client";
 
 import { FunctionComponent, useState, useEffect } from 'react';
-import { Plus, Trash2, Tag, MapPin, Hash, Save, RotateCcw } from 'lucide-react';
+import { Plus, Trash2, Tag, MapPin, Hash } from 'lucide-react';
 import { useCategories } from '../../contexts/CategoriesContext';
-import { Category, Division, Tag as TagType } from '../../contexts/CategoriesContext';
+import Toast, { ToastType } from '../shared/Toast';
 
 /**
  * Categories management component for admin panel
@@ -11,25 +11,24 @@ import { Category, Division, Tag as TagType } from '../../contexts/CategoriesCon
  */
 const CategoriesManagement: FunctionComponent = () => {
     const { 
-        categories: savedCategories, 
-        divisions: savedDivisions, 
-        tags: savedTags, 
+        categories, 
+        divisions, 
+        tags, 
+        loading,
         addCategory, 
         removeCategory, 
         addDivision, 
         removeDivision, 
         addTag, 
-        removeTag,
-        setCategories,
-        setDivisions,
-        setTags
+        removeTag
     } = useCategories();
     
-    // Local state for pending changes
-    const [localCategories, setLocalCategories] = useState<Category[]>([]);
-    const [localDivisions, setLocalDivisions] = useState<Division[]>([]);
-    const [localTags, setLocalTags] = useState<TagType[]>([]);
+    // Local state for batch operations
+    const [localCategories, setLocalCategories] = useState(categories);
+    const [localDivisions, setLocalDivisions] = useState(divisions);
+    const [localTags, setLocalTags] = useState(tags);
     const [hasChanges, setHasChanges] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     
     const [newCategoryName, setNewCategoryName] = useState('');
     const [newDivisionName, setNewDivisionName] = useState('');
@@ -37,33 +36,34 @@ const CategoriesManagement: FunctionComponent = () => {
     const [showCategoryInput, setShowCategoryInput] = useState(false);
     const [showDivisionInput, setShowDivisionInput] = useState(false);
     const [showTagInput, setShowTagInput] = useState(false);
-    const [isInitialized, setIsInitialized] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-    // Initialize local state from saved state only once on mount
+    // Initialize local state when data loads (but not during save operations)
     useEffect(() => {
-        if (!isInitialized) {
-            setLocalCategories([...savedCategories]);
-            setLocalDivisions([...savedDivisions]);
-            setLocalTags([...savedTags]);
-            setIsInitialized(true);
+        if (!isSaving) {
+            setLocalCategories(categories);
+            setLocalDivisions(divisions);
+            setLocalTags(tags);
         }
-    }, [savedCategories, savedDivisions, savedTags, isInitialized]);
+    }, [categories, divisions, tags, isSaving]);
 
-    // Check if there are changes
+    // Check for changes
     useEffect(() => {
-        const categoriesChanged = JSON.stringify(localCategories) !== JSON.stringify(savedCategories);
-        const divisionsChanged = JSON.stringify(localDivisions) !== JSON.stringify(savedDivisions);
-        const tagsChanged = JSON.stringify(localTags) !== JSON.stringify(savedTags);
-        setHasChanges(categoriesChanged || divisionsChanged || tagsChanged);
-    }, [localCategories, localDivisions, localTags, savedCategories, savedDivisions, savedTags]);
+        const categoriesChanged = JSON.stringify(localCategories) !== JSON.stringify(categories);
+        const divisionsChanged = JSON.stringify(localDivisions) !== JSON.stringify(divisions);
+        const tagsChanged = JSON.stringify(localTags) !== JSON.stringify(tags);
+        const changed = categoriesChanged || divisionsChanged || tagsChanged;
+        
+        setHasChanges(changed);
+    }, [localCategories, localDivisions, localTags, categories, divisions, tags]);
 
     const handleAddCategory = () => {
         if (newCategoryName.trim()) {
-            const newCategory: Category = {
-                id: `cat-${Date.now()}`,
-                name: newCategoryName.trim(),
+            const newCat = {
+                id: Date.now().toString(),
+                name: newCategoryName.trim()
             };
-            setLocalCategories(prev => [...prev, newCategory]);
+            setLocalCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
             setNewCategoryName('');
             setShowCategoryInput(false);
         }
@@ -71,11 +71,11 @@ const CategoriesManagement: FunctionComponent = () => {
 
     const handleAddDivision = () => {
         if (newDivisionName.trim()) {
-            const newDivision: Division = {
-                id: `div-${Date.now()}`,
-                name: newDivisionName.trim(),
+            const newDiv = {
+                id: Date.now().toString(),
+                name: newDivisionName.trim()
             };
-            setLocalDivisions(prev => [...prev, newDivision]);
+            setLocalDivisions(prev => [...prev, newDiv].sort((a, b) => a.name.localeCompare(b.name)));
             setNewDivisionName('');
             setShowDivisionInput(false);
         }
@@ -83,11 +83,11 @@ const CategoriesManagement: FunctionComponent = () => {
 
     const handleAddTag = () => {
         if (newTagName.trim()) {
-            const newTag: TagType = {
-                id: `tag-${Date.now()}`,
-                name: newTagName.trim(),
+            const newTagObj = {
+                id: Date.now().toString(),
+                name: newTagName.trim()
             };
-            setLocalTags(prev => [...prev, newTag]);
+            setLocalTags(prev => [...prev, newTagObj].sort((a, b) => a.name.localeCompare(b.name)));
             setNewTagName('');
             setShowTagInput(false);
         }
@@ -105,46 +105,92 @@ const CategoriesManagement: FunctionComponent = () => {
         setLocalTags(prev => prev.filter(tag => tag.id !== id));
     };
 
-    const handleSaveChanges = () => {
-        // Directly update the context with the local arrays
-        setCategories(localCategories);
-        setDivisions(localDivisions);
-        setTags(localTags);
-        setHasChanges(false);
+    const handleSaveChanges = async () => {
+        setIsSaving(true);
+        try {
+            // Find what to add and remove for categories
+            const categoriesToAdd = localCategories.filter(lc => !categories.find(c => c.id === lc.id));
+            const categoriesToRemove = categories.filter(c => !localCategories.find(lc => lc.id === c.id));
+
+            // Find what to add and remove for divisions
+            const divisionsToAdd = localDivisions.filter(ld => !divisions.find(d => d.id === ld.id));
+            const divisionsToRemove = divisions.filter(d => !localDivisions.find(ld => ld.id === d.id));
+
+            // Find what to add and remove for tags
+            const tagsToAdd = localTags.filter(lt => !tags.find(t => t.id === lt.id));
+            const tagsToRemove = tags.filter(t => !localTags.find(lt => lt.id === t.id));
+
+            // Execute all operations
+            for (const cat of categoriesToRemove) {
+                await removeCategory(cat.id);
+            }
+            for (const cat of categoriesToAdd) {
+                await addCategory(cat.name);
+            }
+
+            for (const div of divisionsToRemove) {
+                await removeDivision(div.id);
+            }
+            for (const div of divisionsToAdd) {
+                await addDivision(div.name);
+            }
+
+            for (const tag of tagsToRemove) {
+                await removeTag(tag.id);
+            }
+            for (const tag of tagsToAdd) {
+                await addTag(tag.name);
+            }
+
+            setToast({ message: 'All changes saved successfully!', type: 'success' });
+        } catch (error) {
+            console.error('Error saving changes:', error);
+            setToast({ message: 'Failed to save changes', type: 'error' });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleDiscardChanges = () => {
-        setLocalCategories([...savedCategories]);
-        setLocalDivisions([...savedDivisions]);
-        setLocalTags([...savedTags]);
-        setHasChanges(false);
+        setLocalCategories(categories);
+        setLocalDivisions(divisions);
+        setLocalTags(tags);
+        setToast({ message: 'Changes discarded', type: 'success' });
     };
 
     return (
         <div className="p-4 sm:p-6 lg:p-8">
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
+
             <div className="max-w-6xl mx-auto">
-                <div className="flex items-center justify-between mb-6 sm:mb-8">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44]">Categories, Divisions & Tags Management</h1>
-                    
-                    {/* Save/Discard Buttons */}
-                    {hasChanges && (
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleSaveChanges}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base"
-                            >
-                                <Save size={18} />
-                                Save Changes
-                            </button>
+                {hasChanges && (
+                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-3 mb-6">
+                        <p className="text-blue-800 font-medium">You have unsaved changes</p>
+                        <div className="flex gap-2 w-full sm:w-auto">
                             <button
                                 onClick={handleDiscardChanges}
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base"
+                                className="flex-1 sm:flex-none px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
                             >
-                                <RotateCcw size={18} />
-                                Discard
+                                Discard Changes
+                            </button>
+                            <button
+                                onClick={handleSaveChanges}
+                                className="flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                            >
+                                Save Changes
                             </button>
                         </div>
-                    )}
+                    </div>
+                )}
+
+                <div className="flex items-center justify-between mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44]">Categories, Divisions & Tags Management</h1>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -382,10 +428,10 @@ const CategoriesManagement: FunctionComponent = () => {
                     <h3 className="font-semibold text-[#1b3c44] mb-2 text-sm sm:text-base">ℹ️ Information</h3>
                     <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
                         <li>• Categories, divisions, and tags are used to filter and organize guides on the website</li>
-                        <li>• Make all your changes (add/remove) then click "Save Changes" to apply them</li>
-                        <li>• Click "Discard" to revert all unsaved changes</li>
+                        <li>• Make your changes and click "Save Changes" to update the database</li>
+                        <li>• You can discard all local changes by clicking "Discard Changes"</li>
+                        <li>• Check the browser console for detailed logs of all operations</li>
                         <li>• Removing a category, division, or tag will not delete existing guides</li>
-                        <li>• Data is stored in your browser's local storage</li>
                     </ul>
                 </div>
             </div>

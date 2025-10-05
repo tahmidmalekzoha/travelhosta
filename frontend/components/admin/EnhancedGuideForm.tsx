@@ -1,10 +1,11 @@
 import { FunctionComponent, useState, useEffect, useRef } from 'react';
 import { GuideData, Language, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock, NotesBlock } from '../../types';
 import { parseGuideContent, contentToText, validateContent, sampleContent } from '../../utils/contentParser';
+import { uploadGuideImage, validateImageFile } from '../../utils/imageUpload';
 import ContentRenderer from '../ContentRenderer';
 import TableEditor from './TableEditor';
 import Toast, { ToastType } from '../shared/Toast';
-import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages, Info } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages, Info, Upload, X } from 'lucide-react';
 import { previewTableFromClipboard } from '../../utils/tablePasteHandler';
 import { useCategories } from '../../contexts/CategoriesContext';
 
@@ -58,6 +59,10 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     const [showTableEditor, setShowTableEditor] = useState(false);
     const [tagInput, setTagInput] = useState('');
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+    
+    // Image upload state
+    const [uploading, setUploading] = useState(false);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // Table paste detection state
     const [tablePasteDetected, setTablePasteDetected] = useState(false);
@@ -70,6 +75,9 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         }
         if (guide?.contentBn) {
             setContentTextBn(contentToText(guide.contentBn));
+        }
+        if (guide?.imageUrl) {
+            setImagePreview(guide.imageUrl);
         }
     }, [guide]);
 
@@ -95,6 +103,53 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
             setFormData(prev => ({ ...prev, contentBn: [] }));
         }
     }, [contentTextBn]);
+
+    /**
+     * Handle image upload to Supabase Storage
+     */
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file
+        const validation = validateImageFile(file);
+        if (!validation.valid) {
+            setToast({ message: validation.error || 'Invalid file', type: 'error' });
+            return;
+        }
+
+        setUploading(true);
+        try {
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to Supabase
+            const imageUrl = await uploadGuideImage(file, formData.title || 'guide');
+            setFormData(prev => ({ ...prev, imageUrl }));
+            setToast({ message: 'Image uploaded successfully!', type: 'success' });
+        } catch (error) {
+            console.error('Upload failed:', error);
+            setToast({ 
+                message: error instanceof Error ? error.message : 'Failed to upload image', 
+                type: 'error' 
+            });
+            setImagePreview(null);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    /**
+     * Remove uploaded image
+     */
+    const handleRemoveImage = () => {
+        setFormData(prev => ({ ...prev, imageUrl: '' }));
+        setImagePreview(null);
+    };
 
     /**
      * Form submission handler - validates required fields and content before submitting
@@ -364,20 +419,62 @@ Transport | 500 | 1000 | 3000
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Info - Shared fields */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Cover Image URL
+                    {/* Cover Image Upload Section */}
+                    <div className="border-b pb-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Cover Image
+                        </label>
+                        
+                        {/* Image Preview */}
+                        {imagePreview && (
+                            <div className="mb-3 relative inline-block">
+                                <img 
+                                    src={imagePreview} 
+                                    alt="Preview" 
+                                    className="w-64 h-40 object-cover rounded-lg border-2 border-gray-200"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveImage}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Upload Button & URL Input */}
+                        <div className="flex gap-3 flex-wrap">
+                            <label className="flex items-center gap-2 px-4 py-2 bg-[#cd8453] text-white rounded-lg hover:bg-[#b87344] transition-colors cursor-pointer">
+                                <Upload size={18} />
+                                {uploading ? 'Uploading...' : 'Upload Image'}
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                    className="hidden"
+                                />
                             </label>
+
                             <input
                                 type="url"
                                 value={formData.imageUrl}
-                                onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
-                                placeholder="https://example.com/image.jpg"
+                                onChange={(e) => {
+                                    setFormData(prev => ({ ...prev, imageUrl: e.target.value }));
+                                    setImagePreview(e.target.value);
+                                }}
+                                className="flex-1 min-w-[300px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
+                                placeholder="Or paste image URL..."
                             />
                         </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                            Upload an image (max 5MB) or paste an external URL
+                        </p>
+                    </div>
+
+                    {/* Basic Info - Shared fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">

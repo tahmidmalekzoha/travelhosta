@@ -28,30 +28,22 @@ interface CategoriesContextType {
     removeCategory: (id: string) => Promise<void>;
     addDivision: (name: string) => Promise<void>;
     removeDivision: (id: string) => Promise<void>;
-    addTag: (name: string) => void;
-    removeTag: (id: string) => void;
+    addTag: (name: string) => Promise<void>;
+    removeTag: (id: string) => Promise<void>;
     setCategories: (categories: Category[]) => void;
     setDivisions: (divisions: Division[]) => void;
     setTags: (tags: Tag[]) => void;
     refreshCategories: () => Promise<void>;
     refreshDivisions: () => Promise<void>;
+    refreshTags: () => Promise<void>;
 }
 
 const CategoriesContext = createContext<CategoriesContextType | undefined>(undefined);
 
-const DEFAULT_TAGS: Tag[] = [
-    { id: 'tag-1', name: 'Family Friendly' },
-    { id: 'tag-2', name: 'Budget' },
-    { id: 'tag-3', name: 'Luxury' },
-    { id: 'tag-4', name: 'Solo Travel' },
-    { id: 'tag-5', name: 'Weekend' },
-    { id: 'tag-6', name: 'Photography' }
-];
-
 export function CategoriesProvider({ children }: { children: React.ReactNode }) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [divisions, setDivisions] = useState<Division[]>([]);
-    const [tags, setTags] = useState<Tag[]>([...DEFAULT_TAGS]);
+    const [tags, setTags] = useState<Tag[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +54,10 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
                 .select('*')
                 .order('name', { ascending: true });
 
-            if (fetchError) throw fetchError;
+            if (fetchError) {
+                console.error('Supabase error fetching categories:', fetchError);
+                throw fetchError;
+            }
 
             const categoriesData = (data || []).map(cat => ({
                 id: cat.id.toString(),
@@ -83,7 +78,10 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
                 .select('*')
                 .order('name', { ascending: true });
 
-            if (fetchError) throw fetchError;
+            if (fetchError) {
+                console.error('Supabase error fetching divisions:', fetchError);
+                throw fetchError;
+            }
 
             const divisionsData = (data || []).map(div => ({
                 id: div.id.toString(),
@@ -97,34 +95,38 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         }
     }, []);
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            await Promise.all([fetchCategories(), fetchDivisions()]);
-            setLoading(false);
-        };
-        loadData();
-    }, [fetchCategories, fetchDivisions]);
+    const fetchTags = useCallback(async () => {
+        try {
+            const { data, error: fetchError } = await supabase
+                .from('tags')
+                .select('*')
+                .order('name', { ascending: true });
 
-    useEffect(() => {
-        const storedTags = localStorage.getItem('travelhosta_tags');
-        if (storedTags) {
-            try {
-                const parsed = JSON.parse(storedTags);
-                if (parsed && Array.isArray(parsed)) {
-                    setTags(parsed);
-                }
-            } catch (error) {
-                console.error('Error parsing stored tags:', error);
+            if (fetchError) {
+                console.error('Supabase error fetching tags:', fetchError);
+                throw fetchError;
             }
+
+            const tagsData = (data || []).map(tag => ({
+                id: tag.id.toString(),
+                name: tag.name
+            }));
+            
+            setTags(tagsData);
+        } catch (err) {
+            console.error('Error fetching tags:', err);
+            setError(err instanceof Error ? err.message : 'Failed to fetch tags');
         }
     }, []);
 
     useEffect(() => {
-        if (tags.length > 0) {
-            localStorage.setItem('travelhosta_tags', JSON.stringify(tags));
-        }
-    }, [tags]);
+        const loadData = async () => {
+            setLoading(true);
+            await Promise.all([fetchCategories(), fetchDivisions(), fetchTags()]);
+            setLoading(false);
+        };
+        loadData();
+    }, [fetchCategories, fetchDivisions, fetchTags]);
 
     const addCategory = useCallback(async (name: string) => {
         try {
@@ -154,10 +156,11 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
     const removeCategory = useCallback(async (id: string) => {
         try {
             setError(null);
-            const { error: deleteError } = await supabase
+            const { data, error: deleteError } = await supabase
                 .from('categories')
                 .delete()
-                .eq('id', parseInt(id));
+                .eq('id', parseInt(id))
+                .select();
 
             if (deleteError) throw deleteError;
 
@@ -197,10 +200,11 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
     const removeDivision = useCallback(async (id: string) => {
         try {
             setError(null);
-            const { error: deleteError } = await supabase
+            const { data, error: deleteError } = await supabase
                 .from('divisions')
                 .delete()
-                .eq('id', parseInt(id));
+                .eq('id', parseInt(id))
+                .select();
 
             if (deleteError) throw deleteError;
 
@@ -212,16 +216,48 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         }
     }, []);
 
-    const addTag = useCallback((name: string) => {
-        const newTag: Tag = {
-            id: `tag-${Date.now()}`,
-            name
-        };
-        setTags(prev => [...prev, newTag]);
+    const addTag = useCallback(async (name: string) => {
+        try {
+            setError(null);
+            const { data, error: insertError } = await supabase
+                .from('tags')
+                .insert([{ name }])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+
+            if (data) {
+                const newTag: Tag = {
+                    id: data.id.toString(),
+                    name: data.name
+                };
+                setTags(prev => [...prev, newTag].sort((a, b) => a.name.localeCompare(b.name)));
+            }
+        } catch (err) {
+            console.error('Error adding tag:', err);
+            setError(err instanceof Error ? err.message : 'Failed to add tag');
+            throw err;
+        }
     }, []);
 
-    const removeTag = useCallback((id: string) => {
-        setTags(prev => prev.filter(tag => tag.id !== id));
+    const removeTag = useCallback(async (id: string) => {
+        try {
+            setError(null);
+            const { data, error: deleteError } = await supabase
+                .from('tags')
+                .delete()
+                .eq('id', parseInt(id))
+                .select();
+
+            if (deleteError) throw deleteError;
+
+            setTags(prev => prev.filter(tag => tag.id !== id));
+        } catch (err) {
+            console.error('Error removing tag:', err);
+            setError(err instanceof Error ? err.message : 'Failed to remove tag');
+            throw err;
+        }
     }, []);
 
     const refreshCategories = useCallback(async () => {
@@ -231,6 +267,10 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
     const refreshDivisions = useCallback(async () => {
         await fetchDivisions();
     }, [fetchDivisions]);
+
+    const refreshTags = useCallback(async () => {
+        await fetchTags();
+    }, [fetchTags]);
 
     const value = useMemo(() => ({
         categories,
@@ -249,6 +289,7 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         setTags,
         refreshCategories,
         refreshDivisions,
+        refreshTags,
     }), [
         categories,
         divisions,
@@ -263,6 +304,7 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         removeTag,
         refreshCategories,
         refreshDivisions,
+        refreshTags,
     ]);
 
     return (
