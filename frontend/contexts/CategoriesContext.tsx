@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { supabase } from '../utils/supabase';
 
 export interface Category {
     id: string;
@@ -21,39 +22,22 @@ interface CategoriesContextType {
     categories: Category[];
     divisions: Division[];
     tags: Tag[];
-    addCategory: (name: string) => void;
-    removeCategory: (id: string) => void;
-    addDivision: (name: string) => void;
-    removeDivision: (id: string) => void;
+    loading: boolean;
+    error: string | null;
+    addCategory: (name: string) => Promise<void>;
+    removeCategory: (id: string) => Promise<void>;
+    addDivision: (name: string) => Promise<void>;
+    removeDivision: (id: string) => Promise<void>;
     addTag: (name: string) => void;
     removeTag: (id: string) => void;
     setCategories: (categories: Category[]) => void;
     setDivisions: (divisions: Division[]) => void;
     setTags: (tags: Tag[]) => void;
+    refreshCategories: () => Promise<void>;
+    refreshDivisions: () => Promise<void>;
 }
 
 const CategoriesContext = createContext<CategoriesContextType | undefined>(undefined);
-
-// Default categories and divisions
-const DEFAULT_CATEGORIES: Category[] = [
-    { id: 'cat-1', name: 'Day Tour' },
-    { id: 'cat-2', name: 'Camping' },
-    { id: 'cat-3', name: 'Trekking' },
-    { id: 'cat-4', name: 'Staycation' },
-    { id: 'cat-5', name: 'Adventure' },
-    { id: 'cat-6', name: 'Cultural' },
-    { id: 'cat-7', name: 'Beach' }
-];
-
-const DEFAULT_DIVISIONS: Division[] = [
-    { id: 'div-1', name: 'Dhaka' },
-    { id: 'div-2', name: 'Chittagong' },
-    { id: 'div-3', name: 'Khulna' },
-    { id: 'div-4', name: 'Rajshahi' },
-    { id: 'div-5', name: 'Sylhet' },
-    { id: 'div-6', name: 'Barisal' },
-    { id: 'div-7', name: 'Rangpur' }
-];
 
 const DEFAULT_TAGS: Tag[] = [
     { id: 'tag-1', name: 'Family Friendly' },
@@ -65,47 +49,69 @@ const DEFAULT_TAGS: Tag[] = [
 ];
 
 export function CategoriesProvider({ children }: { children: React.ReactNode }) {
-    const [categories, setCategories] = useState<Category[]>([...DEFAULT_CATEGORIES]);
-    const [divisions, setDivisions] = useState<Division[]>([...DEFAULT_DIVISIONS]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [divisions, setDivisions] = useState<Division[]>([]);
     const [tags, setTags] = useState<Tag[]>([...DEFAULT_TAGS]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Load categories from localStorage on mount
-    useEffect(() => {
-        const storedCategories = localStorage.getItem('travelhosta_categories');
-        if (storedCategories) {
-            try {
-                const parsed = JSON.parse(storedCategories);
-                if (parsed) {
-                    setCategories(parsed);
-                }
-            } catch (error) {
-                console.error('Error parsing stored categories:', error);
-            }
+    const fetchCategories = useCallback(async () => {
+        try {
+            const { data, error: fetchError } = await supabase
+                .from('categories')
+                .select('*')
+                .order('name', { ascending: true });
+
+            if (fetchError) throw fetchError;
+
+            const categoriesData = (data || []).map(cat => ({
+                id: cat.id.toString(),
+                name: cat.name
+            }));
+            
+            setCategories(categoriesData);
+        } catch (err) {
+            console.error('Error fetching categories:', err);
+            setError(err instanceof Error ? err.message : 'Failed to fetch categories');
         }
     }, []);
 
-    // Load divisions from localStorage on mount
-    useEffect(() => {
-        const storedDivisions = localStorage.getItem('travelhosta_divisions');
-        if (storedDivisions) {
-            try {
-                const parsed = JSON.parse(storedDivisions);
-                if (parsed) {
-                    setDivisions(parsed);
-                }
-            } catch (error) {
-                console.error('Error parsing stored divisions:', error);
-            }
+    const fetchDivisions = useCallback(async () => {
+        try {
+            const { data, error: fetchError } = await supabase
+                .from('divisions')
+                .select('*')
+                .order('name', { ascending: true });
+
+            if (fetchError) throw fetchError;
+
+            const divisionsData = (data || []).map(div => ({
+                id: div.id.toString(),
+                name: div.name
+            }));
+            
+            setDivisions(divisionsData);
+        } catch (err) {
+            console.error('Error fetching divisions:', err);
+            setError(err instanceof Error ? err.message : 'Failed to fetch divisions');
         }
     }, []);
 
-    // Load tags from localStorage on mount
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+            await Promise.all([fetchCategories(), fetchDivisions()]);
+            setLoading(false);
+        };
+        loadData();
+    }, [fetchCategories, fetchDivisions]);
+
     useEffect(() => {
         const storedTags = localStorage.getItem('travelhosta_tags');
         if (storedTags) {
             try {
                 const parsed = JSON.parse(storedTags);
-                if (parsed) {
+                if (parsed && Array.isArray(parsed)) {
                     setTags(parsed);
                 }
             } catch (error) {
@@ -114,61 +120,124 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         }
     }, []);
 
-    // Persist categories to localStorage whenever they change
     useEffect(() => {
-        localStorage.setItem('travelhosta_categories', JSON.stringify(categories));
-    }, [categories]);
-
-    // Persist divisions to localStorage whenever they change
-    useEffect(() => {
-        localStorage.setItem('travelhosta_divisions', JSON.stringify(divisions));
-    }, [divisions]);
-
-    // Persist tags to localStorage whenever they change
-    useEffect(() => {
-        localStorage.setItem('travelhosta_tags', JSON.stringify(tags));
+        if (tags.length > 0) {
+            localStorage.setItem('travelhosta_tags', JSON.stringify(tags));
+        }
     }, [tags]);
 
-    const addCategory = (name: string) => {
-        const newCategory: Category = {
-            id: `cat-${Date.now()}`,
-            name: name.trim(),
-        };
-        setCategories(prev => [...prev, newCategory]);
-    };
+    const addCategory = useCallback(async (name: string) => {
+        try {
+            setError(null);
+            const { data, error: insertError } = await supabase
+                .from('categories')
+                .insert([{ name }])
+                .select()
+                .single();
 
-    const removeCategory = (id: string) => {
-        setCategories(prev => prev.filter(cat => cat.id !== id));
-    };
+            if (insertError) throw insertError;
 
-    const addDivision = (name: string) => {
-        const newDivision: Division = {
-            id: `div-${Date.now()}`,
-            name: name.trim(),
-        };
-        setDivisions(prev => [...prev, newDivision]);
-    };
+            if (data) {
+                const newCategory: Category = {
+                    id: data.id.toString(),
+                    name: data.name
+                };
+                setCategories(prev => [...prev, newCategory].sort((a, b) => a.name.localeCompare(b.name)));
+            }
+        } catch (err) {
+            console.error('Error adding category:', err);
+            setError(err instanceof Error ? err.message : 'Failed to add category');
+            throw err;
+        }
+    }, []);
 
-    const removeDivision = (id: string) => {
-        setDivisions(prev => prev.filter(div => div.id !== id));
-    };
+    const removeCategory = useCallback(async (id: string) => {
+        try {
+            setError(null);
+            const { error: deleteError } = await supabase
+                .from('categories')
+                .delete()
+                .eq('id', parseInt(id));
 
-    const addTag = (name: string) => {
+            if (deleteError) throw deleteError;
+
+            setCategories(prev => prev.filter(cat => cat.id !== id));
+        } catch (err) {
+            console.error('Error removing category:', err);
+            setError(err instanceof Error ? err.message : 'Failed to remove category');
+            throw err;
+        }
+    }, []);
+
+    const addDivision = useCallback(async (name: string) => {
+        try {
+            setError(null);
+            const { data, error: insertError } = await supabase
+                .from('divisions')
+                .insert([{ name }])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+
+            if (data) {
+                const newDivision: Division = {
+                    id: data.id.toString(),
+                    name: data.name
+                };
+                setDivisions(prev => [...prev, newDivision].sort((a, b) => a.name.localeCompare(b.name)));
+            }
+        } catch (err) {
+            console.error('Error adding division:', err);
+            setError(err instanceof Error ? err.message : 'Failed to add division');
+            throw err;
+        }
+    }, []);
+
+    const removeDivision = useCallback(async (id: string) => {
+        try {
+            setError(null);
+            const { error: deleteError } = await supabase
+                .from('divisions')
+                .delete()
+                .eq('id', parseInt(id));
+
+            if (deleteError) throw deleteError;
+
+            setDivisions(prev => prev.filter(div => div.id !== id));
+        } catch (err) {
+            console.error('Error removing division:', err);
+            setError(err instanceof Error ? err.message : 'Failed to remove division');
+            throw err;
+        }
+    }, []);
+
+    const addTag = useCallback((name: string) => {
         const newTag: Tag = {
             id: `tag-${Date.now()}`,
-            name: name.trim(),
+            name
         };
         setTags(prev => [...prev, newTag]);
-    };
+    }, []);
 
-    const removeTag = (id: string) => {
+    const removeTag = useCallback((id: string) => {
         setTags(prev => prev.filter(tag => tag.id !== id));
-    };
+    }, []);
 
-    const value = {
+    const refreshCategories = useCallback(async () => {
+        await fetchCategories();
+    }, [fetchCategories]);
+
+    const refreshDivisions = useCallback(async () => {
+        await fetchDivisions();
+    }, [fetchDivisions]);
+
+    const value = useMemo(() => ({
         categories,
         divisions,
         tags,
+        loading,
+        error,
         addCategory,
         removeCategory,
         addDivision,
@@ -178,7 +247,23 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
         setCategories,
         setDivisions,
         setTags,
-    };
+        refreshCategories,
+        refreshDivisions,
+    }), [
+        categories,
+        divisions,
+        tags,
+        loading,
+        error,
+        addCategory,
+        removeCategory,
+        addDivision,
+        removeDivision,
+        addTag,
+        removeTag,
+        refreshCategories,
+        refreshDivisions,
+    ]);
 
     return (
         <CategoriesContext.Provider value={value}>

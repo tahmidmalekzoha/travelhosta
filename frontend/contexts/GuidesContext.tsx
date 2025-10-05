@@ -1,147 +1,255 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { GUIDES_DATA } from '../constants';
+import { supabase } from '../utils/supabase';
 import type { GuideData } from '../types';
+import type { Database } from '../types/supabase';
 
-// Constants for localStorage keys
-const STORAGE_KEYS = {
-    GUIDES: 'travelhosta_guides',
-    FEATURED: 'travelhosta_featured_guides',
-} as const;
+type DbGuide = Database['public']['Tables']['guides']['Row'];
+type DbGuideInsert = Database['public']['Tables']['guides']['Insert'];
 
-const DEFAULT_FEATURED_IDS = [1, 2, 3, 4];
 const MAX_FEATURED_GUIDES = 4;
 
 interface GuidesContextType {
     guides: GuideData[];
     featuredGuideIds: number[];
-    addGuide: (guide: Omit<GuideData, 'id'>) => void;
-    updateGuide: (id: number, guide: Omit<GuideData, 'id'>) => void;
-    deleteGuide: (id: number) => void;
-    setFeaturedGuides: (ids: number[]) => void;
+    loading: boolean;
+    error: string | null;
+    addGuide: (guide: Omit<GuideData, 'id'>) => Promise<void>;
+    updateGuide: (id: number, guide: Omit<GuideData, 'id'>) => Promise<void>;
+    deleteGuide: (id: number) => Promise<void>;
+    setFeaturedGuides: (ids: number[]) => Promise<void>;
     getFeaturedGuides: () => GuideData[];
+    refreshGuides: () => Promise<void>;
 }
 
 const GuidesContext = createContext<GuidesContextType | undefined>(undefined);
 
 /**
- * Safely parses JSON from localStorage
+ * Convert database guide to GuideData format
  */
-const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
-    try {
-        const stored = localStorage.getItem(key);
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            return parsed || defaultValue;
-        }
-    } catch (error) {
-        console.error(`Error loading ${key} from localStorage:`, error);
-    }
-    return defaultValue;
+const dbGuideToGuideData = (dbGuide: DbGuide): GuideData => {
+    return {
+        id: dbGuide.id,
+        title: dbGuide.title,
+        description: dbGuide.description,
+        division: dbGuide.division,
+        category: dbGuide.category,
+        imageUrl: dbGuide.image_url,
+        tags: dbGuide.tags || undefined,
+        content: (dbGuide.content as any) || undefined,
+        itinerary: (dbGuide.itinerary as any) || undefined,
+        titleBn: dbGuide.title_bn || undefined,
+        descriptionBn: dbGuide.description_bn || undefined,
+        contentBn: (dbGuide.content_bn as any) || undefined,
+    };
 };
 
 /**
- * Safely saves data to localStorage
+ * Convert GuideData to database insert format
  */
-const saveToStorage = (key: string, data: unknown): void => {
-    try {
-        localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-        console.error(`Error saving ${key} to localStorage:`, error);
-    }
+const guideDataToDbInsert = (guide: Omit<GuideData, 'id'>): Omit<DbGuideInsert, 'id'> => {
+    return {
+        title: guide.title,
+        description: guide.description,
+        division: guide.division,
+        category: guide.category,
+        image_url: guide.imageUrl,
+        tags: guide.tags || null,
+        content: (guide.content as any) || null,
+        itinerary: (guide.itinerary as any) || null,
+        title_bn: guide.titleBn || null,
+        description_bn: guide.descriptionBn || null,
+        content_bn: (guide.contentBn as any) || null,
+    };
 };
 
 /**
  * Provider component for guides data and operations
- * Manages guides, featured guides, and persistence to localStorage
+ * Manages guides, featured guides, and syncs with Supabase
  */
 export function GuidesProvider({ children }: { children: React.ReactNode }) {
-    // Initialize with GUIDES_DATA to avoid empty state on first render
-    const [guides, setGuides] = useState<GuideData[]>([...GUIDES_DATA]);
-    const [featuredGuideIds, setFeaturedGuideIds] = useState<number[]>(DEFAULT_FEATURED_IDS);
+    const [guides, setGuides] = useState<GuideData[]>([]);
+    const [featuredGuideIds, setFeaturedGuideIds] = useState<number[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Load guides from localStorage on mount
-    useEffect(() => {
-        const storedGuides = loadFromStorage<GuideData[]>(STORAGE_KEYS.GUIDES, []);
-        if (storedGuides.length > 0) {
-            setGuides(storedGuides);
+    // Fetch guides from Supabase
+    const fetchGuides = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            const { data, error: fetchError } = await supabase
+                .from('guides')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (fetchError) throw fetchError;
+
+            const guidesData = (data || []).map(dbGuideToGuideData);
+            setGuides(guidesData);
+        } catch (err) {
+            console.error('Error fetching guides:', err);
+            setError(err instanceof Error ? err.message : 'Failed to fetch guides');
+        } finally {
+            setLoading(false);
         }
     }, []);
 
-    // Load featured guides from localStorage on mount
-    useEffect(() => {
-        const storedFeatured = loadFromStorage<number[]>(STORAGE_KEYS.FEATURED, DEFAULT_FEATURED_IDS);
-        if (Array.isArray(storedFeatured) && storedFeatured.length > 0) {
-            setFeaturedGuideIds(storedFeatured);
+    // Fetch featured guides from Supabase
+    const fetchFeaturedGuides = useCallback(async () => {
+        try {
+            const { data, error: fetchError } = await supabase
+                .from('featured_guides')
+                .select('guide_id')
+                .order('position', { ascending: true })
+                .limit(MAX_FEATURED_GUIDES);
+
+            if (fetchError) throw fetchError;
+
+            const ids = (data || []).map(item => item.guide_id);
+            setFeaturedGuideIds(ids);
+        } catch (err) {
+            console.error('Error fetching featured guides:', err);
         }
     }, []);
 
-    // Persist guides to localStorage whenever they change
+    // Load data on mount
     useEffect(() => {
-        if (guides.length > 0) {
-            saveToStorage(STORAGE_KEYS.GUIDES, guides);
+        fetchGuides();
+        fetchFeaturedGuides();
+    }, [fetchGuides, fetchFeaturedGuides]);
+
+    // Add a new guide
+    const addGuide = useCallback(async (guideData: Omit<GuideData, 'id'>) => {
+        try {
+            setError(null);
+            const dbGuide = guideDataToDbInsert(guideData);
+            
+            const { data, error: insertError } = await supabase
+                .from('guides')
+                .insert([dbGuide])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+
+            if (data) {
+                const newGuide = dbGuideToGuideData(data);
+                setGuides(prev => [newGuide, ...prev]);
+            }
+        } catch (err) {
+            console.error('Error adding guide:', err);
+            setError(err instanceof Error ? err.message : 'Failed to add guide');
+            throw err;
         }
-    }, [guides]);
+    }, []);
 
-    // Persist featured guides to localStorage whenever they change
-    useEffect(() => {
-        if (featuredGuideIds.length > 0) {
-            saveToStorage(STORAGE_KEYS.FEATURED, featuredGuideIds);
+    // Update an existing guide
+    const updateGuide = useCallback(async (id: number, guideData: Omit<GuideData, 'id'>) => {
+        try {
+            setError(null);
+            const dbGuide = guideDataToDbInsert(guideData);
+            
+            const { data, error: updateError } = await supabase
+                .from('guides')
+                .update(dbGuide)
+                .eq('id', id)
+                .select()
+                .single();
+
+            if (updateError) throw updateError;
+
+            if (data) {
+                const updatedGuide = dbGuideToGuideData(data);
+                setGuides(prev => prev.map(guide => 
+                    guide.id === id ? updatedGuide : guide
+                ));
+            }
+        } catch (err) {
+            console.error('Error updating guide:', err);
+            setError(err instanceof Error ? err.message : 'Failed to update guide');
+            throw err;
         }
-    }, [featuredGuideIds]);
-
-    // Generate a new unique ID for a guide
-    const generateNewId = useCallback(() => {
-        return Math.max(...guides.map(g => g.id), 0) + 1;
-    }, [guides]);
-
-    const addGuide = useCallback((guideData: Omit<GuideData, 'id'>) => {
-        const newGuide: GuideData = {
-            ...guideData,
-            id: generateNewId(),
-        };
-        setGuides(prev => [newGuide, ...prev]);
-    }, [generateNewId]);
-
-    const updateGuide = useCallback((id: number, guideData: Omit<GuideData, 'id'>) => {
-        setGuides(prev =>
-            prev.map(guide =>
-                guide.id === id ? { ...guideData, id } : guide
-            )
-        );
     }, []);
 
-    const deleteGuide = useCallback((id: number) => {
-        setGuides(prev => prev.filter(guide => guide.id !== id));
-        // Remove from featured if it was featured
-        setFeaturedGuideIds(prev => prev.filter(guideId => guideId !== id));
+    // Delete a guide
+    const deleteGuide = useCallback(async (id: number) => {
+        try {
+            setError(null);
+            
+            const { error: deleteError } = await supabase
+                .from('guides')
+                .delete()
+                .eq('id', id);
+
+            if (deleteError) throw deleteError;
+
+            setGuides(prev => prev.filter(guide => guide.id !== id));
+            setFeaturedGuideIds(prev => prev.filter(guideId => guideId !== id));
+        } catch (err) {
+            console.error('Error deleting guide:', err);
+            setError(err instanceof Error ? err.message : 'Failed to delete guide');
+            throw err;
+        }
     }, []);
 
-    const setFeaturedGuides = useCallback((ids: number[]) => {
-        // Ensure no more than MAX_FEATURED_GUIDES are featured
-        const limitedIds = ids.length > MAX_FEATURED_GUIDES 
-            ? ids.slice(0, MAX_FEATURED_GUIDES) 
-            : ids;
-        setFeaturedGuideIds(limitedIds);
+    // Set featured guides
+    const setFeaturedGuides = useCallback(async (ids: number[]) => {
+        try {
+            setError(null);
+            const limitedIds = ids.slice(0, MAX_FEATURED_GUIDES);
+
+            // Delete all existing featured guides
+            await supabase.from('featured_guides').delete().neq('id', 0);
+
+            // Insert new featured guides
+            const featuredData = limitedIds.map((guideId, index) => ({
+                guide_id: guideId,
+                position: index + 1,
+            }));
+
+            const { error: insertError } = await supabase
+                .from('featured_guides')
+                .insert(featuredData);
+
+            if (insertError) throw insertError;
+
+            setFeaturedGuideIds(limitedIds);
+        } catch (err) {
+            console.error('Error setting featured guides:', err);
+            setError(err instanceof Error ? err.message : 'Failed to set featured guides');
+            throw err;
+        }
     }, []);
 
+    // Get featured guides
     const getFeaturedGuides = useCallback(() => {
         return guides
             .filter(guide => featuredGuideIds.includes(guide.id))
             .slice(0, MAX_FEATURED_GUIDES);
     }, [guides, featuredGuideIds]);
 
+    // Refresh guides from database
+    const refreshGuides = useCallback(async () => {
+        await fetchGuides();
+        await fetchFeaturedGuides();
+    }, [fetchGuides, fetchFeaturedGuides]);
+
     // Memoize the context value to prevent unnecessary re-renders
     const value = useMemo(() => ({
         guides,
         featuredGuideIds,
+        loading,
+        error,
         addGuide,
         updateGuide,
         deleteGuide,
         setFeaturedGuides,
         getFeaturedGuides,
-    }), [guides, featuredGuideIds, addGuide, updateGuide, deleteGuide, setFeaturedGuides, getFeaturedGuides]);
+        refreshGuides,
+    }), [guides, featuredGuideIds, loading, error, addGuide, updateGuide, deleteGuide, setFeaturedGuides, getFeaturedGuides, refreshGuides]);
 
     return (
         <GuidesContext.Provider value={value}>
