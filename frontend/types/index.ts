@@ -101,7 +101,7 @@ export interface GuideData {
     description: string;
     division: string;
     category: string;
-    imageUrl: string;
+    imageUrl: string | null; // Optional cover image - can be null if not provided
     tags?: string[]; // Optional tags for filtering guides
     itinerary?: ItineraryStep[]; // Legacy support
     content?: ContentBlock[]; // New flexible content structure (English by default)

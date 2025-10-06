@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import StickyNavbar from '../../components/StickyNavbar';
 import GuideCard from '../../components/shared/GuideCard';
 import Footer from '../../components/Footer';
@@ -18,10 +19,19 @@ const ALL_GUIDES = 'All Guides';
 export default function Guides() {
     const { guides } = useGuides();
     const { categories, divisions } = useCategories();
+    const searchParams = useSearchParams();
     const [selectedDivision, setSelectedDivision] = useState(ALL_DIVISIONS);
     const [selectedCategory, setSelectedCategory] = useState(ALL_GUIDES);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Handle tag from URL query parameter
+    useEffect(() => {
+        const tagFromUrl = searchParams.get('tag');
+        if (tagFromUrl) {
+            setSelectedTags([tagFromUrl]);
+        }
+    }, [searchParams]);
 
     // Create arrays with "All" options
     const divisionsWithAll = useMemo(() => 

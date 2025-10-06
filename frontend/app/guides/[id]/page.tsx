@@ -167,12 +167,14 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {guide.tags.map((tag, index) => (
-                                            <span
+                                            <button
                                                 key={index}
-                                                className="inline-block px-4 py-2 bg-[#1b3c44] text-white text-sm font-medium rounded-full shadow-sm hover:bg-[#cd8453] transition-colors"
+                                                onClick={() => router.push(`/guides?tag=${encodeURIComponent(tag)}`)}
+                                                className="inline-block px-4 py-2 bg-[#1b3c44] text-white text-sm font-medium rounded-full shadow-sm hover:bg-[#cd8453] transition-colors cursor-pointer"
+                                                title={`View all guides tagged with "${tag}"`}
                                             >
                                                 {tag}
-                                            </span>
+                                            </button>
                                         ))}
                                     </div>
                                 </div>

@@ -107,7 +107,7 @@ const GuideContentEditor: FunctionComponent<GuideContentEditorProps> = ({
 
     // Content block templates
     const templates = {
-        text: `:::text [heading="Section Title"]
+        text: `:::text
 Write your content here. You can use **bold** and *italic* text.
 
 Add multiple paragraphs as needed.
@@ -126,7 +126,15 @@ Add multiple paragraphs as needed.
 Location A to Location B
 - Transportation: Cost
 - Duration: Time
-- Notes: Additional info
+
+[tips]
+- Tip for this step
+[/tips]
+
+
+Hotel Check-in
+- Cost: Amount
+- Time: Schedule
 :::`,
         timelineTips: `[tips]
 - Tip for this step
@@ -323,21 +331,123 @@ Food | 300 | 600 | 1500
             {/* Help Section */}
             {showHelp && (
                 <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h4 className="font-semibold text-blue-900 mb-3">Content Block Guide</h4>
-                    <div className="space-y-3 text-sm text-blue-800">
-                        <div><p className="font-medium mb-1">📝 Text Block:</p><p className="ml-4">Add paragraphs, descriptions, or any narrative content. Supports **bold** and *italic* formatting.</p></div>
-                        <div><p className="font-medium mb-1">💡 Tips Block:</p><p className="ml-4">Highlight important travel advice, recommendations, and insider tips. Displays with eye-catching amber styling and numbered tips.</p></div>
-                        <div><p className="font-medium mb-1">🗺️ Timeline Block:</p><p className="ml-4">Create step-by-step itineraries with routes and details. Perfect for travel schedules. You can also add tips within timeline steps!</p></div>
-                        <div><p className="font-medium mb-1">🖼️ Image Block:</p><p className="ml-4">Insert single images with captions throughout your guide.</p></div>
-                        <div><p className="font-medium mb-1">🎨 Gallery Block:</p><p className="ml-4">Create photo galleries with multiple images in a grid layout.</p></div>
-                        <div><p className="font-medium mb-1">📊 Table Block:</p><p className="ml-4">Create tables for pricing, comparisons, schedules, etc.</p></div>
+                    <h4 className="font-semibold text-blue-900 mb-3">Writing Guide - Formatting Syntax</h4>
+                    <div className="space-y-4 text-sm text-blue-800">
+                        
+                        {/* Text Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">📝 Text Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::text
+Write your content here. You can use **bold** and *italic* text.
+
+Add multiple paragraphs as needed.
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Use for paragraphs, descriptions, and narrative content.</p>
+                        </div>
+
+                        {/* Timeline Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">�️ Timeline Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::timeline [title="Day 1: Journey"]
+Location A to Location B
+- Transportation: Cost
+- Duration: Time
+- Notes: Additional info
+
+[tips]
+- Tip for this step
+- Another tip
+[/tips]
+
+[notes]
+- Important note
+[/notes]
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Perfect for itineraries. Separate multiple steps with 2+ blank lines. Tips and notes can be in any order!</p>
+                        </div>
+
+                        {/* Tips Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">� Tips Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::tips
+- Always carry sufficient cash
+- Book tickets in advance
+- Download offline maps
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Display important travel advice with eye-catching amber styling.</p>
+                        </div>
+
+                        {/* Notes Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">ℹ️ Notes Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::notes
+- Entry times may vary by season
+- Some locations require advance booking
+- Photography restrictions may apply
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Highlight important information and caveats.</p>
+                        </div>
+
+                        {/* Image Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">🖼️ Image Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::image
+url: https://example.com/your-image.jpg
+caption: Describe your image
+alt: Alternative text for accessibility
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Insert single images with captions throughout your guide.</p>
+                        </div>
+
+                        {/* Gallery Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">🎨 Gallery Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::gallery [title="Photo Highlights"]
+url: https://example.com/image1.jpg
+caption: First photo
+---
+url: https://example.com/image2.jpg
+caption: Second photo
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Create beautiful photo galleries with multiple images in a grid. Use --- to separate images.</p>
+                        </div>
+
+                        {/* Table Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">📊 Table Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::table
+Column 1 | Column 2 | Column 3
+---
+Row 1, Cell 1 | Row 1, Cell 2 | Row 1, Cell 3
+Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Create tables for pricing, comparisons, schedules, etc. First line is headers, --- separates headers from data.</p>
+                        </div>
+
                         <div className="mt-3 pt-3 border-t border-blue-300">
                             <p className="font-medium">💡 Pro Tips:</p>
                             <ul className="ml-4 mt-1 space-y-1 list-disc">
+                                <li>All blocks start with <code className="bg-blue-100 px-1 rounded">:::[type]</code> and end with <code className="bg-blue-100 px-1 rounded">:::</code></li>
+                                <li>Add titles to blocks using <code className="bg-blue-100 px-1 rounded">[title="Your Title"]</code></li>
+                                <li><strong>Important:</strong> Separate timeline steps with 2 or more blank lines</li>
+                                <li>Tips and notes can be in any order within a timeline step - use <code className="bg-blue-100 px-1 rounded">[tips]...[/tips]</code> and <code className="bg-blue-100 px-1 rounded">[notes]...[/notes]</code></li>
                                 <li>Mix and match blocks in any order</li>
                                 <li>Add multiple timelines for multi-day trips</li>
-                                <li>Use text blocks between timelines for context</li>
-                                <li>Add images to break up long content</li>
+                                <li>Use text blocks between sections for context</li>
                             </ul>
                         </div>
                     </div>
@@ -396,20 +506,52 @@ Food | 300 | 600 | 1500
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-xs">
                             <div className="flex items-center gap-2">
-                                <code className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">:::type</code>
-                                <span className="text-gray-600">Block start</span>
+                                <code className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">:::text</code>
+                                <span className="text-gray-600">Text block</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-green-100 text-green-800 rounded font-mono">:::timeline</code>
+                                <span className="text-gray-600">Timeline/itinerary</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-mono">:::tips</code>
+                                <span className="text-gray-600">Tips block</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">:::notes</code>
+                                <span className="text-gray-600">Notes block</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">:::image</code>
+                                <span className="text-gray-600">Single image</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-pink-100 text-pink-800 rounded font-mono">:::gallery</code>
+                                <span className="text-gray-600">Image gallery</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded font-mono">:::table</code>
+                                <span className="text-gray-600">Data table</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <code className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">:::</code>
-                                <span className="text-gray-600">Block end</span>
+                                <span className="text-gray-600">Close any block</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <code className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">[key="val"]</code>
-                                <span className="text-gray-600">Attributes</span>
+                                <code className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">[title="..."]</code>
+                                <span className="text-gray-600">Block title</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <code className="px-2 py-0.5 bg-green-100 text-green-800 rounded font-mono">##</code>
-                                <span className="text-gray-600">Heading/Step</span>
+                                <code className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded font-mono">- Item</code>
+                                <span className="text-gray-600">List items</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded font-mono">---</code>
+                                <span className="text-gray-600">Separator</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-gray-100 text-gray-800 rounded font-mono">**bold**</code>
+                                <span className="text-gray-600">Bold text</span>
                             </div>
                         </div>
                     </div>

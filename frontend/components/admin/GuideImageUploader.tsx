@@ -4,7 +4,7 @@
  */
 
 import { FunctionComponent } from 'react';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, AlertCircle } from 'lucide-react';
 
 interface GuideImageUploaderProps {
     imageUrl: string;
@@ -15,6 +15,18 @@ interface GuideImageUploaderProps {
     onRemoveImage: () => void;
 }
 
+/**
+ * Check if the image URL is a dummy/placeholder value
+ */
+const isDummyImage = (url: string): boolean => {
+    if (!url) return true;
+    const lowerUrl = url.toLowerCase();
+    return lowerUrl === 'dummy.jpg' || 
+           lowerUrl === '/images/dummy.jpg' || 
+           lowerUrl === 'images/dummy.jpg' || 
+           lowerUrl.endsWith('dummy.jpg');
+};
+
 const GuideImageUploader: FunctionComponent<GuideImageUploaderProps> = ({
     imageUrl,
     imagePreview,
@@ -23,14 +35,26 @@ const GuideImageUploader: FunctionComponent<GuideImageUploaderProps> = ({
     onImageUpload,
     onRemoveImage
 }) => {
+    const showWarning = !imageUrl || isDummyImage(imageUrl);
+    
     return (
         <div className="border-b pb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cover Image
+                Cover Image <span className="text-gray-400 font-normal">(Optional)</span>
             </label>
             
+            {/* Warning when no image is provided */}
+            {showWarning && (
+                <div className="mb-3 flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <AlertCircle size={18} className="text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-yellow-800">
+                        <strong>No image provided.</strong> The guide will be created without a cover image. You can add one later.
+                    </div>
+                </div>
+            )}
+            
             {/* Image Preview */}
-            {imagePreview && (
+            {imagePreview && !isDummyImage(imageUrl) && (
                 <div className="mb-3 relative inline-block">
                     <img 
                         src={imagePreview} 
@@ -66,11 +90,11 @@ const GuideImageUploader: FunctionComponent<GuideImageUploaderProps> = ({
                     value={imageUrl}
                     onChange={(e) => onImageUrlChange(e.target.value)}
                     className="flex-1 min-w-[300px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent"
-                    placeholder="Or paste image URL..."
+                    placeholder="Or paste image URL (or leave empty)..."
                 />
             </div>
             <p className="mt-1 text-xs text-gray-500">
-                Upload an image (max 5MB) or paste an external URL
+                Upload an image (max 5MB), paste an external URL, or leave empty to skip
             </p>
         </div>
     );

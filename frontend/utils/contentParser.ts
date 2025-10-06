@@ -28,6 +28,21 @@ export function parseGuideContent(text: string): ContentBlock[] {
 
     const generateId = (type: string) => `${type}-${Date.now()}-${blockId++}`;
 
+    const parseAttributes = (line: string): Record<string, string> => {
+        const attrs: Record<string, string> = {};
+        const attrMatch = line.match(/\[([^\]]+)\]/);
+        if (attrMatch) {
+            const attrPairs = attrMatch[1].split(/,\s*/);
+            attrPairs.forEach(pair => {
+                const [key, value] = pair.split('=');
+                if (key && value) {
+                    attrs[key.trim()] = value.trim().replace(/^["']|["']$/g, '');
+                }
+            });
+        }
+        return attrs;
+    };
+
     const processBuffer = () => {
         if (!currentBlock || blockBuffer.length === 0) return;
 
@@ -39,13 +54,23 @@ export function parseGuideContent(text: string): ContentBlock[] {
                 (currentBlock as TimelineBlock).steps = parseTimelineSteps(blockBuffer);
                 break;
             case 'tips':
-                (currentBlock as TipsBlock).tips = blockBuffer.filter(line => line.trim());
+                (currentBlock as TipsBlock).tips = blockBuffer
+                    .filter(line => line.trim().startsWith('-'))
+                    .map(line => line.trim().substring(1).trim());
                 break;
             case 'notes':
-                (currentBlock as NotesBlock).notes = blockBuffer.filter(line => line.trim());
+                (currentBlock as NotesBlock).notes = blockBuffer
+                    .filter(line => line.trim().startsWith('-'))
+                    .map(line => line.trim().substring(1).trim());
                 break;
             case 'table':
                 parseTableData(currentBlock as TableBlock, blockBuffer);
+                break;
+            case 'image':
+                parseImageData(currentBlock as ImageBlock, blockBuffer);
+                break;
+            case 'imageGallery':
+                parseGalleryData(currentBlock as ImageGalleryBlock, blockBuffer);
                 break;
         }
 
@@ -58,92 +83,85 @@ export function parseGuideContent(text: string): ContentBlock[] {
         const line = lines[i];
         const trimmed = line.trim();
 
-        // Block type markers
-        if (trimmed.startsWith('### TEXT:') || trimmed.startsWith('### HEADING:')) {
+        // Check for block start with :::
+        if (trimmed.startsWith(':::')) {
             processBuffer();
-            const heading = trimmed.startsWith('### HEADING:') ? trimmed.substring(13).trim() : undefined;
-            currentBlock = {
-                type: 'text',
-                id: generateId('text'),
-                content: '',
-                heading
-            } as TextBlock;
-        } else if (trimmed.startsWith('### TIMELINE:')) {
-            processBuffer();
-            const title = trimmed.substring(13).trim() || undefined;
-            currentBlock = {
-                type: 'timeline',
-                id: generateId('timeline'),
-                title,
-                steps: []
-            } as TimelineBlock;
-        } else if (trimmed.startsWith('### IMAGE:')) {
-            processBuffer();
-            const imageUrl = trimmed.substring(10).trim();
-            currentBlock = {
-                type: 'image',
-                id: generateId('image'),
-                url: imageUrl,
-                caption: lines[i + 1]?.startsWith('Caption:') ? lines[++i].substring(8).trim() : undefined,
-                alt: lines[i + 1]?.startsWith('Alt:') ? lines[++i].substring(4).trim() : undefined
-            } as ImageBlock;
-            blocks.push(currentBlock);
-            currentBlock = null;
-        } else if (trimmed.startsWith('### GALLERY:')) {
-            processBuffer();
-            const title = trimmed.substring(12).trim() || undefined;
-            const images: ImageGalleryBlock['images'] = [];
-            i++;
-            while (i < lines.length && !lines[i].trim().startsWith('###')) {
-                const imgLine = lines[i].trim();
-                if (imgLine.startsWith('- ')) {
-                    const url = imgLine.substring(2).trim();
-                    const caption = lines[i + 1]?.trim().startsWith('Caption:') ? lines[++i].trim().substring(8).trim() : undefined;
-                    images.push({ url, caption });
-                }
-                i++;
+            
+            const blockType = trimmed.substring(3).split(/[\s\[]/)[0].toLowerCase();
+            const attrs = parseAttributes(trimmed);
+
+            switch (blockType) {
+                case 'text':
+                    currentBlock = {
+                        type: 'text',
+                        id: generateId('text'),
+                        content: '',
+                        heading: attrs.heading
+                    } as TextBlock;
+                    break;
+
+                case 'timeline':
+                    currentBlock = {
+                        type: 'timeline',
+                        id: generateId('timeline'),
+                        title: attrs.title,
+                        steps: []
+                    } as TimelineBlock;
+                    break;
+
+                case 'tips':
+                    currentBlock = {
+                        type: 'tips',
+                        id: generateId('tips'),
+                        title: attrs.title,
+                        tips: []
+                    } as TipsBlock;
+                    break;
+
+                case 'notes':
+                    currentBlock = {
+                        type: 'notes',
+                        id: generateId('notes'),
+                        title: attrs.title,
+                        notes: []
+                    } as NotesBlock;
+                    break;
+
+                case 'image':
+                    currentBlock = {
+                        type: 'image',
+                        id: generateId('image'),
+                        url: '',
+                        caption: undefined,
+                        alt: undefined
+                    } as ImageBlock;
+                    break;
+
+                case 'gallery':
+                    currentBlock = {
+                        type: 'imageGallery',
+                        id: generateId('gallery'),
+                        title: attrs.title,
+                        images: []
+                    } as ImageGalleryBlock;
+                    break;
+
+                case 'table':
+                    currentBlock = {
+                        type: 'table',
+                        id: generateId('table'),
+                        title: attrs.title,
+                        headers: [],
+                        rows: []
+                    } as TableBlock;
+                    break;
             }
-            i--; // Step back one line
-            currentBlock = {
-                type: 'imageGallery',
-                id: generateId('gallery'),
-                images,
-                title
-            } as ImageGalleryBlock;
-            blocks.push(currentBlock);
-            currentBlock = null;
-        } else if (trimmed.startsWith('### TABLE:')) {
-            processBuffer();
-            const title = trimmed.substring(10).trim() || undefined;
-            currentBlock = {
-                type: 'table',
-                id: generateId('table'),
-                title,
-                headers: [],
-                rows: []
-            } as TableBlock;
-        } else if (trimmed.startsWith('### TIPS:')) {
-            processBuffer();
-            const title = trimmed.substring(9).trim() || undefined;
-            currentBlock = {
-                type: 'tips',
-                id: generateId('tips'),
-                title,
-                tips: []
-            } as TipsBlock;
-        } else if (trimmed.startsWith('### NOTES:')) {
-            processBuffer();
-            const title = trimmed.substring(10).trim() || undefined;
-            currentBlock = {
-                type: 'notes',
-                id: generateId('notes'),
-                title,
-                notes: []
-            } as NotesBlock;
-        } else if (trimmed.startsWith('---')) {
-            processBuffer();
-        } else if (currentBlock) {
+        } else if (currentBlock && !trimmed.startsWith(':::')) {
+            // Add content to current block
             blockBuffer.push(line);
+        } else if (trimmed.startsWith(':::') && currentBlock) {
+            // End of block
+            processBuffer();
         }
     }
 
@@ -157,45 +175,222 @@ export function parseGuideContent(text: string): ContentBlock[] {
 function parseTimelineSteps(buffer: string[]): ItineraryStep[] {
     const steps: ItineraryStep[] = [];
     let currentStep: Partial<ItineraryStep> | null = null;
+    let tipsBuffer: string[] = [];
+    let notesBuffer: string[] = [];
+    let inTips = false;
+    let inNotes = false;
+    let emptyLineCount = 0;
+
+    const finalizeCurrentStep = () => {
+        if (currentStep && currentStep.title) {
+            // Add any pending tips/notes before finalizing
+            if (tipsBuffer.length > 0) {
+                currentStep.tips = (currentStep.tips || []).concat(tipsBuffer.filter(t => t.trim()));
+                tipsBuffer = [];
+            }
+            if (notesBuffer.length > 0) {
+                currentStep.notes = (currentStep.notes || []).concat(notesBuffer.filter(n => n.trim()));
+                notesBuffer = [];
+            }
+            steps.push(currentStep as ItineraryStep);
+            currentStep = null;
+        } else if (tipsBuffer.length > 0 || notesBuffer.length > 0) {
+            // If we have tips/notes but no step, clear the buffers
+            tipsBuffer = [];
+            notesBuffer = [];
+        }
+    };
 
     for (const line of buffer) {
         const trimmed = line.trim();
-        if (trimmed.startsWith('## ')) {
-            if (currentStep && currentStep.title) {
-                steps.push(currentStep as ItineraryStep);
+        
+        // Track empty lines for step separation
+        if (!trimmed) {
+            emptyLineCount++;
+            // Two or more consecutive empty lines signal a new step
+            if (emptyLineCount >= 2 && !inTips && !inNotes) {
+                finalizeCurrentStep();
+                emptyLineCount = 0;
             }
-            currentStep = {
-                id: `step-${steps.length + 1}`,
-                title: trimmed.substring(3).trim(),
-                details: []
-            };
-        } else if (trimmed.startsWith('- ') && currentStep) {
-            currentStep.details = currentStep.details || [];
-            currentStep.details.push(trimmed.substring(2).trim());
+            continue;
+        } else {
+            emptyLineCount = 0;
+        }
+        
+        // Check for inline tips/notes sections
+        if (trimmed === '[tips]') {
+            // If not in a step yet, create one
+            if (!currentStep) {
+                currentStep = {
+                    id: `step-${steps.length + 1}`,
+                    title: '',
+                    details: []
+                };
+            }
+            inTips = true;
+            inNotes = false;
+            continue;
+        } else if (trimmed === '[/tips]') {
+            // Add collected tips to current step
+            if (currentStep && tipsBuffer.length > 0) {
+                currentStep.tips = (currentStep.tips || []).concat(tipsBuffer.filter(t => t.trim()));
+                tipsBuffer = [];
+            }
+            inTips = false;
+            continue;
+        } else if (trimmed === '[notes]') {
+            // If not in a step yet, create one
+            if (!currentStep) {
+                currentStep = {
+                    id: `step-${steps.length + 1}`,
+                    title: '',
+                    details: []
+                };
+            }
+            inNotes = true;
+            inTips = false;
+            continue;
+        } else if (trimmed === '[/notes]') {
+            // Add collected notes to current step
+            if (currentStep && notesBuffer.length > 0) {
+                currentStep.notes = (currentStep.notes || []).concat(notesBuffer.filter(n => n.trim()));
+                notesBuffer = [];
+            }
+            inNotes = false;
+            continue;
+        }
+
+        if (inTips) {
+            if (trimmed.startsWith('- ') || trimmed.startsWith('-')) {
+                const content = trimmed.startsWith('- ') ? trimmed.substring(2).trim() : trimmed.substring(1).trim();
+                tipsBuffer.push(content);
+            } else {
+                // Non-list item in tips - add as continuation
+                tipsBuffer.push(trimmed);
+            }
+        } else if (inNotes) {
+            if (trimmed.startsWith('- ') || trimmed.startsWith('-')) {
+                const content = trimmed.startsWith('- ') ? trimmed.substring(2).trim() : trimmed.substring(1).trim();
+                notesBuffer.push(content);
+            } else {
+                // Non-list item in notes - add as continuation
+                notesBuffer.push(trimmed);
+            }
+        } else if (trimmed && !trimmed.startsWith(':::')) {
+            // Main timeline step content
+            if (trimmed.startsWith('- ')) {
+                // It's a detail line
+                if (!currentStep) {
+                    // If no current step, this line itself becomes the title
+                    currentStep = {
+                        id: `step-${steps.length + 1}`,
+                        title: trimmed.substring(2).trim(),
+                        details: []
+                    };
+                } else {
+                    // If current step has no title, use first detail as title
+                    if (!currentStep.title) {
+                        currentStep.title = trimmed.substring(2).trim();
+                    } else {
+                        currentStep.details = currentStep.details || [];
+                        currentStep.details.push(trimmed.substring(2).trim());
+                    }
+                }
+            } else {
+                // Non-list line
+                if (!currentStep) {
+                    // Start new step with this as title
+                    currentStep = {
+                        id: `step-${steps.length + 1}`,
+                        title: trimmed,
+                        details: []
+                    };
+                } else if (!currentStep.title) {
+                    // Set as title if step has no title yet
+                    currentStep.title = trimmed;
+                } else {
+                    // Add to details if we already have a title
+                    currentStep.details = currentStep.details || [];
+                    currentStep.details.push(trimmed);
+                }
+            }
         }
     }
 
-    if (currentStep && currentStep.title) {
-        steps.push(currentStep as ItineraryStep);
-    }
+    // Finalize the last step
+    finalizeCurrentStep();
 
     return steps;
+}
+
+/**
+ * Parses image data from text buffer
+ */
+function parseImageData(image: ImageBlock, buffer: string[]): void {
+    for (const line of buffer) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('url:')) {
+            image.url = trimmed.substring(4).trim();
+        } else if (trimmed.startsWith('caption:')) {
+            image.caption = trimmed.substring(8).trim();
+        } else if (trimmed.startsWith('alt:')) {
+            image.alt = trimmed.substring(4).trim();
+        }
+    }
+}
+
+/**
+ * Parses gallery data from text buffer
+ */
+function parseGalleryData(gallery: ImageGalleryBlock, buffer: string[]): void {
+    const images: ImageGalleryBlock['images'] = [];
+    let currentImage: { url?: string; caption?: string } = {};
+
+    for (const line of buffer) {
+        const trimmed = line.trim();
+        if (trimmed === '---') {
+            if (currentImage.url) {
+                images.push({
+                    url: currentImage.url,
+                    caption: currentImage.caption
+                });
+            }
+            currentImage = {};
+        } else if (trimmed.startsWith('url:')) {
+            currentImage.url = trimmed.substring(4).trim();
+        } else if (trimmed.startsWith('caption:')) {
+            currentImage.caption = trimmed.substring(8).trim();
+        }
+    }
+
+    // Add last image if exists
+    if (currentImage.url) {
+        images.push({
+            url: currentImage.url,
+            caption: currentImage.caption
+        });
+    }
+
+    gallery.images = images;
 }
 
 /**
  * Parses table data from text buffer
  */
 function parseTableData(table: TableBlock, buffer: string[]): void {
-    const rows = buffer.filter(line => line.trim().startsWith('|'));
-    if (rows.length === 0) return;
+    const nonEmptyLines = buffer.filter(line => line.trim() && line.trim() !== '---');
+    if (nonEmptyLines.length < 2) return;
 
-    // Parse headers
-    const headerRow = rows[0].split('|').map(cell => cell.trim()).filter(cell => cell);
-    table.headers = headerRow;
+    // First line is headers
+    const headerLine = nonEmptyLines[0].trim();
+    table.headers = headerLine.split('|').map(cell => cell.trim()).filter(cell => cell);
 
-    // Skip separator row and parse data rows
-    for (let i = 2; i < rows.length; i++) {
-        const cells = rows[i].split('|').map(cell => cell.trim()).filter(cell => cell);
+    // Rest are data rows (skip the separator line if present)
+    for (let i = 1; i < nonEmptyLines.length; i++) {
+        const line = nonEmptyLines[i].trim();
+        if (line === '---' || line.match(/^[-\s|]+$/)) continue; // Skip separator lines
+        
+        const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell);
         if (cells.length > 0) {
             table.rows.push(cells);
         }
@@ -211,63 +406,99 @@ export function contentToText(blocks: ContentBlock[]): string {
     const textParts: string[] = [];
 
     blocks.forEach((block, index) => {
-        if (index > 0) textParts.push('---\n');
+        if (index > 0) textParts.push('\n\n');
 
         switch (block.type) {
             case 'text':
                 const textBlock = block as TextBlock;
-                if (textBlock.heading) {
-                    textParts.push(`### HEADING: ${textBlock.heading}\n${textBlock.content}`);
-                } else {
-                    textParts.push(`### TEXT:\n${textBlock.content}`);
-                }
+                textParts.push(`:::text`);
+                textParts.push(textBlock.content);
+                textParts.push(':::');
                 break;
 
             case 'timeline':
                 const timeline = block as TimelineBlock;
-                textParts.push(`### TIMELINE: ${timeline.title || ''}`);
+                if (timeline.title) {
+                    textParts.push(`:::timeline [title="${timeline.title}"]`);
+                } else {
+                    textParts.push(`:::timeline`);
+                }
                 timeline.steps.forEach(step => {
-                    textParts.push(`## ${step.title}`);
+                    textParts.push(step.title);
                     step.details.forEach(detail => textParts.push(`- ${detail}`));
+                    if (step.tips && step.tips.length > 0) {
+                        textParts.push('\n[tips]');
+                        step.tips.forEach(tip => textParts.push(`- ${tip}`));
+                        textParts.push('[/tips]');
+                    }
+                    if (step.notes && step.notes.length > 0) {
+                        textParts.push('\n[notes]');
+                        step.notes.forEach(note => textParts.push(`- ${note}`));
+                        textParts.push('[/notes]');
+                    }
                 });
+                textParts.push(':::');
                 break;
 
             case 'image':
                 const image = block as ImageBlock;
-                textParts.push(`### IMAGE: ${image.url}`);
-                if (image.caption) textParts.push(`Caption: ${image.caption}`);
-                if (image.alt) textParts.push(`Alt: ${image.alt}`);
+                textParts.push(':::image');
+                textParts.push(`url: ${image.url}`);
+                if (image.caption) textParts.push(`caption: ${image.caption}`);
+                if (image.alt) textParts.push(`alt: ${image.alt}`);
+                textParts.push(':::');
                 break;
 
             case 'imageGallery':
                 const gallery = block as ImageGalleryBlock;
-                textParts.push(`### GALLERY: ${gallery.title || ''}`);
-                gallery.images.forEach(img => {
-                    textParts.push(`- ${img.url}`);
-                    if (img.caption) textParts.push(`  Caption: ${img.caption}`);
+                if (gallery.title) {
+                    textParts.push(`:::gallery [title="${gallery.title}"]`);
+                } else {
+                    textParts.push(`:::gallery`);
+                }
+                gallery.images.forEach((img, idx) => {
+                    if (idx > 0) textParts.push('---');
+                    textParts.push(`url: ${img.url}`);
+                    if (img.caption) textParts.push(`caption: ${img.caption}`);
                 });
+                textParts.push(':::');
                 break;
 
             case 'table':
                 const table = block as TableBlock;
-                textParts.push(`### TABLE: ${table.title || ''}`);
-                textParts.push(`| ${table.headers.join(' | ')} |`);
-                textParts.push(`| ${table.headers.map(() => '---').join(' | ')} |`);
+                if (table.title) {
+                    textParts.push(`:::table [title="${table.title}"]`);
+                } else {
+                    textParts.push(`:::table`);
+                }
+                textParts.push(table.headers.join(' | '));
+                textParts.push('---');
                 table.rows.forEach(row => {
-                    textParts.push(`| ${row.join(' | ')} |`);
+                    textParts.push(row.join(' | '));
                 });
+                textParts.push(':::');
                 break;
 
             case 'tips':
                 const tips = block as TipsBlock;
-                textParts.push(`### TIPS: ${tips.title || ''}`);
+                if (tips.title) {
+                    textParts.push(`:::tips [title="${tips.title}"]`);
+                } else {
+                    textParts.push(`:::tips`);
+                }
                 tips.tips.forEach(tip => textParts.push(`- ${tip}`));
+                textParts.push(':::');
                 break;
 
             case 'notes':
                 const notes = block as NotesBlock;
-                textParts.push(`### NOTES: ${notes.title || ''}`);
+                if (notes.title) {
+                    textParts.push(`:::notes [title="${notes.title}"]`);
+                } else {
+                    textParts.push(`:::notes`);
+                }
                 notes.notes.forEach(note => textParts.push(`- ${note}`));
+                textParts.push(':::');
                 break;
         }
     });
@@ -352,47 +583,65 @@ export function validateContent(blocks: ContentBlock[]): string[] {
 /**
  * Sample content for demonstration/help
  */
-export const sampleContent = `### TEXT:
+export const sampleContent = `:::text
 Welcome to this amazing travel destination! This is a text block where you can write detailed descriptions.
 
+You can use **bold** and *italic* text in your content.
+:::
+
+
+:::timeline [title="Day 1: Journey"]
+Location A to Location B
+- Transportation: Cost
+- Duration: Time
+- Notes: Additional info
+
+[tips]
+- Tip for this step
+- Another tip
+[/tips]
+
+[notes]
+- Note for this step
+- Another note
+[/notes]
+:::
+
+
+:::tips
+- Always carry sufficient cash as many places don't accept cards
+- Book train/bus tickets at least 2-3 days in advance
+- Download offline maps before the journey
+:::
+
+
+:::notes
+- Entry times may vary by season - check before visiting
+- Some locations require advance booking
+- Photography restrictions may apply in certain areas
+:::
+
+
+:::table
+Category | Cost (BDT) | Notes
 ---
+Accommodation | 1500 | Per night
+Food | 800 | Per day
+Transport | 500 | Local travel
+:::
 
-### TIMELINE: Day-by-Day Itinerary
-## Day 1: Arrival
-- Check in to hotel - 500 Taka
-- Evening city tour - Free
-- Dinner at local restaurant - 300 Taka
 
-## Day 2: Exploration
-- Visit museum - 100 Taka
-- Lunch - 250 Taka
-- Sunset viewpoint - Free
+:::image
+url: https://example.com/your-image.jpg
+caption: Describe your image
+alt: Alternative text for accessibility
+:::
 
+
+:::gallery [title="Photo Highlights"]
+url: https://example.com/image1.jpg
+caption: First photo
 ---
-
-### TIPS: Travel Tips
-- Book hotels in advance for better rates
-- Carry local currency
-- Learn basic local phrases
-
----
-
-### TABLE: Budget Breakdown
-| Category | Cost (BDT) | Notes |
-| --- | --- | --- |
-| Accommodation | 1500 | Per night |
-| Food | 800 | Per day |
-| Transport | 500 | Local travel |
-
----
-
-### IMAGE: https://example.com/image.jpg
-Caption: Beautiful sunset view
-Alt: Sunset over the beach
-
----
-
-### NOTES: Important Information
-- Best time to visit: November to February
-- Language: Bengali and English widely spoken
-- Currency: Bangladeshi Taka (BDT)`;
+url: https://example.com/image2.jpg
+caption: Second photo
+:::`;

@@ -49,12 +49,25 @@ const dbGuideToGuideData = (dbGuide: DbGuide): GuideData => {
  * Convert GuideData to database insert format
  */
 const guideDataToDbInsert = (guide: Omit<GuideData, 'id'>): Omit<DbGuideInsert, 'id'> => {
+    // Helper function to check if image URL is dummy/placeholder
+    const isDummyImage = (url: string): boolean => {
+        if (!url) return true;
+        const lowerUrl = url.toLowerCase();
+        return lowerUrl === 'dummy.jpg' || 
+               lowerUrl === '/images/dummy.jpg' || 
+               lowerUrl === 'images/dummy.jpg' || 
+               lowerUrl.endsWith('dummy.jpg');
+    };
+
+    // Convert empty or dummy image URLs to null
+    const imageUrl = guide.imageUrl && !isDummyImage(guide.imageUrl) ? guide.imageUrl : null;
+
     return {
         title: guide.title,
         description: guide.description,
         division: guide.division,
         category: guide.category,
-        image_url: guide.imageUrl,
+        image_url: imageUrl,
         tags: guide.tags || null,
         content: (guide.content as any) || null,
         itinerary: (guide.itinerary as any) || null,
