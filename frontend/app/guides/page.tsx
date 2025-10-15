@@ -25,7 +25,7 @@ export default function Guides() {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Handle tag from URL query parameter
+    // Handle tag query parameter from URL
     useEffect(() => {
         const tagFromUrl = searchParams.get('tag');
         if (tagFromUrl) {

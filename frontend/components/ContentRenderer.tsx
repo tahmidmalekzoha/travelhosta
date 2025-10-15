@@ -1,37 +1,146 @@
 import React, { FunctionComponent } from 'react';
-import { ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock, NotesBlock } from '../types';
+import {
+    ContentBlock,
+    TextBlock,
+    TimelineBlock,
+    ImageBlock,
+    ImageGalleryBlock,
+    TableBlock,
+    TipsBlock,
+    NotesBlock
+} from '../types';
 import Timeline from './Timeline';
 import ImagePlaceholder from './shared/ImagePlaceholder';
 import { Lightbulb, Info } from 'lucide-react';
 import { isValidImageUrl, getImageAltText } from '../utils/imageUtils';
 
+type ContentTheme = 'light' | 'dark';
+
 interface ContentRendererProps {
     blocks: ContentBlock[];
+    theme?: ContentTheme;
 }
 
-/**
- * Renders flexible content blocks in order
- * Supports: text, timeline, images, galleries, tables, and tips
- */
-const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks }) => {
+const typographyClasses: Record<ContentTheme, { paragraph: string; heading: string }> = {
+    light: {
+        paragraph: 'text-[18px] sm:text-[20px] leading-[1.75] tracking-[0.01em] text-[#1b3c44]/80',
+        heading: 'text-[#1b3c44]'
+    },
+    dark: {
+        paragraph: 'font-[\'Schibsted_Grotesk\'] font-normal text-[50.37px] leading-[normal] text-white',
+        heading: 'text-[#f2eee9]'
+    }
+};
+
+const tipClasses: Record<ContentTheme, { wrapper: string; icon: string; text: string; title: string }> = {
+    light: {
+        wrapper: 'bg-[#fff7e8] border border-[#f5c77d]/80 px-8 py-6 rounded-[28px]',
+        icon: 'text-[#c27a19]',
+        text: 'text-[18px] sm:text-[20px] leading-[1.65] text-[#1b3c44] tracking-[0.01em]',
+        title: 'text-[#1b3c44]'
+    },
+    dark: {
+        wrapper: 'bg-transparent border-0 px-0 py-0',
+        icon: 'text-[#D6AD46]',
+        text: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
+        title: 'text-[#fbe7c8]'
+    }
+};
+
+const noteClasses: Record<ContentTheme, { wrapper: string; icon: string; text: string; title: string }> = {
+    light: {
+        wrapper: 'bg-[#eef7ff] border border-[#97c8ff]/85 px-8 py-6 rounded-[28px]',
+        icon: 'text-[#1d6bcf]',
+        text: 'text-[18px] sm:text-[20px] leading-[1.65] text-[#1b3c44] tracking-[0.01em]',
+        title: 'text-[#1b3c44]'
+    },
+    dark: {
+        wrapper: 'bg-transparent border-0 px-0 py-0',
+        icon: 'text-[#D6AD46]',
+        text: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
+        title: 'text-[#e6f4ff]'
+    }
+};
+
+const tableClasses: Record<ContentTheme, {
+    wrapper: string;
+    header: string;
+    headerCell: string;
+    border: string;
+    rowEven: string;
+    rowOdd: string;
+    hover: string;
+    caption: string;
+}> = {
+    light: {
+        wrapper: 'bg-white rounded-[36px] shadow-xl overflow-hidden border border-[#1b3c44]/10',
+        header: 'bg-[#1b3c44] text-white',
+        headerCell: '',
+        border: 'border-[#1b3c44]/10',
+        rowEven: 'bg-white text-[#1b3c44]/90',
+        rowOdd: 'bg-[#f8f4ef] text-[#1b3c44]/90',
+        hover: 'hover:bg-[#f2eee9]',
+        caption: 'text-[#1b3c44]/70'
+    },
+    dark: {
+        wrapper: 'overflow-x-auto',
+        header: 'bg-[#e4d9d3]',
+        headerCell: 'text-[#40372e] rounded-tl-[60px] first:rounded-tl-[60px] last:rounded-tr-[60px]',
+        border: 'border-0',
+        rowEven: 'bg-[#40372e] text-white',
+        rowOdd: 'bg-[#40372e] text-white',
+        hover: 'hover:bg-[#4a3f37]',
+        caption: 'text-[#f2eee9]/70'
+    }
+};
+
+const galleryClasses: Record<ContentTheme, { title: string; frame: string; captionBg: string; captionText: string }> = {
+    light: {
+        title: 'text-[#1b3c44]',
+        frame: 'bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow',
+        captionBg: 'bg-white',
+        captionText: 'text-gray-600'
+    },
+    dark: {
+        title: 'text-[#f2eee9]',
+        frame: 'rounded-3xl overflow-hidden border border-white/5 bg-white/10 backdrop-blur shadow-[0_40px_120px_-80px_rgba(0,0,0,1)] transition-shadow hover:shadow-[0_40px_140px_-60px_rgba(0,0,0,1)]',
+        captionBg: 'bg-white/5 backdrop-blur',
+        captionText: 'text-[#f2eee9]/75'
+    }
+};
+
+const imageFrameClasses: Record<ContentTheme, { frame: string; captionBg: string; captionText: string }> = {
+    light: {
+        frame: 'rounded-3xl overflow-hidden shadow-lg bg-white',
+        captionBg: 'bg-white',
+        captionText: 'text-gray-600'
+    },
+    dark: {
+        frame: 'rounded-3xl overflow-hidden border border-white/5 bg-white/10 backdrop-blur shadow-[0_50px_160px_-90px_rgba(0,0,0,1)]',
+        captionBg: 'bg-white/5 backdrop-blur',
+        captionText: 'text-[#f2eee9]/75'
+    }
+};
+
+const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks, theme = 'light' }) => {
     return (
-        <div className="space-y-12">
+        <div className="space-y-[76px]">
             {blocks.map((block) => {
                 switch (block.type) {
                     case 'text':
-                        return <TextBlockRenderer key={block.id} block={block} />;
+                        return <TextBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'timeline':
-                        return <TimelineBlockRenderer key={block.id} block={block} />;
+                        return <TimelineBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'image':
-                        return <ImageBlockRenderer key={block.id} block={block} />;
+                        return <ImageBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'imageGallery':
-                        return <ImageGalleryRenderer key={block.id} block={block} />;
+                        return <ImageGalleryRenderer key={block.id} block={block} theme={theme} />;
                     case 'table':
-                        return <TableBlockRenderer key={block.id} block={block} />;
+                        return <TableBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'tips':
-                        return <TipsBlockRenderer key={block.id} block={block} />;
+                        return <TipsBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'notes':
-                        return <NotesBlockRenderer key={block.id} block={block} />;
+                        return <NotesBlockRenderer key={block.id} block={block} theme={theme} />;
                     default:
                         return null;
                 }
@@ -40,59 +149,54 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks }) =>
     );
 };
 
-/**
- * Formats markdown text to HTML with basic styling
- * Supports: **bold**, *italic*
- */
-const formatMarkdownText = (text: string): React.ReactElement[] => {
+const formatMarkdownText = (text: string, theme: ContentTheme): React.ReactElement[] => {
     return text
         .split('\n\n')
         .map((paragraph, i) => {
-            // Apply bold formatting
             let formatted = paragraph.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            // Apply italic formatting
             formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-            
+
             return (
-                <p 
-                    key={i} 
-                    className="text-lg text-gray-700 leading-relaxed mb-4"
+                <p
+                    key={i}
+                    className={`${typographyClasses[theme].paragraph} mb-6`}
                     dangerouslySetInnerHTML={{ __html: formatted }}
                 />
             );
         });
 };
 
-/**
- * Renders a text block with optional heading
- */
-const TextBlockRenderer: FunctionComponent<{ block: TextBlock }> = ({ block }) => {
+const TextBlockRenderer: FunctionComponent<{ block: TextBlock; theme: ContentTheme }> = ({ block, theme }) => {
     return (
         <div className="max-w-4xl mx-auto">
             {block.heading && (
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#1b3c44]">
+                <h2 className={`text-[44px] sm:text-[58px] md:text-[84px] lg:text-[96px] font-bold leading-[1.05] tracking-[-0.01em] mb-10 ${typographyClasses[theme].heading}`}>
                     {block.heading}
                 </h2>
             )}
-            <div className="prose prose-lg max-w-none">
-                {formatMarkdownText(block.content)}
+            <div className="space-y-8">
+                {formatMarkdownText(block.content, theme)}
             </div>
         </div>
     );
 };
 
-/**
- * Renders a tips block with compact styling
- */
-const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock }> = ({ block }) => {
+const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock; theme: ContentTheme }> = ({ block, theme }) => {
+    const styles = tipClasses[theme];
+
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="bg-amber-50 rounded-lg border-l-4 border-amber-400 p-4">
-                <div className="space-y-2">
+            <div className={styles.wrapper}>
+                {block.title && (
+                    <h3 className={`text-[20px] sm:text-[22px] font-semibold mb-4 tracking-[0.02em] ${styles.title}`}>
+                        {block.title}
+                    </h3>
+                )}
+                <div className={theme === 'dark' ? 'space-y-[15px]' : 'space-y-0'}>
                     {block.tips.map((tip, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                            <Lightbulb className="text-amber-600 flex-shrink-0 mt-0.5" size={16} />
-                            <p className="text-gray-700 text-sm leading-relaxed flex-grow">
+                        <div key={index} className="flex items-start gap-[12px]">
+                            <Lightbulb className={`${styles.icon} flex-shrink-0 mt-[3px]`} size={24} strokeWidth={2} />
+                            <p className={`${styles.text} flex-grow`}>
                                 {tip}
                             </p>
                         </div>
@@ -103,18 +207,22 @@ const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock }> = ({ block }) =
     );
 };
 
-/**
- * Renders a notes block with compact styling
- */
-const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock }> = ({ block }) => {
+const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock; theme: ContentTheme }> = ({ block, theme }) => {
+    const styles = noteClasses[theme];
+
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="bg-blue-50 rounded-lg border-l-4 border-blue-400 p-4">
-                <div className="space-y-2">
+            <div className={styles.wrapper}>
+                {block.title && (
+                    <h3 className={`text-[20px] sm:text-[22px] font-semibold mb-4 tracking-[0.02em] ${styles.title}`}>
+                        {block.title}
+                    </h3>
+                )}
+                <div className={theme === 'dark' ? 'space-y-[15px]' : 'space-y-0'}>
                     {block.notes.map((note, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                            <Info className="text-blue-600 flex-shrink-0 mt-0.5" size={16} />
-                            <p className="text-gray-700 text-sm leading-relaxed flex-grow">
+                        <div key={index} className="flex items-start gap-[13px]">
+                            <Info className={`${styles.icon} flex-shrink-0`} size={26} strokeWidth={2} />
+                            <p className={`${styles.text} flex-grow`}>
                                 {note}
                             </p>
                         </div>
@@ -125,36 +233,36 @@ const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock }> = ({ block })
     );
 };
 
-/**
- * Renders a timeline block with optional title
- */
-const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock }> = ({ block }) => {
+const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock; theme: ContentTheme }> = ({ block, theme }) => {
+    const variant = theme === 'light' ? 'light' : 'dark';
+    const cardBackground = theme === 'light'
+        ? 'bg-white shadow-lg'
+        : 'bg-[#1f1a15]/90 border border-white/5 shadow-[0_80px_200px_-120px_rgba(0,0,0,1)] backdrop-blur';
+
     return (
         <div className="max-w-4xl mx-auto">
             {block.title && (
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1b3c44]">
+                <div className="text-center mb-10">
+                    <h2 className={`text-[44px] sm:text-[56px] md:text-[72px] font-bold leading-[1.05] tracking-[-0.01em] mb-4 ${typographyClasses[theme].heading}`}>
                         {block.title}
                     </h2>
                 </div>
             )}
-            <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-                <Timeline steps={block.steps} />
+            <div className={`${cardBackground} rounded-[44px] p-8 md:p-14 lg:p-16 xl:p-20 transition-all`}>
+                <Timeline steps={block.steps} variant={variant} />
             </div>
         </div>
     );
 };
 
-/**
- * Renders a single image with caption
- */
-const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock }> = ({ block }) => {
+const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock; theme: ContentTheme }> = ({ block, theme }) => {
+    const frame = imageFrameClasses[theme];
     const hasValidUrl = isValidImageUrl(block.url);
     const altText = getImageAltText(block.alt, block.caption, 'Guide image');
-    
+
     return (
         <div className="max-w-4xl mx-auto">
-            <figure className="rounded-2xl overflow-hidden shadow-lg">
+            <figure className={frame.frame}>
                 {hasValidUrl ? (
                     <img
                         src={block.url}
@@ -165,7 +273,7 @@ const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock }> = ({ block })
                     <ImagePlaceholder text="No Image URL" size="medium" />
                 )}
                 {block.caption && (
-                    <figcaption className="bg-white px-6 py-4 text-center text-gray-600 italic">
+                    <figcaption className={`${frame.captionBg} px-6 py-4 text-center italic ${frame.captionText}`}>
                         {block.caption}
                     </figcaption>
                 )}
@@ -174,14 +282,13 @@ const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock }> = ({ block })
     );
 };
 
-/**
- * Renders an image gallery with grid layout
- */
-const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock }> = ({ block }) => {
+const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock; theme: ContentTheme }> = ({ block, theme }) => {
+    const styles = galleryClasses[theme];
+
     return (
         <div className="max-w-6xl mx-auto">
             {block.title && (
-                <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#1b3c44]">
+                <h2 className={`text-3xl md:text-4xl font-bold mb-8 text-center ${styles.title}`}>
                     {block.title}
                 </h2>
             )}
@@ -189,9 +296,9 @@ const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock }> = ({
                 {block.images.map((image: { url: string; caption?: string; alt?: string }, index: number) => {
                     const hasValidUrl = isValidImageUrl(image.url);
                     const altText = getImageAltText(image.alt, image.caption, `Gallery image ${index + 1}`);
-                    
+
                     return (
-                        <figure key={index} className="rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                        <figure key={index} className={`${styles.frame}`}>
                             {hasValidUrl ? (
                                 <img
                                     src={image.url}
@@ -202,7 +309,7 @@ const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock }> = ({
                                 <ImagePlaceholder text="No Image" size="small" />
                             )}
                             {image.caption && (
-                                <figcaption className="bg-white px-4 py-3 text-sm text-gray-600 text-center">
+                                <figcaption className={`${styles.captionBg} px-4 py-3 text-sm text-center ${styles.captionText}`}>
                                     {image.caption}
                                 </figcaption>
                             )}
@@ -214,52 +321,45 @@ const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock }> = ({
     );
 };
 
-/**
- * Renders a table block
- */
-const TableBlockRenderer: FunctionComponent<{ block: TableBlock }> = ({ block }) => {
+const TableBlockRenderer: FunctionComponent<{ block: TableBlock; theme: ContentTheme }> = ({ block, theme }) => {
+    const styles = tableClasses[theme];
+
     return (
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1284px] mx-auto">
             {block.title && (
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center text-[#1b3c44]">
+                <h2 className={`text-[44px] sm:text-[56px] md:text-[72px] font-bold mb-8 text-center tracking-[-0.01em] ${typographyClasses[theme].heading}`}>
                     {block.title}
                 </h2>
             )}
-            <div className="overflow-x-auto bg-white rounded-xl shadow-lg">
-                <table className="w-full border-collapse">
-                    <thead>
-                        <tr className="bg-[#1b3c44] text-white">
-                            {block.headers.map((header, index) => (
-                                <th 
-                                    key={index}
-                                    className="px-6 py-4 text-left font-semibold border-r border-[#2d5560] last:border-r-0"
-                                >
-                                    {header}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {block.rows.map((row, rowIndex) => (
-                            <tr 
-                                key={rowIndex}
-                                className={`${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-[#f2eee9] transition-colors`}
-                            >
-                                {row.map((cell, cellIndex) => (
-                                    <td 
-                                        key={cellIndex}
-                                        className="px-6 py-4 border-r border-gray-200 last:border-r-0 text-gray-700"
-                                    >
-                                        {cell}
-                                    </td>
-                                ))}
-                            </tr>
+            <div className={styles.wrapper}>
+                <div className="min-w-[600px]">
+                    <div className={`${styles.header} h-[80px] lg:h-[103px] rounded-tl-[60px] rounded-tr-[60px] flex items-center`}>
+                        {block.headers.map((header, index) => (
+                            <div key={index} className="flex-1 flex items-center justify-center px-2">
+                                <p className={`font-['Schibsted_Grotesk'] font-bold text-[18px] lg:text-[27.806px] ${styles.headerCell}`}>{header}</p>
+                            </div>
                         ))}
-                    </tbody>
-                </table>
+                    </div>
+
+                    {block.rows.map((row, rowIndex) => {
+                        const isLastRow = rowIndex === block.rows.length - 1;
+                        return (
+                            <div key={rowIndex} className={`${styles.rowEven} ${styles.hover} h-[70px] lg:h-[98px] flex items-center ${isLastRow ? 'rounded-bl-[60px] rounded-br-[60px] border border-[#f2eee9]' : ''} transition-colors`}>
+                                {row.map((cell, cellIndex) => {
+                                    const isFirstColumn = cellIndex === 0;
+                                    return (
+                                        <div key={cellIndex} className="flex-1 flex items-center justify-center px-2">
+                                            <p className={`font-['Schibsted_Grotesk'] ${isFirstColumn ? 'font-bold' : 'font-normal'} text-[16px] lg:text-[27.806px] text-center`}>{cell}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
             {block.caption && (
-                <p className="text-center text-sm text-gray-600 italic mt-3">
+                <p className={`text-center text-sm italic mt-3 ${styles.caption}`}>
                     {block.caption}
                 </p>
             )}

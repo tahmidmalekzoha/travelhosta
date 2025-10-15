@@ -20,6 +20,7 @@ export interface TravelCardData {
 export interface ItineraryStep {
     id: string;
     title: string;
+    subtitle?: string; // Optional subtitle for the step
     details: string[];
     tips?: string[]; // Optional tips for this specific step
     notes?: string[]; // Optional notes for this specific step
