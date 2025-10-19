@@ -253,8 +253,8 @@ const FeaturedGuidesManagement: FunctionComponent = () => {
                         <li>• Featured guides will appear on the homepage in a dedicated section</li>
                         <li>• You must select exactly 4 guides to feature</li>
                         <li>• Click on any guide card to select or deselect it</li>
-                        <li>• Changes are only saved when you click "Save Changes"</li>
-                        <li>• Featured guides are stored in your browser's local storage</li>
+                        <li>• Changes are only saved when you click &quot;Save Changes&quot;</li>
+                        <li>• Featured guides are stored in your browser&apos;s local storage</li>
                     </ul>
                 </div>
             </div>

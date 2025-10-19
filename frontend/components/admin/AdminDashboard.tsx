@@ -89,7 +89,7 @@ const AdminDashboard: FunctionComponent = () => {
             {/* Page Title */}
             <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-[#1b3c44]">Dashboard Overview</h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">Welcome back! Here's what's happening.</p>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">Welcome back! Here&apos;s what&apos;s happening.</p>
             </div>
 
             {/* Stats Cards */}
@@ -216,7 +216,7 @@ const AdminDashboard: FunctionComponent = () => {
 
 // Stat Card Component
 interface StatCardProps {
-    icon: any;
+    icon: React.ComponentType<{ size?: number; className?: string }>;
     label: string;
     value: number | string;
     trend: string;

@@ -41,7 +41,7 @@ export default function Home() {
                     >
                         At TravelHosta, we make exploring easy and affordable. Guides for every
                         traveler budget or premium. With tips on stay, food, and safety. Whether
-                        you're chasing hidden gems or planning your next big escape, we've got
+                        you&apos;re chasing hidden gems or planning your next big escape, we&apos;ve got
                         the roadmap ready for you.
                     </ScrollReveal>
                 </div>

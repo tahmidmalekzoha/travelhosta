@@ -428,8 +428,8 @@ const CategoriesManagement: FunctionComponent = () => {
                     <h3 className="font-semibold text-[#1b3c44] mb-2 text-sm sm:text-base">ℹ️ Information</h3>
                     <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
                         <li>• Categories, divisions, and tags are used to filter and organize guides on the website</li>
-                        <li>• Make your changes and click "Save Changes" to update the database</li>
-                        <li>• You can discard all local changes by clicking "Discard Changes"</li>
+                        <li>• Make your changes and click &quot;Save Changes&quot; to update the database</li>
+                        <li>• You can discard all local changes by clicking &quot;Discard Changes&quot;</li>
                         <li>• Check the browser console for detailed logs of all operations</li>
                         <li>• Removing a category, division, or tag will not delete existing guides</li>
                     </ul>

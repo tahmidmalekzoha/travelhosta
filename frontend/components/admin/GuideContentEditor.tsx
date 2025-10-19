@@ -442,7 +442,7 @@ Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
                             <p className="font-medium">💡 Pro Tips:</p>
                             <ul className="ml-4 mt-1 space-y-1 list-disc">
                                 <li>All blocks start with <code className="bg-blue-100 px-1 rounded">:::[type]</code> and end with <code className="bg-blue-100 px-1 rounded">:::</code></li>
-                                <li>Add titles to blocks using <code className="bg-blue-100 px-1 rounded">[title="Your Title"]</code></li>
+                                <li>Add titles to blocks using <code className="bg-blue-100 px-1 rounded">[title=&quot;Your Title&quot;]</code></li>
                                 <li><strong>Important:</strong> Separate timeline steps with 2 or more blank lines</li>
                                 <li>Tips and notes can be in any order within a timeline step - use <code className="bg-blue-100 px-1 rounded">[tips]...[/tips]</code> and <code className="bg-blue-100 px-1 rounded">[notes]...[/notes]</code></li>
                                 <li>Mix and match blocks in any order</li>
@@ -538,7 +538,7 @@ Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
                                 <span className="text-gray-600">Close any block</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <code className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">[title="..."]</code>
+                                <code className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">[title=&quot;...&quot;]</code>
                                 <span className="text-gray-600">Block title</span>
                             </div>
                             <div className="flex items-center gap-2">

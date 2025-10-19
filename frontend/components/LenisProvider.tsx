@@ -27,7 +27,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
         window.lenis = lenis
 
         // Get scroll value
-        lenis.on('scroll', (e: any) => {
+        lenis.on('scroll', () => {
             // Optional: You can listen to scroll events here
             // console.log(e)
         })

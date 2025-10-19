@@ -28,7 +28,7 @@ export default function Terms() {
                     <section>
                         <h2 className="text-2xl font-semibold mb-4 text-[#cd8453]">1. Welcome to TravelHosta</h2>
                         <p>
-                            These terms and conditions outline the rules and regulations for the use of TravelHosta's website
+                            These terms and conditions outline the rules and regulations for the use of TravelHosta&apos;s website
                             and services. By accessing this website, we assume you accept these terms and conditions in full.
                         </p>
                     </section>

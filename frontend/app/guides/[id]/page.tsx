@@ -26,13 +26,13 @@ const parseMarkdownText = (text: string): React.ReactNode => {
     
     return paragraphs.map((paragraph, pIndex) => {
         const parts: React.ReactNode[] = [];
-        let currentText = paragraph;
+        const currentText = paragraph;
         let key = 0;
 
         // Process the text for markdown
         const processText = (str: string): React.ReactNode[] => {
             const result: React.ReactNode[] = [];
-            let remaining = str;
+            const remaining = str;
             
             // Match **bold** and *italic* patterns
             const boldItalicRegex = /(\*\*([^*]+)\*\*)|(\*([^*]+)\*)/g;

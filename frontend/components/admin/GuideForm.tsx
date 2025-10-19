@@ -316,8 +316,8 @@ const GuideForm: FunctionComponent<GuideFormProps> = ({
                                         <div>
                                             <p className="font-medium">Plain Text (Legacy):</p>
                                             <ul className="space-y-1 text-xs">
-                                                <li>• Routes with "to" (e.g., "Dhaka to Sylhet")</li>
-                                                <li>• Details after dash (e.g., "- Train fare 395 Taka")</li>
+                                                <li>• Routes with &quot;to&quot; (e.g., &quot;Dhaka to Sylhet&quot;)</li>
+                                                <li>• Details after dash (e.g., &quot;- Train fare 395 Taka&quot;)</li>
                                                 <li>• Blank lines between route changes</li>
                                             </ul>
                                         </div>
