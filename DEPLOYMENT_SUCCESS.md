@@ -38,7 +38,7 @@ Type error: Argument of type 'string | null | undefined' is not assignable to pa
 Type 'null' is not assignable to type 'string | undefined'.
 ```
 
-**File:** `components/admin/EnhancedGuideForm.tsx`
+**File:** `components/admin/EnhancedGuideForm.tsx` (line 80)
 
 **Solution:** Convert `null` to `undefined` using nullish coalescing operator:
 
@@ -48,6 +48,27 @@ useImageUpload(guide?.imageUrl, ...)
 
 // After
 useImageUpload(guide?.imageUrl ?? undefined, ...)
+```
+
+### **Fix 3: ImageUrl Null Type Error** ✅
+
+**Error:**
+
+```
+Type error: Type 'string | null' is not assignable to type 'string'.
+Type 'null' is not assignable to type 'string'.
+```
+
+**File:** `components/admin/EnhancedGuideForm.tsx` (line 120)
+
+**Solution:** Convert `null` to empty string when passing to GuideImageUploader:
+
+```typescript
+// Before
+<GuideImageUploader imageUrl={formData.imageUrl} />
+
+// After
+<GuideImageUploader imageUrl={formData.imageUrl || ''} />
 ```
 
 ---
@@ -61,7 +82,8 @@ useImageUpload(guide?.imageUrl ?? undefined, ...)
 3. ✅ TypeScript no-explicit-any errors (2 files)
 4. ✅ Binary file parsing error (temp_page.tsx deleted)
 5. ✅ Timeline variant prop TypeScript error (Fixed)
-6. ✅ **Null to undefined conversion error in EnhancedGuideForm** (JUST FIXED)
+6. ✅ Null to undefined conversion error in useImageUpload (Fixed)
+7. ✅ **ImageUrl null to string type error in GuideImageUploader** (JUST FIXED)
 
 ### ⚠️ **Warnings (Non-Blocking)** - Won't Prevent Deployment
 
@@ -78,13 +100,19 @@ These are configured as warnings in `.eslintrc.json` and won't block the build.
 ### Git Commands Executed:
 
 ```bash
+# Round 1: ESLint and initial TypeScript fixes
 ✅ git add .
 ✅ git commit -m "Fix ESLint errors and TypeScript type issues for Netlify deployment"
 ✅ git push origin main
 
-# Second round of fixes
+# Round 2: Null to undefined conversion
 ✅ git add .
 ✅ git commit -m "Fix TypeScript null to undefined conversion in EnhancedGuideForm"
+✅ git push origin main
+
+# Round 3: ImageUrl type fix
+✅ git add .
+✅ git commit -m "Fix imageUrl type error: convert null to empty string in GuideImageUploader"
 ✅ git push origin main
 ```
 
