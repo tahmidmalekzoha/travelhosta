@@ -1,7 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ['localhost', 'images.unsplash.com'],
+        domains: ['localhost'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'icimdqlnkndmdhdoicsm.supabase.co',
+            },
+            {
+                protocol: 'https',
+                hostname: '*.netlify.app',
+            },
+        ],
     },
     eslint: {
         // Warning: This allows production builds to successfully complete even if

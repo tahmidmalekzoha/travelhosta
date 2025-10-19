@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+export const dynamic = 'force-dynamic';
+
+import { Suspense, useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import StickyNavbar from '../../components/StickyNavbar';
 import GuideCard from '../../components/shared/GuideCard';
@@ -19,19 +21,16 @@ const ALL_GUIDES = 'All Guides';
 export default function Guides() {
     const { guides } = useGuides();
     const { categories, divisions } = useCategories();
-    const searchParams = useSearchParams();
     const [selectedDivision, setSelectedDivision] = useState(ALL_DIVISIONS);
     const [selectedCategory, setSelectedCategory] = useState(ALL_GUIDES);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Handle tag query parameter from URL
-    useEffect(() => {
-        const tagFromUrl = searchParams.get('tag');
+    const handleQueryTag = useCallback((tagFromUrl: string | null) => {
         if (tagFromUrl) {
             setSelectedTags([tagFromUrl]);
         }
-    }, [searchParams]);
+    }, []);
 
     // Create arrays with "All" options
     const divisionsWithAll = useMemo(() => 
@@ -89,6 +88,10 @@ export default function Guides() {
 
             {/* Main Content */}
             <div className="pt-24 md:pt-32 lg:pt-[167px] px-6 md:px-12 lg:px-20">
+                <Suspense fallback={null}>
+                    <QueryTagSync onTag={handleQueryTag} />
+                </Suspense>
+
                 {/* Header Section */}
                 <div className="flex flex-col items-center mb-12 gap-8 lg:gap-[85px]">
                     {/* Main Title */}
@@ -247,4 +250,15 @@ export default function Guides() {
             <Footer />
         </div>
     );
+}
+
+function QueryTagSync({ onTag }: { onTag: (tag: string | null) => void }) {
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const tagFromUrl = searchParams.get('tag');
+        onTag(tagFromUrl);
+    }, [onTag, searchParams]);
+
+    return null;
 }
