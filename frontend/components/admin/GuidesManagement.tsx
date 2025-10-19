@@ -9,7 +9,7 @@ import EnhancedGuideForm from './EnhancedGuideForm';
 import Timeline from '../Timeline';
 import ContentRenderer from '../ContentRenderer';
 import Toast, { ToastType } from '../shared/Toast';
-import { isValidImageUrl } from '../../utils/imageUtils';
+
 
 /**
  * Filters guides based on search term
@@ -26,6 +26,23 @@ const filterGuides = (guides: GuideData[], searchTerm: string): GuideData[] => {
 };
 
 /**
+ * Determines whether a guide image URL points to a meaningful asset rather than the shared dummy placeholder.
+ */
+const hasMeaningfulImage = (imageUrl: string | null | undefined): imageUrl is string => {
+    if (!imageUrl) {
+        return false;
+    }
+
+    const normalizedUrl = imageUrl.trim().toLowerCase();
+    if (!normalizedUrl) {
+        return false;
+    }
+
+    // The UI uses `dummy.jpg` in several locations as a known placeholder. We avoid rendering it to prevent confusion.
+    return !normalizedUrl.endsWith('dummy.jpg');
+};
+
+/**
  * Guides management component for creating, editing, and deleting guides
  * Provides CRUD operations and preview functionality
  */
@@ -39,6 +56,16 @@ const GuidesManagement: FunctionComponent = () => {
     const [viewLanguage, setViewLanguage] = useState<Language>('en');
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
+    const showToast = useCallback((message: string, type: ToastType) => {
+        setToast({ message, type });
+    }, []);
+
+    const closeToast = useCallback(() => setToast(null), []);
+
+    const handleViewGuide = useCallback((guide: GuideData) => {
+        setViewingGuide(guide);
+    }, []);
+
     // Extract division and category names for the form
     const divisionNames = useMemo(() => divisions.map(d => d.name), [divisions]);
     const categoryNames = useMemo(() => categories.map(c => c.name), [categories]);
@@ -49,20 +76,40 @@ const GuidesManagement: FunctionComponent = () => {
         [guides, searchTerm]
     );
 
+    const hasBengaliContent = useMemo(() => {
+        if (!viewingGuide) {
+            return false;
+        }
+
+        return Boolean(
+            viewingGuide.titleBn ||
+            viewingGuide.descriptionBn ||
+            (viewingGuide.contentBn && viewingGuide.contentBn.length > 0)
+        );
+    }, [viewingGuide]);
+
+    const toastComponent = toast ? (
+        <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={closeToast}
+        />
+    ) : null;
+
     const handleSubmit = useCallback((formData: Omit<GuideData, 'id'>) => {
         if (editingGuide) {
             updateGuide(editingGuide.id, formData);
-            setToast({ message: 'Guide updated successfully!', type: 'success' });
+            showToast('Guide updated successfully!', 'success');
             // Keep the form open with updated data
             setEditingGuide({ ...formData, id: editingGuide.id });
         } else {
             addGuide(formData);
-            setToast({ message: 'Guide created successfully!', type: 'success' });
+            showToast('Guide created successfully!', 'success');
             // Close form after creating new guide
             setEditingGuide(null);
             setShowForm(false);
         }
-    }, [editingGuide, updateGuide, addGuide]);
+    }, [editingGuide, updateGuide, addGuide, showToast]);
 
     const handleEdit = useCallback((guide: GuideData) => {
         setEditingGuide(guide);
@@ -72,9 +119,9 @@ const GuidesManagement: FunctionComponent = () => {
     const handleDelete = useCallback((id: number) => {
         if (window.confirm('Are you sure you want to delete this guide?')) {
             deleteGuide(id);
-            setToast({ message: 'Guide deleted successfully!', type: 'success' });
+            showToast('Guide deleted successfully!', 'success');
         }
-    }, [deleteGuide]);
+    }, [deleteGuide, showToast]);
 
     const resetForm = useCallback(() => {
         setEditingGuide(null);
@@ -88,7 +135,17 @@ const GuidesManagement: FunctionComponent = () => {
 
     // If viewing a specific guide's details
     if (viewingGuide) {
-        const hasBengaliContent = viewingGuide.titleBn || viewingGuide.descriptionBn || (viewingGuide.contentBn && viewingGuide.contentBn.length > 0);
+    const detailImageUrl = hasMeaningfulImage(viewingGuide.imageUrl) ? viewingGuide.imageUrl : undefined;
+        const showEnhancedContentBadge = Boolean(viewingGuide.content && viewingGuide.content.length > 0);
+        const displayedTitle = viewLanguage === 'en'
+            ? viewingGuide.title
+            : (viewingGuide.titleBn || viewingGuide.title);
+        const displayedDescription = viewLanguage === 'en'
+            ? viewingGuide.description
+            : (viewingGuide.descriptionBn || viewingGuide.description);
+        const renderedContentBlocks = viewLanguage === 'en'
+            ? viewingGuide.content
+            : viewingGuide.contentBn;
         
         return (
             <div className="space-y-4 sm:space-y-6">
@@ -103,9 +160,9 @@ const GuidesManagement: FunctionComponent = () => {
                         <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold text-[#1b3c44] ${
                             viewLanguage === 'bn' ? "font-bengali" : ''
                         }`}>
-                            {viewLanguage === 'en' ? viewingGuide.title : (viewingGuide.titleBn || viewingGuide.title)}
+                            {displayedTitle}
                         </h1>
-                        {viewingGuide.content && viewingGuide.content.length > 0 && (
+                        {showEnhancedContentBadge && (
                             <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded w-fit">
                                 <Sparkles size={12} />
                                 Enhanced Content
@@ -147,9 +204,9 @@ const GuidesManagement: FunctionComponent = () => {
                 <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                         <div className="lg:col-span-2">
-                            {viewingGuide.imageUrl && viewingGuide.imageUrl !== '' && viewingGuide.imageUrl !== 'dummy.jpg' && viewingGuide.imageUrl !== '/images/dummy.jpg' && viewingGuide.imageUrl !== 'images/dummy.jpg' && !viewingGuide.imageUrl.endsWith('dummy.jpg') ? (
+                            {detailImageUrl ? (
                                 <img
-                                    src={viewingGuide.imageUrl}
+                                    src={detailImageUrl}
                                     alt={viewingGuide.title}
                                     className="w-full h-48 sm:h-64 object-cover rounded-lg"
                                 />
@@ -192,19 +249,18 @@ const GuidesManagement: FunctionComponent = () => {
                             )}
                             
                             <p className={`text-sm sm:text-base text-gray-700 ${viewLanguage === 'bn' ? "font-bengali" : ''}`}>
-                                {viewLanguage === 'en' ? viewingGuide.description : (viewingGuide.descriptionBn || viewingGuide.description)}
+                                {displayedDescription}
                             </p>
                         </div>
                     </div>
 
                     {/* New flexible content format */}
-                    {((viewLanguage === 'en' && viewingGuide.content && viewingGuide.content.length > 0) ||
-                      (viewLanguage === 'bn' && viewingGuide.contentBn && viewingGuide.contentBn.length > 0)) && (
+                    {renderedContentBlocks && renderedContentBlocks.length > 0 && (
                         <div className={viewLanguage === 'bn' ? "font-bengali" : ''}>
                             <h3 className="text-lg sm:text-xl font-semibold text-[#1b3c44] mb-4">
                                 {viewLanguage === 'en' ? 'Guide Content' : 'গাইড কন্টেন্ট'}
                             </h3>
-                            <ContentRenderer blocks={viewLanguage === 'en' ? viewingGuide.content! : viewingGuide.contentBn!} />
+                            <ContentRenderer blocks={renderedContentBlocks} />
                         </div>
                     )}
 
@@ -218,13 +274,7 @@ const GuidesManagement: FunctionComponent = () => {
                 </div>
 
                 {/* Toast Notification */}
-                {toast && (
-                    <Toast
-                        message={toast.message}
-                        type={toast.type}
-                        onClose={() => setToast(null)}
-                    />
-                )}
+                {toastComponent}
             </div>
         );
     }
@@ -250,13 +300,7 @@ const GuidesManagement: FunctionComponent = () => {
                 />
 
                 {/* Toast Notification */}
-                {toast && (
-                    <Toast
-                        message={toast.message}
-                        type={toast.type}
-                        onClose={() => setToast(null)}
-                    />
-                )}
+                {toastComponent}
             </div>
         );
     }
@@ -294,79 +338,83 @@ const GuidesManagement: FunctionComponent = () => {
 
             {/* Guides Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {filteredGuides.map((guide) => (
-                    <div key={guide.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
-                            {guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg' && guide.imageUrl !== 'images/dummy.jpg' && !guide.imageUrl.endsWith('dummy.jpg') ? (
-                                <img
-                                    src={guide.imageUrl}
-                                    alt={guide.title}
-                                    className="w-full h-full object-contain hover:scale-105 transition-transform cursor-pointer"
-                                    onClick={() => setViewingGuide(guide)}
-                                />
-                            ) : (
-                                <div 
-                                    className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 cursor-pointer"
-                                    onClick={() => setViewingGuide(guide)}
-                                >
-                                    <div className="text-center text-gray-500">
-                                        <svg className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <p className="text-xs sm:text-sm">No Image</p>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        
-                        <div className="p-3 sm:p-4">
-                            <h3 className="text-sm sm:text-base font-semibold text-[#1b3c44] mb-2 line-clamp-1">{guide.title}</h3>
-                            <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">{guide.description}</p>
-                            
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500 mb-3">
-                                <div className="flex items-center gap-1">
-                                    <MapPin size={12} />
-                                    <span className="truncate">{guide.division}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <Tag size={12} />
-                                    <span className="truncate">{guide.category}</span>
-                                </div>
-                                {guide.itinerary && guide.itinerary.length > 0 && (
-                                    <div className="flex items-center gap-1">
-                                        <Calendar size={12} />
-                                        <span>{guide.itinerary.length} steps</span>
+                {filteredGuides.map((guide) => {
+                    const cardImageUrl = hasMeaningfulImage(guide.imageUrl) ? guide.imageUrl : undefined;
+
+                    return (
+                        <div key={guide.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                            <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
+                                {cardImageUrl ? (
+                                    <img
+                                        src={cardImageUrl}
+                                        alt={guide.title}
+                                        className="w-full h-full object-contain hover:scale-105 transition-transform cursor-pointer"
+                                        onClick={() => handleViewGuide(guide)}
+                                    />
+                                ) : (
+                                    <div 
+                                        className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 cursor-pointer"
+                                        onClick={() => handleViewGuide(guide)}
+                                    >
+                                        <div className="text-center text-gray-500">
+                                            <svg className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <p className="text-xs sm:text-sm">No Image</p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                             
-                            <div className="flex items-center justify-between gap-2">
-                                <button
-                                    onClick={() => setViewingGuide(guide)}
-                                    className="text-[#cd8453] hover:text-[#1b3c44] text-xs sm:text-sm font-medium"
-                                >
-                                    View Details
-                                </button>
-                                <div className="flex items-center gap-1 sm:gap-2">
+                            <div className="p-3 sm:p-4">
+                                <h3 className="text-sm sm:text-base font-semibold text-[#1b3c44] mb-2 line-clamp-1">{guide.title}</h3>
+                                <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">{guide.description}</p>
+                                
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500 mb-3">
+                                    <div className="flex items-center gap-1">
+                                        <MapPin size={12} />
+                                        <span className="truncate">{guide.division}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Tag size={12} />
+                                        <span className="truncate">{guide.category}</span>
+                                    </div>
+                                    {guide.itinerary && guide.itinerary.length > 0 && (
+                                        <div className="flex items-center gap-1">
+                                            <Calendar size={12} />
+                                            <span>{guide.itinerary.length} steps</span>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="flex items-center justify-between gap-2">
                                     <button
-                                        onClick={() => handleEdit(guide)}
-                                        className="p-1.5 sm:p-2 text-[#cd8453] hover:text-[#1b3c44] hover:bg-gray-100 rounded"
-                                        title="Edit Guide"
+                                        onClick={() => handleViewGuide(guide)}
+                                        className="text-[#cd8453] hover:text-[#1b3c44] text-xs sm:text-sm font-medium"
                                     >
-                                        <Edit size={14} className="sm:w-4 sm:h-4" />
+                                        View Details
                                     </button>
-                                    <button
-                                        onClick={() => handleDelete(guide.id)}
-                                        className="p-1.5 sm:p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
-                                        title="Delete Guide"
-                                    >
-                                        <Trash2 size={14} className="sm:w-4 sm:h-4" />
-                                    </button>
+                                    <div className="flex items-center gap-1 sm:gap-2">
+                                        <button
+                                            onClick={() => handleEdit(guide)}
+                                            className="p-1.5 sm:p-2 text-[#cd8453] hover:text-[#1b3c44] hover:bg-gray-100 rounded"
+                                            title="Edit Guide"
+                                        >
+                                            <Edit size={14} className="sm:w-4 sm:h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(guide.id)}
+                                            className="p-1.5 sm:p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded"
+                                            title="Delete Guide"
+                                        >
+                                            <Trash2 size={14} className="sm:w-4 sm:h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Empty State */}
@@ -392,13 +440,7 @@ const GuidesManagement: FunctionComponent = () => {
             )}
 
             {/* Toast Notification */}
-            {toast && (
-                <Toast
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => setToast(null)}
-                />
-            )}
+            {toastComponent}
         </div>
     );
 };
