@@ -1,0 +1,28 @@
+# Netlify Configuration for TravelHosta
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = ".next"
+
+# Environment variables (set these in Netlify dashboard for security)
+# NEXT_PUBLIC_SUPABASE_URL
+# NEXT_PUBLIC_SUPABASE_ANON_KEY
+# SUPABASE_SERVICE_ROLE_KEY
+
+# Redirect rules for Next.js
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+
+# Node version
+[build.environment]
+  NODE_VERSION = "20"
