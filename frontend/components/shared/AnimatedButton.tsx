@@ -1,6 +1,6 @@
 "use client";
 
-import { FunctionComponent } from 'react';
+import { FunctionComponent, ReactNode } from 'react';
 
 interface AnimatedButtonProps {
     /** Button text to display */
@@ -15,6 +15,8 @@ interface AnimatedButtonProps {
     iconSrc?: string;
     /** Icon alt text */
     iconAlt?: string;
+    /** React icon component (lucide-react) */
+    icon?: ReactNode;
     /** Whether to show rotation on click/state change */
     isRotated?: boolean;
     /** Text size class */
@@ -34,6 +36,7 @@ const AnimatedButton: FunctionComponent<AnimatedButtonProps> = ({
     height = 'h-[92px]',
     iconSrc,
     iconAlt = 'Button icon',
+    icon,
     isRotated = false,
     textSize = 'text-[48px]',
     className = ''
@@ -67,7 +70,7 @@ const AnimatedButton: FunctionComponent<AnimatedButtonProps> = ({
 
             {/* Circle Background */}
             <div
-                className={`absolute top-[12px] bg-[#cd8453] w-[66px] transition-all duration-300 group-hover:bg-[#b8743c] ${isRotated ? 'rotate-180' : ''}`}
+                className={`absolute top-[12px] bg-[#28231d] w-[66px] transition-all duration-300 group-hover:bg-[#1f1a15] ${isRotated ? 'rotate-180' : ''}`}
                 style={{
                     left: `${parseInt(width.replace(/[^\d]/g, '')) - 77}px`,
                     height: `${parseInt(height.replace(/[^\d]/g, '')) - 23}px`,
@@ -75,8 +78,18 @@ const AnimatedButton: FunctionComponent<AnimatedButtonProps> = ({
                 }}
             />
 
-            {/* Icon */}
-            {iconSrc && (
+            {/* Icon - Support both React icon and image src */}
+            {icon ? (
+                <div
+                    className={`absolute z-10 flex items-center justify-center text-[#f2eee9] transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
+                    style={{
+                        top: `${parseInt(height.replace(/[^\d]/g, '')) / 2 - 12}px`,
+                        left: `${parseInt(width.replace(/[^\d]/g, '')) - 59}px`
+                    }}
+                >
+                    {icon}
+                </div>
+            ) : iconSrc ? (
                 <img
                     className={`absolute w-[31px] h-[32px] z-10 transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
                     style={{
@@ -86,7 +99,7 @@ const AnimatedButton: FunctionComponent<AnimatedButtonProps> = ({
                     alt={iconAlt}
                     src={iconSrc}
                 />
-            )}
+            ) : null}
         </button>
     );
 };

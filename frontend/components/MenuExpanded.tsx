@@ -20,7 +20,7 @@ const MENU_ITEMS = [
 // Menu styling constants
 const MENU_STYLES = {
     background: {
-        color: '#cd8453',
+        color: '#28231d',
         borderRadius: '49px',
     },
     text: {

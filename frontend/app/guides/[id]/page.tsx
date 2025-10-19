@@ -3,8 +3,10 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Footer from '../../../components/Footer';
+import StickyNavbar from '../../../components/StickyNavbar';
+import ImageLightbox from '../../../components/shared/ImageLightbox';
 import { useGuides } from '../../../contexts/GuidesContext';
-import { ArrowLeft, ArrowRight, Menu as MenuIcon, Tag, MapPin, Lightbulb, Info } from 'lucide-react';
+import { ArrowLeft, Tag, MapPin, Lightbulb, Info } from 'lucide-react';
 import { GuideData, Language } from '../../../types';
 import { isValidImageUrl } from '../../../utils/imageUtils';
 
@@ -77,6 +79,11 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
     const unwrappedParams = React.use(params);
     const guide = guides.find(g => g.id === parseInt(unwrappedParams.id));
     const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
+    const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+    const [lightboxCaption, setLightboxCaption] = useState<string | undefined>(undefined);
+    const [lightboxAlt, setLightboxAlt] = useState<string | undefined>(undefined);
+    const [galleryImages, setGalleryImages] = useState<Array<{ url: string; caption?: string; alt?: string }> | undefined>(undefined);
+    const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
     const hasBengali = useMemo(() => 
         guide ? hasBengaliContent(guide) : false, 
@@ -129,11 +136,12 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
     }
 
     const handleBack = () => router.push('/guides');
-    const handleSignIn = () => router.push('/signin');
-    const handleMenu = () => router.push('/');
 
     return (
         <div className="min-h-screen bg-[#f2eee9] font-['Schibsted_Grotesk']">
+            {/* Sticky Navigation - same as other pages */}
+            <StickyNavbar />
+
             <div className="relative px-4 lg:px-[37px] pt-[55px]">
                 <div className="flex flex-col-reverse lg:flex-row items-start lg:items-start justify-between gap-4">
                     <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#28231d] h-[85px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#1f1a15]">
@@ -142,32 +150,17 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                         </span>
                         <span className="font-['Schibsted_Grotesk'] font-normal text-[50.37px] text-[#f2eee9] ml-[93.4px] mr-[34px]">Back</span>
                     </button>
-
-                    <div className="flex flex-col items-end gap-[13px]">
-                        <button onClick={handleSignIn} className="group relative inline-flex items-center rounded-[52px] bg-[#e4d9d3] h-[86px] w-[297px] transition-colors hover:bg-[#d4c9c3]">
-                            <span className="absolute left-[39px] top-[9px] font-['Schibsted_Grotesk'] font-normal text-[48px] text-black">Sign In</span>
-                            <span className="absolute right-[11px] top-[9px] flex h-[66px] w-[66px] items-center justify-center rounded-full bg-[#28231d] text-[#f2eee9]">
-                                <ArrowRight size={24} strokeWidth={2.5} />
-                            </span>
-                        </button>
-
-                        <button onClick={handleMenu} className="relative inline-flex items-center rounded-[52px] bg-[#e4d9d3] h-[92px] w-[264px] transition-colors hover:bg-[#d4c9c3]">
-                            <span className="absolute left-[41px] top-[16px] font-['Schibsted_Grotesk'] font-normal text-[48px] text-black">Menu</span>
-                            <span className="absolute right-[11px] top-[13.5px] flex h-[66px] w-[66px] items-center justify-center rounded-full bg-[#28231d] text-[#f2eee9]">
-                                <MenuIcon size={28} strokeWidth={2} />
-                            </span>
-                        </button>
-                    </div>
                 </div>
             </div>
 
             <div className="relative px-4 lg:px-[125px] pt-[107px]">
                 <div className="flex flex-col lg:flex-row items-start gap-[61px]">
-                    <div className="relative overflow-hidden rounded-[59px] bg-white w-full lg:w-[659.036px] h-auto lg:h-[491px] flex-shrink-0">
+                    {/* 4:3 aspect ratio cover image with fit (not cropped) */}
+                    <div className="relative overflow-hidden rounded-[59px] bg-gradient-to-br from-gray-200 to-gray-300 w-full lg:w-[659.036px] flex-shrink-0 aspect-[4/3]">
                         {isValidImageUrl(guide.imageUrl) ? (
-                            <img src={guide.imageUrl!} alt={pageTitle} className="h-full w-full object-cover" />
+                            <img src={guide.imageUrl!} alt={pageTitle} className="h-full w-full object-contain" />
                         ) : (
-                            <div className="flex h-full min-h-[320px] lg:min-h-[491px] w-full flex-col items-center justify-center bg-gradient-to-br from-gray-200 to-gray-400 text-gray-600">
+                            <div className="flex h-full w-full flex-col items-center justify-center text-gray-600">
                                 <svg className="h-20 w-20 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7m-3 0V5a2 2 0 00-2-2H8a2 2 0 00-2 2v2m13 0H5" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -373,43 +366,66 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                             );
                         }
 
-                        // Image block
+                        // Image block - 4:3 ratio, fit, 50vw width
                         if (block.type === 'image' && 'url' in block) {
                             return (
-                                <div key={block.id || `image-${blockIndex}`} className="mb-[76px]">
-                                    <div className="relative overflow-hidden rounded-[40px] bg-white">
+                                <div key={block.id || `image-${blockIndex}`} className="mb-[76px] flex flex-col items-center justify-center w-full">
+                                    <div 
+                                        className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-gray-200 to-gray-300 w-[50vw] min-w-[300px] aspect-[4/3] mx-auto cursor-pointer hover:opacity-90 transition-opacity"
+                                        onClick={() => {
+                                            if (isValidImageUrl(block.url)) {
+                                                setLightboxImage(block.url);
+                                                setLightboxCaption(block.caption);
+                                                setLightboxAlt(block.alt);
+                                                setGalleryImages(undefined);
+                                            }
+                                        }}
+                                    >
                                         {isValidImageUrl(block.url) ? (
-                                            <img src={block.url} alt={block.alt || block.caption || 'Guide image'} className="w-full h-auto object-cover" />
+                                            <img src={block.url} alt={block.alt || block.caption || 'Guide image'} className="w-full h-full object-contain" />
                                         ) : (
-                                            <div className="flex h-[400px] w-full flex-col items-center justify-center bg-gradient-to-br from-gray-200 to-gray-400 text-gray-600">
+                                            <div className="flex h-full w-full flex-col items-center justify-center text-gray-600">
                                                 <p className="text-lg font-medium">Image not available</p>
                                             </div>
                                         )}
-                                        {block.caption && (
-                                            <p className="mt-4 text-center font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[24px] text-[#f2eee9]">{block.caption}</p>
-                                        )}
                                     </div>
+                                    {block.caption && (
+                                        <p className="mt-4 text-center font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[24px] text-[#f2eee9]">{block.caption}</p>
+                                    )}
                                 </div>
                             );
                         }
 
-                        // Image Gallery block
+                        // Image Gallery block - 4:3 ratio, fit, 20vw width
                         if (block.type === 'imageGallery' && 'images' in block) {
                             return (
-                                <div key={block.id || `gallery-${blockIndex}`} className="mb-[76px]">
+                                <div key={block.id || `gallery-${blockIndex}`} className="mb-[76px] flex flex-col items-center justify-center w-full">
                                     {block.title && (
-                                        <h3 className="font-['Schibsted_Grotesk'] font-bold text-[32px] lg:text-[48px] leading-[normal] text-[#f2eee9] mb-[40px]">{block.title}</h3>
+                                        <h3 className="font-['Schibsted_Grotesk'] font-bold text-[32px] lg:text-[48px] leading-[normal] text-[#f2eee9] mb-[40px] text-center w-full">{block.title}</h3>
                                     )}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px]">
+                                    <div className="flex flex-wrap gap-[30px] justify-center items-center">
                                         {block.images.map((image, imgIndex) => (
-                                            <div key={imgIndex} className="relative overflow-hidden rounded-[40px] bg-white">
-                                                {isValidImageUrl(image.url) ? (
-                                                    <img src={image.url} alt={image.caption || `Gallery image ${imgIndex + 1}`} className="w-full h-auto object-cover" />
-                                                ) : (
-                                                    <div className="flex h-[300px] w-full flex-col items-center justify-center bg-gradient-to-br from-gray-200 to-gray-400 text-gray-600">
-                                                        <p className="text-base font-medium">Image not available</p>
-                                                    </div>
-                                                )}
+                                            <div key={imgIndex} className="flex flex-col items-center">
+                                                <div 
+                                                    className="overflow-hidden rounded-[40px] bg-gradient-to-br from-gray-200 to-gray-300 w-[20vw] min-w-[200px] aspect-[4/3] cursor-pointer hover:opacity-90 transition-opacity"
+                                                    onClick={() => {
+                                                        if (isValidImageUrl(image.url)) {
+                                                            setLightboxImage(image.url);
+                                                            setLightboxCaption(image.caption);
+                                                            setLightboxAlt(image.alt);
+                                                            setGalleryImages(block.images.filter(img => isValidImageUrl(img.url)));
+                                                            setCurrentImageIndex(imgIndex);
+                                                        }
+                                                    }}
+                                                >
+                                                    {isValidImageUrl(image.url) ? (
+                                                        <img src={image.url} alt={image.caption || `Gallery image ${imgIndex + 1}`} className="w-full h-full object-contain" />
+                                                    ) : (
+                                                        <div className="flex h-full w-full flex-col items-center justify-center text-gray-600">
+                                                            <p className="text-base font-medium">Image not available</p>
+                                                        </div>
+                                                    )}
+                                                </div>
                                                 {image.caption && (
                                                     <p className="mt-3 text-center font-['Schibsted_Grotesk'] font-normal text-[16px] lg:text-[20px] text-[#f2eee9]">{image.caption}</p>
                                                 )}
@@ -426,6 +442,31 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
             </div>
 
             <Footer />
+
+            {/* Lightbox */}
+            {lightboxImage && (
+                <ImageLightbox
+                    imageUrl={lightboxImage}
+                    alt={lightboxAlt}
+                    caption={lightboxCaption}
+                    onClose={() => {
+                        setLightboxImage(null);
+                        setLightboxCaption(undefined);
+                        setLightboxAlt(undefined);
+                        setGalleryImages(undefined);
+                    }}
+                    images={galleryImages}
+                    currentIndex={currentImageIndex}
+                    onNavigate={(index) => {
+                        if (galleryImages) {
+                            setCurrentImageIndex(index);
+                            setLightboxImage(galleryImages[index].url);
+                            setLightboxCaption(galleryImages[index].caption);
+                            setLightboxAlt(galleryImages[index].alt);
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 }

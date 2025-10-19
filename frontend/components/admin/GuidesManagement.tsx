@@ -296,12 +296,12 @@ const GuidesManagement: FunctionComponent = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredGuides.map((guide) => (
                     <div key={guide.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                        <div className="aspect-video bg-gray-200 overflow-hidden">
+                        <div className="aspect-[4/3] bg-gray-200 overflow-hidden">
                             {guide.imageUrl && guide.imageUrl !== '' && guide.imageUrl !== 'dummy.jpg' && guide.imageUrl !== '/images/dummy.jpg' && guide.imageUrl !== 'images/dummy.jpg' && !guide.imageUrl.endsWith('dummy.jpg') ? (
                                 <img
                                     src={guide.imageUrl}
                                     alt={guide.title}
-                                    className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                                    className="w-full h-full object-contain hover:scale-105 transition-transform cursor-pointer"
                                     onClick={() => setViewingGuide(guide)}
                                 />
                             ) : (

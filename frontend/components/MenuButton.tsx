@@ -2,6 +2,7 @@
 
 import { FunctionComponent } from 'react';
 import AnimatedButton from './shared/AnimatedButton';
+import { Menu as MenuIcon } from 'lucide-react';
 
 interface MenuButtonProps {
     onClick?: () => void;
@@ -20,8 +21,7 @@ const MenuButton: FunctionComponent<MenuButtonProps> = ({ onClick, isOpen = fals
             width="w-[250px]"
             height="h-[92px]"
             textSize="text-[48px]"
-            iconSrc="/images/Vector.svg"
-            iconAlt="Menu"
+            icon={<MenuIcon size={28} strokeWidth={2} />}
             isRotated={isOpen}
         />
     );

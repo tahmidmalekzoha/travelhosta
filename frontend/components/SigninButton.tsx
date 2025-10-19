@@ -4,7 +4,7 @@ import { FunctionComponent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import AnimatedButton from './shared/AnimatedButton';
-import { Settings } from 'lucide-react';
+import { Settings, ArrowRight } from 'lucide-react';
 
 /**
  * Animated sign-in button with hover effects
@@ -68,8 +68,7 @@ const SigninButton: FunctionComponent = () => {
             width="w-[297px]"
             height="h-[92px]"
             textSize="text-[48px]"
-            iconSrc="/images/Arrow.svg"
-            iconAlt="Sign in arrow"
+            icon={<ArrowRight size={24} strokeWidth={2.5} />}
         />
     );
 };
