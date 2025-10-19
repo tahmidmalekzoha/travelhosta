@@ -5,6 +5,7 @@ import { Lightbulb, Info } from 'lucide-react';
 interface TimelineProps {
     steps: ItineraryStep[];
     className?: string;
+    variant?: string; // Added variant prop to support theming
 }
 
 /**
