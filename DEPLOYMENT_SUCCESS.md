@@ -6,12 +6,11 @@ All critical build errors have been resolved. Your code has been pushed to GitHu
 
 ---
 
-## 🔧 Final Fix Applied
+## 🔧 Final Fixes Applied
 
-### **TypeScript Type Error** ✅
+### **Fix 1: Timeline TypeScript Error** ✅
 
 **Error:**
-
 ```
 Type error: Type '{ steps: ItineraryStep[]; variant: string; }' is not assignable to type 'IntrinsicAttributes & TimelineProps'.
 Property 'variant' does not exist on type 'IntrinsicAttributes & TimelineProps'.
@@ -29,6 +28,26 @@ interface TimelineProps {
 }
 ```
 
+### **Fix 2: Null to Undefined Conversion Error** ✅
+
+**Error:**
+```
+Type error: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string | undefined'.
+Type 'null' is not assignable to type 'string | undefined'.
+```
+
+**File:** `components/admin/EnhancedGuideForm.tsx`
+
+**Solution:** Convert `null` to `undefined` using nullish coalescing operator:
+
+```typescript
+// Before
+useImageUpload(guide?.imageUrl, ...)
+
+// After
+useImageUpload(guide?.imageUrl ?? undefined, ...)
+```
+
 ---
 
 ## 📊 All Issues Fixed
@@ -39,7 +58,8 @@ interface TimelineProps {
 2. ✅ TypeScript prefer-const errors (2 locations)
 3. ✅ TypeScript no-explicit-any errors (2 files)
 4. ✅ Binary file parsing error (temp_page.tsx deleted)
-5. ✅ **Timeline variant prop TypeScript error** (JUST FIXED)
+5. ✅ Timeline variant prop TypeScript error (Fixed)
+6. ✅ **Null to undefined conversion error in EnhancedGuideForm** (JUST FIXED)
 
 ### ⚠️ **Warnings (Non-Blocking)** - Won't Prevent Deployment
 
@@ -58,6 +78,11 @@ These are configured as warnings in `.eslintrc.json` and won't block the build.
 ```bash
 ✅ git add .
 ✅ git commit -m "Fix ESLint errors and TypeScript type issues for Netlify deployment"
+✅ git push origin main
+
+# Second round of fixes
+✅ git add .
+✅ git commit -m "Fix TypeScript null to undefined conversion in EnhancedGuideForm"
 ✅ git push origin main
 ```
 
