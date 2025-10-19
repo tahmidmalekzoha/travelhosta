@@ -215,7 +215,7 @@ export default function Guides() {
 
                 {/* Guide Cards Grid */}
                 {filteredGuides.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-20">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 pb-20">
                         {filteredGuides.map((guide) => (
                             <GuideCard
                                 key={guide.id}

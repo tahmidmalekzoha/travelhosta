@@ -35,13 +35,13 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
 
     return (
         <div className="w-full relative rounded-[47px] overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
-            {/* 4:3 aspect ratio container */}
-            <div className="aspect-[4/3] rounded-[47px] overflow-hidden shadow-lg transition-all duration-400 hover:shadow-2xl relative bg-gradient-to-br from-gray-200 to-gray-300">
+            {/* 3:4 aspect ratio container */}
+            <div className="aspect-[3/4] rounded-[47px] overflow-hidden shadow-lg transition-all duration-400 hover:shadow-2xl relative bg-gradient-to-br from-gray-200 to-gray-300">
                 {hasValidImage && (
                     <img 
                         src={guide.imageUrl!} 
                         alt={guide.title}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover"
                     />
                 )}
                 {!hasValidImage && (
