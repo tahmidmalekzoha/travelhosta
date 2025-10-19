@@ -117,7 +117,7 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Cover Image Upload Section */}
                     <GuideImageUploader
-                        imageUrl={formData.imageUrl}
+                        imageUrl={formData.imageUrl || ''}
                         imagePreview={imagePreview}
                         uploading={uploading}
                         onImageUrlChange={handleImageUrlChange}
