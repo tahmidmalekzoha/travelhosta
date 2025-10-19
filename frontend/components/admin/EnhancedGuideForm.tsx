@@ -77,7 +77,7 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         handleImageUpload: uploadImage,
         handleRemoveImage
     } = useImageUpload(
-        guide?.imageUrl,
+        guide?.imageUrl ?? undefined,
         (url) => setFormData(prev => ({ ...prev, imageUrl: url })),
         (message, type) => setToast({ message, type })
     );
