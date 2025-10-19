@@ -170,32 +170,30 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-[18px] flex-1">
-                        <h1 className="font-['Schibsted_Grotesk'] font-bold text-[48px] lg:text-[96px] leading-[normal] text-[#1b3c44]">{pageTitle}</h1>
+                    <div className="flex flex-col gap-[8px] flex-1">
+                        <h1 className="font-['Schibsted_Grotesk'] font-bold text-[48px] lg:text-[96px] leading-[normal] text-[#1b3c44] -ml-1">{pageTitle}</h1>
 
-                        <div className="flex flex-col gap-[20.5px]">
-                            <div className="relative">
-                                <p className="font-['Schibsted_Grotesk'] font-normal text-[20px] lg:text-[32px] leading-[normal] text-black">{descriptionText}</p>
+                        <p className="font-['Schibsted_Grotesk'] font-normal text-[24px] leading-[normal] text-black">{descriptionText}</p>
 
-                                {guide.tags && guide.tags.length > 0 && (
-                                    <div className="flex items-center gap-[5px] mt-[20px]">
-                                        <div className="flex h-[37.89px] w-[37.89px] items-center justify-center">
-                                            <span className="font-['Schibsted_Grotesk'] font-normal text-[24px] leading-none text-black">#</span>
-                                        </div>
-                                        <div className="flex items-center gap-[15.8px]">
-                                            {guide.tags.slice(0, 2).map((tag, index) => (
-                                                <button 
-                                                    key={index} 
-                                                    onClick={() => router.push(`/guides?tag=${encodeURIComponent(tag)}`)}
-                                                    className="inline-flex items-center justify-center rounded-[26.049px] bg-[#1b3c44] h-[52.099px] px-[14.2px] hover:bg-[#cd8453] transition-colors cursor-pointer"
-                                                >
-                                                    <span className="font-['Schibsted_Grotesk'] font-normal text-[20px] lg:text-[23.681px] leading-[normal] text-[#f2eee9] whitespace-nowrap">{tag}</span>
-                                                </button>
-                                            ))}
-                                        </div>
+                        <div className="flex flex-col gap-[20.5px] mt-[20px]">
+                            {guide.tags && guide.tags.length > 0 && (
+                                <div className="flex items-center gap-[5px]">
+                                    <div className="flex h-[37.89px] w-[37.89px] items-center justify-center">
+                                        <span className="font-['Schibsted_Grotesk'] font-normal text-[24px] leading-none text-black">#</span>
                                     </div>
-                                )}
-                            </div>
+                                    <div className="flex items-center gap-[15.8px]">
+                                        {guide.tags.slice(0, 2).map((tag, index) => (
+                                            <button 
+                                                key={index} 
+                                                onClick={() => router.push(`/guides?tag=${encodeURIComponent(tag)}`)}
+                                                className="inline-flex items-center justify-center rounded-[26.049px] bg-[#1b3c44] h-[52.099px] px-[14.2px] hover:bg-[#cd8453] transition-colors cursor-pointer"
+                                            >
+                                                <span className="font-['Schibsted_Grotesk'] font-normal text-[20px] lg:text-[23.681px] leading-[normal] text-[#f2eee9] whitespace-nowrap">{tag}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex flex-col gap-[14.2px]">
                                 <div className="flex items-center gap-[18.9px]">
@@ -224,9 +222,6 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                     
                     <div className="mb-[76px]">
                         <h2 className="font-['Schibsted_Grotesk'] font-bold text-[48px] lg:text-[96px] leading-[normal] text-[#f2eee9] mb-[60px] lg:mb-[122px]">About this Journey</h2>
-                        <div className="w-full max-w-[907px]">
-                            <p className="font-['Schibsted_Grotesk'] font-medium text-[20px] lg:text-[32px] leading-[normal] text-[#f2eee9]">{descriptionText}</p>
-                        </div>
                     </div>
 
                     {contentBlocks && contentBlocks.map((block, blockIndex) => {
