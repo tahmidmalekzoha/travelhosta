@@ -193,7 +193,7 @@ const GuideForm: FunctionComponent<GuideFormProps> = ({
                                 {/* Manual URL Input */}
                                 <input
                                     type="url"
-                                    value={formData.imageUrl}
+                                    value={formData.imageUrl || ''}
                                     onChange={(e) => {
                                         setFormData(prev => ({ ...prev, imageUrl: e.target.value }));
                                         setImagePreview(e.target.value);
