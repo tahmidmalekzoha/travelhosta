@@ -106,7 +106,7 @@ export default function SignIn() {
             <div className="bg-[#1b3c44] rounded-[39px] relative overflow-hidden w-full h-full">
                 <StickyNavbar />
                 <div className="absolute text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold whitespace-nowrap" style={{ left: '52px', top: '64px', fontSize: '128px', lineHeight: '1', letterSpacing: '0' }}>
-                    Let's Plan. Pack & Go.
+                    Let&apos;s Plan. Pack & Go.
                 </div>
                 <div className="absolute" style={{ right: '100px', bottom: '0px', width: '500px', height: '515px' }}>
                     <img src="/images/signpost.svg" alt="Travel Signpost" className="w-full h-full object-contain" />
