@@ -95,18 +95,35 @@ export default function SignUp() {
 
         setLoading(true);
 
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            // Use Supabase email authentication
+            const { authService } = await import('../../services/authService');
+            
+            const response = await authService.signUp({
+                email: formData.email,
+                password: formData.password,
+                fullName: formData.fullName,
+                dateOfBirth: formData.dateOfBirth,
+            });
 
-        // Simulate successful signup (in real app, this would be an API call)
-        console.log('Signup data:', formData);
+            if (!response.success) {
+                setError(response.error || 'Failed to create account');
+                setLoading(false);
+                return;
+            }
 
-        setSuccess(true);
-        setTimeout(() => {
-            router.push('/signin');
-        }, 2000);
-
-        setLoading(false);
+            // Success - show success message and redirect
+            console.log('✅ Account created successfully for:', formData.email);
+            setSuccess(true);
+            
+            setTimeout(() => {
+                router.push('/signin');
+            }, 2000);
+        } catch (err) {
+            console.error('Sign up error:', err);
+            setError('An unexpected error occurred. Please try again.');
+            setLoading(false);
+        }
     }, [formData, validateForm, router]);
 
     // Success screen

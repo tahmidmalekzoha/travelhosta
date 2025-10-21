@@ -6,7 +6,7 @@ import Footer from '../../../components/Footer';
 import StickyNavbar from '../../../components/StickyNavbar';
 import ImageLightbox from '../../../components/shared/ImageLightbox';
 import { useGuides } from '../../../contexts/GuidesContext';
-import { ArrowLeft, Tag, MapPin, Lightbulb, Info } from 'lucide-react';
+import { ArrowLeft, Tag, MapPin, Lightbulb, Info, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { GuideData, Language } from '../../../types';
 import { isValidImageUrl } from '../../../utils/imageUtils';
 
@@ -401,6 +401,59 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                             <p className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9] flex-1">{tip}</p>
                                         </div>
                                     ))}
+                                </div>
+                            );
+                        }
+
+                        // Pros & Cons block
+                        if (block.type === 'proscons' && 'pros' in block && 'cons' in block) {
+                            return (
+                                <div key={block.id || `proscons-${blockIndex}`} className="mb-[76px]">
+                                    {block.title && (
+                                        <h3 className="font-['Schibsted_Grotesk'] font-bold text-[44px] lg:text-[72px] leading-[normal] text-[#f2eee9] mb-[40px] lg:mb-[60px] text-center">{block.title}</h3>
+                                    )}
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-[40px] lg:gap-[60px]">
+                                        {/* Pros Column */}
+                                        <div className="bg-[#0f8450]/10 border border-[#0f8450]/30 rounded-[28px] px-[30px] lg:px-[40px] py-[30px] lg:py-[40px] backdrop-blur">
+                                            <h4 className="font-['Schibsted_Grotesk'] font-bold text-[28px] lg:text-[36px] leading-[normal] text-[#7dd6a7] mb-[30px] flex items-center gap-[15px]">
+                                                <ThumbsUp size={32} strokeWidth={2.5} />
+                                                Pros
+                                            </h4>
+                                            <div className="space-y-[20px]">
+                                                {block.pros.map((pro, proIndex) => (
+                                                    <div key={proIndex} className="flex items-start gap-[15px]">
+                                                        <div className="flex-shrink-0 mt-[3px] text-[#7dd6a7]">
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                                            </svg>
+                                                        </div>
+                                                        <p className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9] flex-1">{pro}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Cons Column */}
+                                        <div className="bg-[#d62828]/10 border border-[#d62828]/30 rounded-[28px] px-[30px] lg:px-[40px] py-[30px] lg:py-[40px] backdrop-blur">
+                                            <h4 className="font-['Schibsted_Grotesk'] font-bold text-[28px] lg:text-[36px] leading-[normal] text-[#ff9999] mb-[30px] flex items-center gap-[15px]">
+                                                <ThumbsDown size={32} strokeWidth={2.5} />
+                                                Cons
+                                            </h4>
+                                            <div className="space-y-[20px]">
+                                                {block.cons.map((con, conIndex) => (
+                                                    <div key={conIndex} className="flex items-start gap-[15px]">
+                                                        <div className="flex-shrink-0 mt-[3px] text-[#ff9999]">
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                            </svg>
+                                                        </div>
+                                                        <p className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9] flex-1">{con}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         }

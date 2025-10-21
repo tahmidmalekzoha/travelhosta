@@ -6,7 +6,7 @@
 import { FunctionComponent, useState } from 'react';
 import { Language, ContentBlock, TextBlock, TimelineBlock, ImageBlock, ImageGalleryBlock, TableBlock, TipsBlock, NotesBlock } from '../../types';
 import { sampleContent } from '../../utils/contentParser';
-import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages, Info } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, FileText, Image, Layout, Calendar, Table, ClipboardPaste, Lightbulb, Languages, Info, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { previewTableFromClipboard } from '../../utils/tablePasteHandler';
 import ContentRenderer from '../ContentRenderer';
 
@@ -121,6 +121,21 @@ Add multiple paragraphs as needed.
 - Entry times may vary by season - check before visiting
 - Some locations require advance booking
 - Photography restrictions may apply in certain areas
+:::`,
+        proscons: `:::proscons [title="Visiting in Summer"]
+[pros]
+- Clear weather and excellent visibility
+- All attractions are open
+- Perfect for outdoor activities
+- Best time for photography
+[/pros]
+
+[cons]
+- Peak tourist season with large crowds
+- Higher prices for accommodation
+- Can be extremely hot during midday
+- Need to book well in advance
+[/cons]
 :::`,
         timeline: `:::timeline [title="Day 1: Journey"]
 Location A to Location B
@@ -278,6 +293,9 @@ Food | 300 | 600 | 1500
                     <button type="button" onClick={() => onInsertTemplate(templates.notes)} className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-100 text-blue-800 border border-blue-300 rounded-lg hover:bg-blue-200 transition-colors">
                         <Info size={16} />Notes Block
                     </button>
+                    <button type="button" onClick={() => onInsertTemplate(templates.proscons)} className="flex items-center gap-2 px-3 py-2 text-sm bg-gradient-to-r from-green-100 to-red-100 text-gray-800 border border-gray-300 rounded-lg hover:from-green-200 hover:to-red-200 transition-colors">
+                        <ThumbsUp size={16} />Pros & Cons
+                    </button>
                     <button type="button" onClick={() => onInsertTemplate(templates.timeline)} className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         <Calendar size={16} />Timeline
                     </button>
@@ -396,6 +414,27 @@ Location A to Location B
                             <p className="text-xs text-blue-700">Highlight important information and caveats.</p>
                         </div>
 
+                        {/* Pros & Cons Block */}
+                        <div className="bg-white p-3 rounded border border-blue-200">
+                            <p className="font-medium mb-2">👍👎 Pros & Cons Block</p>
+                            <pre className="bg-gray-50 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+{`:::proscons [title="Visiting in Summer"]
+[pros]
+- Clear weather and excellent visibility
+- All attractions are open
+- Perfect for outdoor activities
+[/pros]
+
+[cons]
+- Peak tourist season with crowds
+- Higher prices for accommodation
+- Can be extremely hot during midday
+[/cons]
+:::`}
+                            </pre>
+                            <p className="text-xs text-blue-700">Display advantages and disadvantages side by side in a comparison format.</p>
+                        </div>
+
                         {/* Image Block */}
                         <div className="bg-white p-3 rounded border border-blue-200">
                             <p className="font-medium mb-2">🖼️ Image Block</p>
@@ -454,9 +493,9 @@ Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
                 </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="w-full">
                 {/* Editor */}
-                <div>
+                <div className="w-full">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         {currentLanguage === 'en' ? 'Content Editor (English)' : 'কন্টেন্ট এডিটর (বাংলা)'}
                     </label>
@@ -486,14 +525,15 @@ Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
                                     }
                                 }
                             }}
-                            rows={20}
+                            rows={35}
                             className={`w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#cd8453] focus:border-transparent font-mono text-sm ${
                                 currentLanguage === 'bn' ? "font-bengali" : ''
                             }`}
                             style={{
                                 backgroundImage: `repeating-linear-gradient(transparent,transparent 23px,#e5e7eb 23px,#e5e7eb 24px)`,
                                 backgroundSize: '100% 24px',
-                                lineHeight: '24px'
+                                lineHeight: '24px',
+                                minHeight: '840px'
                             }}
                             placeholder={currentLanguage === 'en' ? 'Start typing or use Quick Insert buttons above...' : 'লেখা শুরু করুন বা উপরের Quick Insert বাটন ব্যবহার করুন...'}
                         />
@@ -520,6 +560,10 @@ Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
                             <div className="flex items-center gap-2">
                                 <code className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-mono">:::notes</code>
                                 <span className="text-gray-600">Notes block</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <code className="px-2 py-0.5 bg-gradient-to-r from-green-100 to-red-100 text-gray-800 rounded font-mono">:::proscons</code>
+                                <span className="text-gray-600">Pros & cons</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <code className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-mono">:::image</code>
@@ -660,13 +704,13 @@ Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
                     )}
                 </div>
 
-                {/* Preview - Import from GuidePreview component */}
+                {/* Preview - Now below the editor */}
                 {showPreview && (
-                    <div>
+                    <div className="mt-6 w-full">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             {currentLanguage === 'en' ? 'Live Preview (English)' : 'লাইভ প্রিভিউ (বাংলা)'}
                         </label>
-                        <div className={`border border-gray-300 rounded-lg p-6 bg-[#f2eee9] max-h-[600px] overflow-y-auto ${
+                        <div className={`border border-gray-300 rounded-lg p-6 bg-[#f2eee9] max-h-[800px] overflow-y-auto ${
                             currentLanguage === 'bn' ? "font-bengali" : ''
                         }`}>
                             {getCurrentContent() && getCurrentContent()!.length > 0 ? (
@@ -674,8 +718,8 @@ Row 2, Cell 1 | Row 2, Cell 2 | Row 2, Cell 3
                             ) : (
                                 <div className="text-gray-500 text-center py-8">
                                     {currentLanguage === 'en' 
-                                        ? 'No content to preview. Start adding blocks on the left.'
-                                        : 'প্রিভিউ করার জন্য কোনো কন্টেন্ট নেই। বামে ব্লক যোগ করা শুরু করুন।'
+                                        ? 'No content to preview. Start adding blocks above.'
+                                        : 'প্রিভিউ করার জন্য কোনো কন্টেন্ট নেই। উপরে ব্লক যোগ করা শুরু করুন।'
                                     }
                                 </div>
                             )}

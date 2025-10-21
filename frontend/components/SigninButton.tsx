@@ -13,14 +13,14 @@ import { Settings, ArrowRight } from 'lucide-react';
  */
 const SigninButton: FunctionComponent = () => {
     const router = useRouter();
-    const { user, logout } = useAuth();
+    const { user, profile, signOut } = useAuth();
 
     const handleSignIn = () => {
         router.push('/signin');
     };
 
     const handleLogout = () => {
-        logout();
+        signOut();
         router.push('/');
     };
 
@@ -28,20 +28,23 @@ const SigninButton: FunctionComponent = () => {
         router.push('/admin');
     };
 
-    if (user) {
+    if (user && profile) {
+        // Get display name - use full_name if available, otherwise use email
+        const displayName = profile.full_name || user.email?.split('@')[0] || 'User';
+        
         return (
             <div className="flex flex-col gap-2 items-end">
                 <div className="bg-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3">
                     <div className="text-right">
-                        <p className="text-sm font-semibold text-[#1b3c44]">{user.name}</p>
-                        <p className="text-xs text-gray-600">{user.role}</p>
+                        <p className="text-sm font-semibold text-[#1b3c44]">{displayName}</p>
+                        <p className="text-xs text-gray-600">{profile.role}</p>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold">
-                        {user.name.charAt(0).toUpperCase()}
+                        {displayName.charAt(0).toUpperCase()}
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    {user.role === 'admin' && (
+                    {profile.role === 'admin' && (
                         <button
                             onClick={handleAdminPanel}
                             className="bg-[#cd8453] text-white px-4 py-2 rounded-full hover:bg-[#1b3c44] transition-colors flex items-center gap-2"

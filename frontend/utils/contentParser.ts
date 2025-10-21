@@ -12,6 +12,7 @@ import type {
     TableBlock, 
     TipsBlock, 
     NotesBlock,
+    ProsConsBlock,
     ItineraryStep 
 } from '../types';
 
@@ -62,6 +63,9 @@ export function parseGuideContent(text: string): ContentBlock[] {
                 (currentBlock as NotesBlock).notes = blockBuffer
                     .filter(line => line.trim().startsWith('-'))
                     .map(line => line.trim().substring(1).trim());
+                break;
+            case 'proscons':
+                parseProsConsData(currentBlock as ProsConsBlock, blockBuffer);
                 break;
             case 'table':
                 parseTableData(currentBlock as TableBlock, blockBuffer);
@@ -127,6 +131,16 @@ export function parseGuideContent(text: string): ContentBlock[] {
                     } as NotesBlock;
                     break;
 
+                case 'proscons':
+                    currentBlock = {
+                        type: 'proscons',
+                        id: generateId('proscons'),
+                        title: attrs.title,
+                        pros: [],
+                        cons: []
+                    } as ProsConsBlock;
+                    break;
+
                 case 'image':
                     currentBlock = {
                         type: 'image',
@@ -167,6 +181,45 @@ export function parseGuideContent(text: string): ContentBlock[] {
 
     processBuffer(); // Process any remaining buffer
     return blocks;
+}
+
+/**
+ * Parses pros and cons data from text buffer
+ */
+function parseProsConsData(proscons: ProsConsBlock, buffer: string[]): void {
+    let inPros = false;
+    let inCons = false;
+
+    for (const line of buffer) {
+        const trimmed = line.trim();
+        
+        // Check for section markers
+        if (trimmed.toLowerCase() === '[pros]') {
+            inPros = true;
+            inCons = false;
+            continue;
+        } else if (trimmed.toLowerCase() === '[/pros]') {
+            inPros = false;
+            continue;
+        } else if (trimmed.toLowerCase() === '[cons]') {
+            inCons = true;
+            inPros = false;
+            continue;
+        } else if (trimmed.toLowerCase() === '[/cons]') {
+            inCons = false;
+            continue;
+        }
+
+        // Add items to appropriate list
+        if (trimmed.startsWith('- ') || trimmed.startsWith('-')) {
+            const content = trimmed.startsWith('- ') ? trimmed.substring(2).trim() : trimmed.substring(1).trim();
+            if (inPros) {
+                proscons.pros.push(content);
+            } else if (inCons) {
+                proscons.cons.push(content);
+            }
+        }
+    }
 }
 
 /**
@@ -500,6 +553,23 @@ export function contentToText(blocks: ContentBlock[]): string {
                 notes.notes.forEach(note => textParts.push(`- ${note}`));
                 textParts.push(':::');
                 break;
+
+            case 'proscons':
+                const proscons = block as ProsConsBlock;
+                if (proscons.title) {
+                    textParts.push(`:::proscons [title="${proscons.title}"]`);
+                } else {
+                    textParts.push(`:::proscons`);
+                }
+                textParts.push('[pros]');
+                proscons.pros.forEach(pro => textParts.push(`- ${pro}`));
+                textParts.push('[/pros]');
+                textParts.push('');
+                textParts.push('[cons]');
+                proscons.cons.forEach(con => textParts.push(`- ${con}`));
+                textParts.push('[/cons]');
+                textParts.push(':::');
+                break;
         }
     });
 
@@ -574,6 +644,19 @@ export function validateContent(blocks: ContentBlock[]): string[] {
                     errors.push(`Block ${index + 1}: Notes block is empty`);
                 }
                 break;
+
+            case 'proscons':
+                const proscons = block as ProsConsBlock;
+                if ((!proscons.pros || proscons.pros.length === 0) && (!proscons.cons || proscons.cons.length === 0)) {
+                    errors.push(`Block ${index + 1}: Pros/Cons block has no content`);
+                }
+                if (!proscons.pros || proscons.pros.length === 0) {
+                    errors.push(`Block ${index + 1}: Pros/Cons block has no pros`);
+                }
+                if (!proscons.cons || proscons.cons.length === 0) {
+                    errors.push(`Block ${index + 1}: Pros/Cons block has no cons`);
+                }
+                break;
         }
     });
 
@@ -619,6 +702,23 @@ Location A to Location B
 - Entry times may vary by season - check before visiting
 - Some locations require advance booking
 - Photography restrictions may apply in certain areas
+:::
+
+
+:::proscons [title="Visiting in Summer"]
+[pros]
+- Clear weather and excellent visibility
+- All attractions are open
+- Perfect for outdoor activities
+- Best time for photography
+[/pros]
+
+[cons]
+- Peak tourist season with large crowds
+- Higher prices for accommodation
+- Can be extremely hot during midday
+- Need to book well in advance
+[/cons]
 :::
 
 

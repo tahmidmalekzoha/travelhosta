@@ -3,20 +3,22 @@
 import { FunctionComponent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Image, BookOpen, Users, Tags, Star, LogOut, MapPin, X } from 'lucide-react';
+import { LayoutDashboard, Image, BookOpen, Users, Tags, Star, LogOut, MapPin, X, ChevronLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface AdminSidebarProps {
     isOpen: boolean;
     onClose: () => void;
+    isCollapsed?: boolean;
+    onToggleCollapse?: () => void;
 }
 
 /**
  * Admin sidebar navigation component
  */
-const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose }) => {
+const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse }) => {
     const pathname = usePathname();
-    const { logout } = useAuth();
+    const { signOut } = useAuth();
 
     const navItems = [
         { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -55,16 +57,24 @@ const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose })
             {/* Sidebar */}
             <aside className={`
                 fixed lg:static inset-y-0 left-0 z-50
-                w-64 bg-[#1b3c44] text-white flex flex-col
-                transform transition-transform duration-300 ease-in-out
+                bg-[#1b3c44] text-white flex flex-col
+                transform transition-all duration-300 ease-in-out
                 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                ${isCollapsed ? 'lg:w-20' : 'w-64'}
             `}>
                 {/* Logo/Brand */}
-                <div className="p-4 sm:p-6 border-b border-white/10 flex items-center justify-between">
-                    <div className="flex-1">
-                        <h1 className="text-xl sm:text-2xl font-bold">TravelHosta</h1>
-                        <p className="text-xs sm:text-sm text-white/60 mt-1">Admin Panel</p>
-                    </div>
+                <div className={`p-4 sm:p-6 border-b border-white/10 flex items-center ${isCollapsed ? 'lg:justify-center' : 'justify-between'}`}>
+                    {!isCollapsed && (
+                        <div className="flex-1">
+                            <h1 className="text-xl sm:text-2xl font-bold">TravelHosta</h1>
+                            <p className="text-xs sm:text-sm text-white/60 mt-1">Admin Panel</p>
+                        </div>
+                    )}
+                    {isCollapsed && (
+                        <div className="hidden lg:block">
+                            <h1 className="text-2xl font-bold">TH</h1>
+                        </div>
+                    )}
                     {/* Close button for mobile */}
                     <button
                         onClick={onClose}
@@ -72,6 +82,16 @@ const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose })
                     >
                         <X size={20} />
                     </button>
+                    {/* Collapse toggle for desktop */}
+                    {onToggleCollapse && (
+                        <button
+                            onClick={onToggleCollapse}
+                            className="hidden lg:block p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        >
+                            <ChevronLeft size={20} className={`transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+                        </button>
+                    )}
                 </div>
 
                 {/* Navigation */}
@@ -89,10 +109,11 @@ const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose })
                                             active
                                                 ? 'bg-[#cd8453] text-white'
                                                 : 'text-white/70 hover:bg-white/10 hover:text-white'
-                                        }`}
+                                        } ${isCollapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                                        title={isCollapsed ? item.label : undefined}
                                     >
                                         <Icon size={18} className="flex-shrink-0" />
-                                        <span className="truncate">{item.label}</span>
+                                        {!isCollapsed && <span className="truncate">{item.label}</span>}
                                     </Link>
                                 </li>
                             );
@@ -104,13 +125,16 @@ const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose })
                 <div className="p-3 sm:p-4 border-t border-white/10">
                     <button
                         onClick={() => {
-                            logout();
+                            signOut();
                             onClose();
                         }}
-                        className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 w-full rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors text-sm sm:text-base"
+                        className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 w-full rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors text-sm sm:text-base ${
+                            isCollapsed ? 'lg:justify-center lg:px-2' : ''
+                        }`}
+                        title={isCollapsed ? 'Logout' : undefined}
                     >
                         <LogOut size={18} className="flex-shrink-0" />
-                        <span>Logout</span>
+                        {!isCollapsed && <span>Logout</span>}
                     </button>
                 </div>
             </aside>

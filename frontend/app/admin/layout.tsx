@@ -19,20 +19,28 @@ export default function AdminLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { user, isLoading } = useAuth();
+    const { user, profile, isLoading } = useAuth();
     const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     // Redirect non-admin users to sign in page
     useEffect(() => {
-        if (!isLoading && (!user || user.role !== 'admin')) {
-            router.push('/signin?redirect=/admin');
+        if (!isLoading) {
+            if (!user || !profile) {
+                // No user or profile - redirect to signin
+                router.push('/signin?redirect=/admin');
+            } else if (profile.role !== 'admin') {
+                // User exists but not admin - redirect to home
+                router.push('/');
+            }
         }
-    }, [user, isLoading, router]);
+    }, [user, profile, isLoading, router]);
 
     // Memoize sidebar toggle handlers
     const handleSidebarOpen = useCallback(() => setSidebarOpen(true), []);
     const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);
+    const handleSidebarToggleCollapse = useCallback(() => setSidebarCollapsed(prev => !prev), []);
 
     // Show loading state while checking authentication
     if (isLoading) {
@@ -44,7 +52,7 @@ export default function AdminLayout({
     }
 
     // Prevent flash of content for unauthorized users
-    if (!user || user.role !== 'admin') {
+    if (!user || !profile || profile.role !== 'admin') {
         return null;
     }
 
@@ -53,7 +61,12 @@ export default function AdminLayout({
             <CategoriesProvider>
                 <HeroProvider>
                     <div className="flex h-screen bg-[#f2eee9] overflow-hidden">
-                        <AdminSidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
+                        <AdminSidebar 
+                            isOpen={sidebarOpen} 
+                            onClose={handleSidebarClose}
+                            isCollapsed={sidebarCollapsed}
+                            onToggleCollapse={handleSidebarToggleCollapse}
+                        />
                         <div className="flex-1 flex flex-col overflow-hidden">
                             <AdminHeader onMenuClick={handleSidebarOpen} />
                             <main className="flex-1 overflow-y-auto p-4 sm:p-6">

@@ -7,11 +7,12 @@ import {
     ImageGalleryBlock,
     TableBlock,
     TipsBlock,
-    NotesBlock
+    NotesBlock,
+    ProsConsBlock
 } from '../types';
 import Timeline from './Timeline';
 import ImagePlaceholder from './shared/ImagePlaceholder';
-import { Lightbulb, Info } from 'lucide-react';
+import { Lightbulb, Info, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { isValidImageUrl, getImageAltText } from '../utils/imageUtils';
 
 type ContentTheme = 'light' | 'dark';
@@ -59,6 +60,44 @@ const noteClasses: Record<ContentTheme, { wrapper: string; icon: string; text: s
         icon: 'text-[#D6AD46]',
         text: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
         title: 'text-[#e6f4ff]'
+    }
+};
+
+const prosConsClasses: Record<ContentTheme, { 
+    wrapper: string; 
+    prosWrapper: string; 
+    consWrapper: string;
+    prosIcon: string; 
+    consIcon: string; 
+    prosText: string;
+    consText: string;
+    prosTitle: string;
+    consTitle: string;
+    mainTitle: string;
+}> = {
+    light: {
+        wrapper: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+        prosWrapper: 'bg-[#e8f8f0] border border-[#7dd6a7]/80 px-8 py-6 rounded-[28px]',
+        consWrapper: 'bg-[#ffe8e8] border border-[#ff9999]/80 px-8 py-6 rounded-[28px]',
+        prosIcon: 'text-[#0f8450]',
+        consIcon: 'text-[#d62828]',
+        prosText: 'text-[18px] sm:text-[20px] leading-[1.65] text-[#1b3c44] tracking-[0.01em]',
+        consText: 'text-[18px] sm:text-[20px] leading-[1.65] text-[#1b3c44] tracking-[0.01em]',
+        prosTitle: 'text-[#0f8450]',
+        consTitle: 'text-[#d62828]',
+        mainTitle: 'text-[#1b3c44]'
+    },
+    dark: {
+        wrapper: 'grid grid-cols-1 md:grid-cols-2 gap-8',
+        prosWrapper: 'bg-[#0f8450]/10 border border-[#0f8450]/30 px-8 py-6 rounded-[28px] backdrop-blur',
+        consWrapper: 'bg-[#d62828]/10 border border-[#d62828]/30 px-8 py-6 rounded-[28px] backdrop-blur',
+        prosIcon: 'text-[#7dd6a7]',
+        consIcon: 'text-[#ff9999]',
+        prosText: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
+        consText: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
+        prosTitle: 'text-[#7dd6a7]',
+        consTitle: 'text-[#ff9999]',
+        mainTitle: 'text-[#f2eee9]'
     }
 };
 
@@ -141,6 +180,8 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks, them
                         return <TipsBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'notes':
                         return <NotesBlockRenderer key={block.id} block={block} theme={theme} />;
+                    case 'proscons':
+                        return <ProsConsBlockRenderer key={block.id} block={block} theme={theme} />;
                     default:
                         return null;
                 }
@@ -227,6 +268,66 @@ const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock; theme: ContentT
                             </p>
                         </div>
                     ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ProsConsBlockRenderer: FunctionComponent<{ block: ProsConsBlock; theme: ContentTheme }> = ({ block, theme }) => {
+    const styles = prosConsClasses[theme];
+
+    return (
+        <div className="max-w-5xl mx-auto">
+            {block.title && (
+                <h2 className={`text-[44px] sm:text-[56px] md:text-[72px] font-bold leading-[1.05] tracking-[-0.01em] mb-10 text-center ${styles.mainTitle}`}>
+                    {block.title}
+                </h2>
+            )}
+            <div className={styles.wrapper}>
+                {/* Pros Column */}
+                <div className={styles.prosWrapper}>
+                    <h3 className={`text-[24px] sm:text-[28px] font-bold mb-6 tracking-[0.02em] flex items-center gap-3 ${styles.prosTitle}`}>
+                        <ThumbsUp size={28} strokeWidth={2.5} />
+                        Pros
+                    </h3>
+                    <div className="space-y-4">
+                        {block.pros.map((pro, index) => (
+                            <div key={index} className="flex items-start gap-[13px]">
+                                <div className={`${styles.prosIcon} flex-shrink-0 mt-[3px]`}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <p className={`${styles.prosText} flex-grow`}>
+                                    {pro}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Cons Column */}
+                <div className={styles.consWrapper}>
+                    <h3 className={`text-[24px] sm:text-[28px] font-bold mb-6 tracking-[0.02em] flex items-center gap-3 ${styles.consTitle}`}>
+                        <ThumbsDown size={28} strokeWidth={2.5} />
+                        Cons
+                    </h3>
+                    <div className="space-y-4">
+                        {block.cons.map((con, index) => (
+                            <div key={index} className="flex items-start gap-[13px]">
+                                <div className={`${styles.consIcon} flex-shrink-0 mt-[3px]`}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </div>
+                                <p className={`${styles.consText} flex-grow`}>
+                                    {con}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

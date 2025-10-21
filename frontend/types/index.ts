@@ -27,7 +27,7 @@ export interface ItineraryStep {
 }
 
 // Content block types for flexible guide structure
-export type ContentBlockType = 'text' | 'timeline' | 'image' | 'imageGallery' | 'table' | 'tips' | 'notes';
+export type ContentBlockType = 'text' | 'timeline' | 'image' | 'imageGallery' | 'table' | 'tips' | 'notes' | 'proscons';
 
 export interface TextBlock {
     type: 'text';
@@ -48,6 +48,14 @@ export interface NotesBlock {
     id: string;
     title?: string; // Optional title for the notes section
     notes: string[]; // Array of note strings
+}
+
+export interface ProsConsBlock {
+    type: 'proscons';
+    id: string;
+    title?: string; // Optional title for the pros/cons section
+    pros: string[]; // Array of pros
+    cons: string[]; // Array of cons
 }
 
 export interface TimelineBlock {
@@ -85,7 +93,7 @@ export interface TableBlock {
     caption?: string; // Optional caption below table
 }
 
-export type ContentBlock = TextBlock | TimelineBlock | ImageBlock | ImageGalleryBlock | TableBlock | TipsBlock | NotesBlock;
+export type ContentBlock = TextBlock | TimelineBlock | ImageBlock | ImageGalleryBlock | TableBlock | TipsBlock | NotesBlock | ProsConsBlock;
 
 // Language support types
 export type Language = 'en' | 'bn';
