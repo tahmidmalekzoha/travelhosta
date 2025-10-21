@@ -1,6 +1,6 @@
 "use client";
 
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent, useState, useEffect } from 'react';
 import SigninButton from './SigninButton';
 import MenuButton from './MenuButton';
 import MenuExpanded from './MenuExpanded';
@@ -8,9 +8,50 @@ import MenuExpanded from './MenuExpanded';
 /**
  * Sticky navigation bar positioned at the top-right corner
  * Contains sign-in button and menu button with responsive positioning
+ * Hides on scroll down and shows on scroll up with smooth animations
  */
 const StickyNavbar: FunctionComponent = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+
+    useEffect(() => {
+        let ticking = false;
+
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const currentScrollY = window.scrollY;
+                    
+                    // Show navbar if scrolling up or at the top
+                    // Hide navbar if scrolling down (and not at the very top)
+                    if (currentScrollY < lastScrollY) {
+                        // Scrolling up
+                        setIsVisible(true);
+                    } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                        // Scrolling down and past threshold
+                        setIsVisible(false);
+                    }
+
+                    // Always show at the very top
+                    if (currentScrollY < 50) {
+                        setIsVisible(true);
+                    }
+
+                    setLastScrollY(currentScrollY);
+                    ticking = false;
+                });
+
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [lastScrollY]);
 
     const handleMenuToggle = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -31,8 +72,14 @@ const StickyNavbar: FunctionComponent = () => {
                 />
             )}
 
-            {/* Fixed positioned buttons that never move */}
-            <div className="fixed top-[82px] right-[50px] z-50 flex flex-col gap-2 md:gap-3 items-end">
+            {/* Fixed positioned buttons with scroll-based visibility */}
+            <div 
+                className={`fixed top-[82px] right-[50px] z-50 flex flex-col gap-2 md:gap-3 items-end transition-all duration-500 ease-in-out ${
+                    isVisible 
+                        ? 'translate-x-0 opacity-100' 
+                        : 'translate-x-[150%] opacity-0'
+                }`}
+            >
                 <SigninButton />
                 <MenuButton onClick={handleMenuToggle} isOpen={isMenuOpen} />
             </div>

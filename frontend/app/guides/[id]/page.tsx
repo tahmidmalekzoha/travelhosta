@@ -144,12 +144,56 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
 
             <div className="relative px-4 lg:px-[37px] pt-[55px]">
                 <div className="flex flex-col-reverse lg:flex-row items-start lg:items-start justify-between gap-4">
-                    <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#28231d] h-[85px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#1f1a15]">
-                        <span className="absolute left-[11.54px] top-[9.44px] flex h-[65.062px] w-[65.062px] items-center justify-center rounded-full bg-[#f2eee9] text-[#28231d]">
-                            <ArrowLeft size={28} strokeWidth={2.5} />
-                        </span>
-                        <span className="font-['Schibsted_Grotesk'] font-normal text-[50.37px] text-[#f2eee9] ml-[93.4px] mr-[34px]">Back</span>
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-start gap-4">
+                        <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#28231d] h-[85px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#1f1a15]">
+                            <span className="absolute left-[11.54px] top-[9.44px] flex h-[65.062px] w-[65.062px] items-center justify-center rounded-full bg-[#f2eee9] text-[#28231d]">
+                                <ArrowLeft size={28} strokeWidth={2.5} />
+                            </span>
+                            <span className="font-['Schibsted_Grotesk'] font-normal text-[50.37px] text-[#f2eee9] ml-[93.4px] mr-[34px]">Back</span>
+                        </button>
+
+                        {/* Language Toggle - only show if Bengali content exists */}
+                        {hasBengali && (
+                            <div className="relative inline-flex items-center rounded-full bg-[#cd8453] h-[85px] px-[20px] gap-[16px]">
+                                {/* Sliding circle indicator */}
+                                <div 
+                                    className={`absolute top-[9.44px] h-[65.062px] w-[65.062px] rounded-full bg-[#f2eee9] transition-all duration-300 ease-out shadow-md ${
+                                        currentLanguage === 'en' 
+                                            ? 'left-[20px]' 
+                                            : 'left-[calc(100%-85.062px)]'
+                                    }`}
+                                />
+                                
+                                {/* English button */}
+                                <button
+                                    onClick={() => setCurrentLanguage('en')}
+                                    className="relative z-10 flex items-center justify-center h-[65.062px] w-[65.062px] transition-all duration-200 hover:scale-105"
+                                >
+                                    <span className={`font-['Schibsted_Grotesk'] font-bold text-[22px] transition-colors duration-300 ${
+                                        currentLanguage === 'en'
+                                            ? 'text-[#28231d]'
+                                            : 'text-[#f2eee9]'
+                                    }`}>
+                                        EN
+                                    </span>
+                                </button>
+
+                                {/* Bengali button */}
+                                <button
+                                    onClick={() => setCurrentLanguage('bn')}
+                                    className="relative z-10 flex items-center justify-center h-[65.062px] w-[65.062px] transition-all duration-200 hover:scale-105"
+                                >
+                                    <span className={`font-['Schibsted_Grotesk'] font-bold text-[22px] transition-colors duration-300 ${
+                                        currentLanguage === 'bn'
+                                            ? 'text-[#28231d]'
+                                            : 'text-[#f2eee9]'
+                                    }`}>
+                                        বাং
+                                    </span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

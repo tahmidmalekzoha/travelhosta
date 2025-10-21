@@ -2,9 +2,10 @@
  * EnhancedGuideForm - Refactored version
  * Main form component orchestrating all child components and custom hooks
  * Reduced from 1135 lines to ~200 lines by extracting components and hooks
+ * Now includes state persistence across page reloads
  */
 
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent, useState, useEffect } from 'react';
 import { GuideData } from '../../types';
 import { useCategories } from '../../contexts/CategoriesContext';
 import { useGuideForm } from '../../hooks/useGuideForm';
@@ -16,6 +17,18 @@ import GuideTagsSelector from './GuideTagsSelector';
 import GuideContentEditor from './GuideContentEditor';
 import TableEditor from './TableEditor';
 import Toast from '../shared/Toast';
+
+// Helper function to clear all form-related localStorage
+const clearFormStorage = () => {
+    try {
+        localStorage.removeItem('guideFormData');
+        localStorage.removeItem('guideContentText');
+        localStorage.removeItem('guideContentTextBn');
+        localStorage.removeItem('guideFormSession');
+    } catch (error) {
+        console.error('Error clearing form storage:', error);
+    }
+};
 
 interface EnhancedGuideFormProps {
     guide?: GuideData;
@@ -107,6 +120,33 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
         handleFormSubmit(e, onSubmit, contentErrors);
     };
 
+    /**
+     * Handle cancel - clear localStorage
+     */
+    const handleCancel = () => {
+        if (window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+            clearFormStorage();
+            onCancel();
+        }
+    };
+
+    /**
+     * Warn user before leaving with unsaved changes
+     */
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            // Only show warning if there's unsaved data in localStorage
+            const hasUnsavedData = localStorage.getItem('guideFormData') !== null;
+            if (hasUnsavedData) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, []);
+
     return (
         <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-md">
             <div className="p-6">
@@ -171,7 +211,7 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
                     <div className="flex items-center justify-end gap-3 pt-6 border-t">
                         <button
                             type="button"
-                            onClick={onCancel}
+                            onClick={handleCancel}
                             className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             Cancel

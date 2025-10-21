@@ -6,6 +6,9 @@ import { useState, useEffect, useRef } from 'react';
 import { GuideData, Language, ContentBlock } from '../types';
 import { parseGuideContent, contentToText, validateContent } from '../utils/contentParser';
 
+const CONTENT_TEXT_STORAGE_KEY = 'guideContentText';
+const CONTENT_TEXT_BN_STORAGE_KEY = 'guideContentTextBn';
+
 export interface UseContentParserReturn {
     // Content state
     contentText: string;
@@ -30,16 +33,71 @@ export function useContentParser(
     const [contentTextBn, setContentTextBn] = useState('');
     const [contentErrors, setContentErrors] = useState<string[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const prevGuideIdRef = useRef<number | undefined>(guide?.id);
 
-    // Initialize content text from existing guide
+    // Reset initialization when guide ID changes
     useEffect(() => {
-        if (guide?.content) {
-            setContentText(contentToText(guide.content));
+        if (prevGuideIdRef.current !== guide?.id) {
+            setIsInitialized(false);
+            prevGuideIdRef.current = guide?.id;
         }
-        if (guide?.contentBn) {
-            setContentTextBn(contentToText(guide.contentBn));
+    }, [guide?.id]);
+
+    // Initialize content text from existing guide or localStorage
+    useEffect(() => {
+        if (isInitialized) return;
+
+        try {
+            // Try to restore from localStorage first
+            const savedContentText = localStorage.getItem(CONTENT_TEXT_STORAGE_KEY);
+            const savedContentTextBn = localStorage.getItem(CONTENT_TEXT_BN_STORAGE_KEY);
+
+            if (savedContentText !== null) {
+                setContentText(savedContentText);
+            } else if (guide?.content) {
+                setContentText(contentToText(guide.content));
+            }
+
+            if (savedContentTextBn !== null) {
+                setContentTextBn(savedContentTextBn);
+            } else if (guide?.contentBn) {
+                setContentTextBn(contentToText(guide.contentBn));
+            }
+        } catch (error) {
+            console.error('Error loading content from localStorage:', error);
+            // Fallback to guide data
+            if (guide?.content) {
+                setContentText(contentToText(guide.content));
+            }
+            if (guide?.contentBn) {
+                setContentTextBn(contentToText(guide.contentBn));
+            }
         }
-    }, [guide]);
+
+        setIsInitialized(true);
+    }, [guide?.id, guide?.content, guide?.contentBn, isInitialized]);
+
+    // Save content text to localStorage on every change
+    useEffect(() => {
+        if (!isInitialized) return;
+        
+        try {
+            localStorage.setItem(CONTENT_TEXT_STORAGE_KEY, contentText);
+        } catch (error) {
+            console.error('Error saving content text to localStorage:', error);
+        }
+    }, [contentText, isInitialized]);
+
+    useEffect(() => {
+        if (!isInitialized) return;
+        
+        try {
+            localStorage.setItem(CONTENT_TEXT_BN_STORAGE_KEY, contentTextBn);
+        } catch (error) {
+            console.error('Error saving Bengali content text to localStorage:', error);
+        }
+    }, [contentTextBn, isInitialized]);
 
     // Parse content text and update form data
     useEffect(() => {

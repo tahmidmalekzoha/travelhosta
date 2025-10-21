@@ -2,14 +2,17 @@
  * Custom hook for managing guide form state and validation
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { GuideData, Language } from '../types';
 import { ToastType } from '../components/shared/Toast';
 
+const FORM_DATA_STORAGE_KEY = 'guideFormData';
+const FORM_SESSION_KEY = 'guideFormSession';
+
 export interface UseGuideFormReturn {
     // Form state
-    formData: Omit<GuideData, 'id'>;
-    setFormData: React.Dispatch<React.SetStateAction<Omit<GuideData, 'id'>>>;
+    formData: Omit<GuideData, 'id'> & { id?: number };
+    setFormData: React.Dispatch<React.SetStateAction<Omit<GuideData, 'id'> & { id?: number }>>;
     currentLanguage: Language;
     setCurrentLanguage: React.Dispatch<React.SetStateAction<Language>>;
     
@@ -28,7 +31,7 @@ export interface UseGuideFormReturn {
 
 export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
     const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
-    const [formData, setFormData] = useState<Omit<GuideData, 'id'>>({
+    const [formData, setFormData] = useState<Omit<GuideData, 'id'> & { id?: number }>({
         title: guide?.title || '',
         description: guide?.description || '',
         division: guide?.division || '',
@@ -38,10 +41,12 @@ export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
         content: guide?.content || [],
         titleBn: guide?.titleBn || '',
         descriptionBn: guide?.descriptionBn || '',
-        contentBn: guide?.contentBn || []
+        contentBn: guide?.contentBn || [],
+        id: guide?.id
     });
 
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+    const [sessionId] = useState(() => Date.now().toString());
 
     // Update form data when guide prop changes
     useEffect(() => {
@@ -56,10 +61,21 @@ export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
                 content: guide.content || [],
                 titleBn: guide.titleBn || '',
                 descriptionBn: guide.descriptionBn || '',
-                contentBn: guide.contentBn || []
+                contentBn: guide.contentBn || [],
+                id: guide.id
             });
         }
-    }, [guide]);
+    }, [guide?.id]); // Only re-run when guide ID changes
+
+    // Save form data to localStorage on every change
+    useEffect(() => {
+        try {
+            localStorage.setItem(FORM_DATA_STORAGE_KEY, JSON.stringify(formData));
+            localStorage.setItem(FORM_SESSION_KEY, sessionId);
+        } catch (error) {
+            console.error('Error saving form data to localStorage:', error);
+        }
+    }, [formData, sessionId]);
 
     /**
      * Updates form field based on current language

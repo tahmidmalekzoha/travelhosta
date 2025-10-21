@@ -1,6 +1,7 @@
 "use client";
 
-import { FunctionComponent, useState, useCallback, useMemo } from 'react';
+import { FunctionComponent, useState, useCallback, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { GuideData, Language } from '../../types';
 import { useGuides } from '../../contexts/GuidesContext';
 import { useCategories } from '../../contexts/CategoriesContext';
@@ -42,19 +43,90 @@ const hasMeaningfulImage = (imageUrl: string | null | undefined): imageUrl is st
     return !normalizedUrl.endsWith('dummy.jpg');
 };
 
+const FORM_DATA_STORAGE_KEY = 'guideFormData';
+const EDITOR_STATE_STORAGE_KEY = 'guideEditorState';
+
 /**
  * Guides management component for creating, editing, and deleting guides
  * Provides CRUD operations and preview functionality
+ * Supports state persistence across page reloads
  */
 const GuidesManagement: FunctionComponent = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const { guides, addGuide, updateGuide, deleteGuide } = useGuides();
     const { categories, divisions } = useCategories();
+    
     const [showForm, setShowForm] = useState(false);
     const [editingGuide, setEditingGuide] = useState<GuideData | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewingGuide, setViewingGuide] = useState<GuideData | null>(null);
     const [viewLanguage, setViewLanguage] = useState<Language>('en');
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+    const [isInitialized, setIsInitialized] = useState(false);
+
+    // Restore state from URL and localStorage on mount
+    useEffect(() => {
+        if (isInitialized || guides.length === 0) return;
+
+        const mode = searchParams.get('mode'); // 'create', 'edit', 'view'
+        const guideId = searchParams.get('guideId');
+
+        if (mode === 'create') {
+            // Restore form data from localStorage if available
+            try {
+                const savedData = localStorage.getItem(FORM_DATA_STORAGE_KEY);
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    setEditingGuide(parsedData);
+                }
+            } catch (error) {
+                console.error('Error restoring form data:', error);
+            }
+            setShowForm(true);
+        } else if (mode === 'edit' && guideId) {
+            const guide = guides.find(g => g.id === parseInt(guideId));
+            if (guide) {
+                // Try to restore form data from localStorage (user's unsaved changes)
+                try {
+                    const savedData = localStorage.getItem(FORM_DATA_STORAGE_KEY);
+                    if (savedData) {
+                        const parsedData = JSON.parse(savedData);
+                        // Only restore if it's the same guide
+                        if (parsedData.id === guide.id) {
+                            setEditingGuide(parsedData);
+                        } else {
+                            setEditingGuide(guide);
+                        }
+                    } else {
+                        setEditingGuide(guide);
+                    }
+                } catch (error) {
+                    console.error('Error restoring form data:', error);
+                    setEditingGuide(guide);
+                }
+                setShowForm(true);
+            }
+        } else if (mode === 'view' && guideId) {
+            const guide = guides.find(g => g.id === parseInt(guideId));
+            if (guide) {
+                setViewingGuide(guide);
+            }
+        }
+
+        setIsInitialized(true);
+    }, [searchParams, guides, isInitialized]);
+
+    // Save form state to localStorage when editing
+    useEffect(() => {
+        if (showForm && editingGuide) {
+            try {
+                localStorage.setItem(FORM_DATA_STORAGE_KEY, JSON.stringify(editingGuide));
+            } catch (error) {
+                console.error('Error saving form data:', error);
+            }
+        }
+    }, [showForm, editingGuide]);
 
     const showToast = useCallback((message: string, type: ToastType) => {
         setToast({ message, type });
@@ -62,9 +134,32 @@ const GuidesManagement: FunctionComponent = () => {
 
     const closeToast = useCallback(() => setToast(null), []);
 
+    // Update URL when state changes
+    const updateURL = useCallback((mode: 'list' | 'create' | 'edit' | 'view', guideId?: number) => {
+        const params = new URLSearchParams();
+        if (mode !== 'list') {
+            params.set('mode', mode);
+            if (guideId) {
+                params.set('guideId', guideId.toString());
+            }
+        }
+        const queryString = params.toString();
+        router.push(`/admin/guides${queryString ? `?${queryString}` : ''}`, { scroll: false });
+    }, [router]);
+
+    // Clear form data from localStorage
+    const clearFormData = useCallback(() => {
+        try {
+            localStorage.removeItem(FORM_DATA_STORAGE_KEY);
+        } catch (error) {
+            console.error('Error clearing form data:', error);
+        }
+    }, []);
+
     const handleViewGuide = useCallback((guide: GuideData) => {
         setViewingGuide(guide);
-    }, []);
+        updateURL('view', guide.id);
+    }, [updateURL]);
 
     // Extract division and category names for the form
     const divisionNames = useMemo(() => divisions.map(d => d.name), [divisions]);
@@ -97,41 +192,60 @@ const GuidesManagement: FunctionComponent = () => {
     ) : null;
 
     const handleSubmit = useCallback((formData: Omit<GuideData, 'id'>) => {
-        if (editingGuide) {
+        if (editingGuide && editingGuide.id) {
             updateGuide(editingGuide.id, formData);
             showToast('Guide updated successfully!', 'success');
+            // Clear localStorage after successful save
+            clearFormData();
             // Keep the form open with updated data
-            setEditingGuide({ ...formData, id: editingGuide.id });
+            const updatedGuide = { ...formData, id: editingGuide.id };
+            setEditingGuide(updatedGuide);
+            updateURL('edit', editingGuide.id);
         } else {
             addGuide(formData);
             showToast('Guide created successfully!', 'success');
-            // Close form after creating new guide
+            // Clear localStorage and close form after creating new guide
+            clearFormData();
             setEditingGuide(null);
             setShowForm(false);
+            updateURL('list');
         }
-    }, [editingGuide, updateGuide, addGuide, showToast]);
+    }, [editingGuide, updateGuide, addGuide, showToast, clearFormData, updateURL]);
 
     const handleEdit = useCallback((guide: GuideData) => {
+        clearFormData(); // Clear any previous form data
         setEditingGuide(guide);
         setShowForm(true);
-    }, []);
+        updateURL('edit', guide.id);
+    }, [clearFormData, updateURL]);
 
     const handleDelete = useCallback((id: number) => {
         if (window.confirm('Are you sure you want to delete this guide?')) {
             deleteGuide(id);
             showToast('Guide deleted successfully!', 'success');
+            // If we're currently editing the deleted guide, clear form data
+            if (editingGuide && editingGuide.id === id) {
+                clearFormData();
+                setEditingGuide(null);
+                setShowForm(false);
+                updateURL('list');
+            }
         }
-    }, [deleteGuide, showToast]);
+    }, [deleteGuide, showToast, editingGuide, clearFormData, updateURL]);
 
     const resetForm = useCallback(() => {
+        clearFormData();
         setEditingGuide(null);
         setShowForm(false);
-    }, []);
+        updateURL('list');
+    }, [clearFormData, updateURL]);
 
     const handleCreateNew = useCallback(() => {
+        clearFormData(); // Clear any previous form data
         setEditingGuide(null);
         setShowForm(true);
-    }, []);
+        updateURL('create');
+    }, [clearFormData, updateURL]);
 
     // If viewing a specific guide's details
     if (viewingGuide) {
@@ -152,7 +266,10 @@ const GuidesManagement: FunctionComponent = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                         <button
-                            onClick={() => setViewingGuide(null)}
+                            onClick={() => {
+                                setViewingGuide(null);
+                                updateURL('list');
+                            }}
                             className="text-[#cd8453] hover:text-[#1b3c44] font-medium self-start"
                         >
                             ← Back to Guides
