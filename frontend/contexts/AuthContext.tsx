@@ -11,6 +11,7 @@ interface AuthContextType {
     session: Session | null;
     isLoading: boolean;
     isAdmin: boolean;
+    isSuperAdmin: boolean;
     signOut: () => Promise<void>;
     refreshProfile: () => Promise<void>;
 }
@@ -23,8 +24,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Derived state: check if user is admin
-    const isAdmin = profile?.role === 'admin';
+    // Derived state: check if user is admin or superadmin
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'superadmin';
+    const isSuperAdmin = profile?.role === 'superadmin';
 
     // Initialize auth state
     useEffect(() => {
@@ -87,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         setUser(null);
                         setProfile(null);
                         setSession(null);
-                    } else if (!userProfile.role || (userProfile.role !== 'user' && userProfile.role !== 'admin')) {
+                    } else if (!userProfile.role || !['user', 'admin', 'superadmin'].includes(userProfile.role)) {
                         console.error('❌ Invalid user role. Logging out...');
                         await authService.signOut();
                         sessionCache.clearSessionCache();
@@ -145,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     setUser(null);
                     setProfile(null);
                     setSession(null);
-                } else if (!userProfile.role || (userProfile.role !== 'user' && userProfile.role !== 'admin')) {
+                } else if (!userProfile.role || !['user', 'admin', 'superadmin'].includes(userProfile.role)) {
                     console.error('❌ Invalid user role. Logging out...');
                     await authService.signOut();
                     sessionCache.clearSessionCache();
@@ -208,6 +210,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         isLoading,
         isAdmin,
+        isSuperAdmin,
         signOut: handleSignOut,
         refreshProfile,
     };

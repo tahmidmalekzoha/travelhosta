@@ -5,9 +5,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { GuideData, Language, ContentBlock } from '../types';
 import { parseGuideContent, contentToText, validateContent } from '../utils/contentParser';
-
-const CONTENT_TEXT_STORAGE_KEY = 'guideContentText';
-const CONTENT_TEXT_BN_STORAGE_KEY = 'guideContentTextBn';
+import { formCacheManager } from '../utils/formCache';
 
 export interface UseContentParserReturn {
     // Content state
@@ -44,28 +42,28 @@ export function useContentParser(
         }
     }, [guide?.id]);
 
-    // Initialize content text from existing guide or localStorage
+    // Initialize content text from existing guide or cache
     useEffect(() => {
         if (isInitialized) return;
 
         try {
-            // Try to restore from localStorage first
-            const savedContentText = localStorage.getItem(CONTENT_TEXT_STORAGE_KEY);
-            const savedContentTextBn = localStorage.getItem(CONTENT_TEXT_BN_STORAGE_KEY);
+            // Try to restore from cache first
+            const cachedContent = formCacheManager.loadContentText();
 
-            if (savedContentText !== null) {
-                setContentText(savedContentText);
-            } else if (guide?.content) {
-                setContentText(contentToText(guide.content));
-            }
-
-            if (savedContentTextBn !== null) {
-                setContentTextBn(savedContentTextBn);
-            } else if (guide?.contentBn) {
-                setContentTextBn(contentToText(guide.contentBn));
+            if (cachedContent) {
+                setContentText(cachedContent.contentEn);
+                setContentTextBn(cachedContent.contentBn);
+            } else {
+                // Fallback to guide data
+                if (guide?.content) {
+                    setContentText(contentToText(guide.content));
+                }
+                if (guide?.contentBn) {
+                    setContentTextBn(contentToText(guide.contentBn));
+                }
             }
         } catch (error) {
-            console.error('Error loading content from localStorage:', error);
+            console.error('Error loading content from cache:', error);
             // Fallback to guide data
             if (guide?.content) {
                 setContentText(contentToText(guide.content));
@@ -78,26 +76,11 @@ export function useContentParser(
         setIsInitialized(true);
     }, [guide?.id, guide?.content, guide?.contentBn, isInitialized]);
 
-    // Save content text to localStorage on every change
+    // Save content text to cache on every change
     useEffect(() => {
         if (!isInitialized) return;
-        
-        try {
-            localStorage.setItem(CONTENT_TEXT_STORAGE_KEY, contentText);
-        } catch (error) {
-            console.error('Error saving content text to localStorage:', error);
-        }
-    }, [contentText, isInitialized]);
-
-    useEffect(() => {
-        if (!isInitialized) return;
-        
-        try {
-            localStorage.setItem(CONTENT_TEXT_BN_STORAGE_KEY, contentTextBn);
-        } catch (error) {
-            console.error('Error saving Bengali content text to localStorage:', error);
-        }
-    }, [contentTextBn, isInitialized]);
+        formCacheManager.saveContentText(contentText, contentTextBn);
+    }, [contentText, contentTextBn, isInitialized]);
 
     // Parse content text and update form data
     useEffect(() => {

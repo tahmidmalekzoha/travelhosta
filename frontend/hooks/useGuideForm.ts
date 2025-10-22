@@ -5,9 +5,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GuideData, Language } from '../types';
 import { ToastType } from '../components/shared/Toast';
-
-const FORM_DATA_STORAGE_KEY = 'guideFormData';
-const FORM_SESSION_KEY = 'guideFormSession';
+import { formCacheManager } from '../utils/formCache';
 
 export interface UseGuideFormReturn {
     // Form state
@@ -67,14 +65,10 @@ export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
         }
     }, [guide?.id]); // Only re-run when guide ID changes
 
-    // Save form data to localStorage on every change
+    // Save form data to cache on every change
     useEffect(() => {
-        try {
-            localStorage.setItem(FORM_DATA_STORAGE_KEY, JSON.stringify(formData));
-            localStorage.setItem(FORM_SESSION_KEY, sessionId);
-        } catch (error) {
-            console.error('Error saving form data to localStorage:', error);
-        }
+        formCacheManager.saveFormData(formData);
+        formCacheManager.saveSession(sessionId, formData.id);
     }, [formData, sessionId]);
 
     /**

@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, memo } from 'react';
 import { ItineraryStep } from '../types';
 import { Lightbulb, Info } from 'lucide-react';
 
@@ -11,8 +11,9 @@ interface TimelineProps {
 /**
  * Timeline component for displaying travel itinerary
  * Renders as a vertical timeline with orange line and markers
+ * Memoized to prevent unnecessary re-renders
  */
-const Timeline: FunctionComponent<TimelineProps> = ({ steps, className = '' }) => {
+const Timeline: FunctionComponent<TimelineProps> = memo(({ steps, className = '' }) => {
     if (!steps || steps.length === 0) {
         return (
             <div className={`text-gray-500 text-center py-8 ${className}`}>
@@ -91,6 +92,8 @@ const Timeline: FunctionComponent<TimelineProps> = ({ steps, className = '' }) =
             </div>
         </div>
     );
-};
+});
+
+Timeline.displayName = 'Timeline';
 
 export default Timeline;

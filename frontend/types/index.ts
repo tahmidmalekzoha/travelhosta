@@ -118,7 +118,16 @@ export interface GuideData {
     titleBn?: string; // Bengali title
     descriptionBn?: string; // Bengali description
     contentBn?: ContentBlock[]; // Bengali content
+    // Audit tracking
+    created_by?: string; // User ID who created the guide
+    last_edited_by?: string; // User ID who last edited the guide
+    last_edited_at?: string; // Timestamp of last edit
+    created_at?: string; // Timestamp of creation
+    updated_at?: string; // Timestamp of last update
 }
+
+// Extended guide data with audit information
+export interface GuideDataWithAudit extends GuideData, GuideAuditInfo {}
 
 // Animation related types
 export interface ScrollAnimationOptions {
@@ -197,9 +206,47 @@ export interface User {
     id: string;
     email: string;
     name: string;
-    role: 'admin' | 'user';
+    role: 'admin' | 'user' | 'superadmin';
     createdAt: string;
     lastLogin?: string;
+}
+
+// User profile with complete information
+export interface UserProfile {
+    id: string;
+    email: string;
+    full_name: string | null;
+    display_name: string | null; // User-changeable display name (24hr cooldown)
+    username: string | null; // Unique permanent identifier (admin-only change)
+    role: 'admin' | 'user' | 'superadmin';
+    avatar_url: string | null;
+    date_of_birth: string | null;
+    created_at: string;
+    updated_at: string;
+    last_sign_in_at: string | null;
+    last_name_change_at: string | null; // For cooldown tracking
+}
+
+// Guide audit information
+export interface GuideAuditInfo {
+    creator_email: string | null;
+    creator_username: string | null;
+    creator_display_name: string | null;
+    last_editor_email: string | null;
+    last_editor_username: string | null;
+    last_editor_display_name: string | null;
+}
+
+// Guide audit log entry
+export interface GuideAuditLogEntry {
+    id: number;
+    guide_id: number;
+    user_id: string | null;
+    user_display_name: string;
+    user_username: string;
+    action: 'created' | 'updated' | 'deleted' | 'published' | 'unpublished';
+    changes: Record<string, any> | null;
+    created_at: string;
 }
 
 export interface HeroImage {

@@ -1,13 +1,38 @@
 "use client";
 
-import { FunctionComponent } from 'react';
-import FeaturedGuidesManagement from '../../../components/admin/FeaturedGuidesManagement';
+import { FunctionComponent, Suspense } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamic import for performance - loads only when needed
+const FeaturedGuidesManagement = dynamic(() => import('../../../components/admin/FeaturedGuidesManagement'), {
+    loading: () => (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading featured guides management...</p>
+            </div>
+        </div>
+    ),
+    ssr: false
+});
 
 /**
  * Admin featured guides management page
+ * Uses dynamic import for better performance
  */
 const FeaturedGuidesPage: FunctionComponent = () => {
-    return <FeaturedGuidesManagement />;
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading featured guides management...</p>
+                </div>
+            </div>
+        }>
+            <FeaturedGuidesManagement />
+        </Suspense>
+    );
 };
 
 export default FeaturedGuidesPage;

@@ -1,6 +1,6 @@
 "use client";
 
-import { FunctionComponent, useCallback, useMemo } from 'react';
+import { FunctionComponent, useCallback, useMemo, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import type { GuideData } from '../../types';
 import { isValidImageUrl } from '../../utils/imageUtils';
@@ -14,8 +14,9 @@ interface GuideCardProps {
  * Reusable guide card component displaying a guide preview
  * Features image background, title, description, and view button
  * Styled consistently with the homepage travel cards
+ * Memoized to prevent unnecessary re-renders
  */
-const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
+const GuideCard: FunctionComponent<GuideCardProps> = memo(({ guide }) => {
     const router = useRouter();
 
     const handleViewClick = useCallback((e: React.MouseEvent) => {
@@ -134,6 +135,8 @@ const GuideCard: FunctionComponent<GuideCardProps> = ({ guide }) => {
             </div>
         </div>
     );
-};
+});
+
+GuideCard.displayName = 'GuideCard';
 
 export default GuideCard;

@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, memo } from 'react';
 import {
     ContentBlock,
     TextBlock,
@@ -14,6 +14,7 @@ import Timeline from './Timeline';
 import ImagePlaceholder from './shared/ImagePlaceholder';
 import { Lightbulb, Info, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { isValidImageUrl, getImageAltText } from '../utils/imageUtils';
+import { sanitizeMarkdown } from '../utils/sanitization';
 
 type ContentTheme = 'light' | 'dark';
 
@@ -161,7 +162,7 @@ const imageFrameClasses: Record<ContentTheme, { frame: string; captionBg: string
     }
 };
 
-const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks, theme = 'light' }) => {
+const ContentRenderer: FunctionComponent<ContentRendererProps> = memo(({ blocks, theme = 'light' }) => {
     return (
         <div className="space-y-[76px]">
             {blocks.map((block) => {
@@ -188,26 +189,28 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks, them
             })}
         </div>
     );
-};
+});
+
+ContentRenderer.displayName = 'ContentRenderer';
 
 const formatMarkdownText = (text: string, theme: ContentTheme): React.ReactElement[] => {
     return text
         .split('\n\n')
         .map((paragraph, i) => {
-            let formatted = paragraph.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-            formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            // Sanitize markdown to prevent XSS attacks
+            const sanitized = sanitizeMarkdown(paragraph);
 
             return (
                 <p
                     key={i}
                     className={`${typographyClasses[theme].paragraph} mb-6`}
-                    dangerouslySetInnerHTML={{ __html: formatted }}
+                    dangerouslySetInnerHTML={{ __html: sanitized }}
                 />
             );
         });
 };
 
-const TextBlockRenderer: FunctionComponent<{ block: TextBlock; theme: ContentTheme }> = ({ block, theme }) => {
+const TextBlockRenderer: FunctionComponent<{ block: TextBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     return (
         <div className="max-w-4xl mx-auto">
             {block.heading && (
@@ -220,9 +223,11 @@ const TextBlockRenderer: FunctionComponent<{ block: TextBlock; theme: ContentThe
             </div>
         </div>
     );
-};
+});
 
-const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock; theme: ContentTheme }> = ({ block, theme }) => {
+TextBlockRenderer.displayName = 'TextBlockRenderer';
+
+const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const styles = tipClasses[theme];
 
     return (
@@ -246,9 +251,11 @@ const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock; theme: ContentThe
             </div>
         </div>
     );
-};
+});
 
-const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock; theme: ContentTheme }> = ({ block, theme }) => {
+TipsBlockRenderer.displayName = 'TipsBlockRenderer';
+
+const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const styles = noteClasses[theme];
 
     return (
@@ -272,9 +279,11 @@ const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock; theme: ContentT
             </div>
         </div>
     );
-};
+});
 
-const ProsConsBlockRenderer: FunctionComponent<{ block: ProsConsBlock; theme: ContentTheme }> = ({ block, theme }) => {
+NotesBlockRenderer.displayName = 'NotesBlockRenderer';
+
+const ProsConsBlockRenderer: FunctionComponent<{ block: ProsConsBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const styles = prosConsClasses[theme];
 
     return (
@@ -332,9 +341,11 @@ const ProsConsBlockRenderer: FunctionComponent<{ block: ProsConsBlock; theme: Co
             </div>
         </div>
     );
-};
+});
 
-const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock; theme: ContentTheme }> = ({ block, theme }) => {
+ProsConsBlockRenderer.displayName = 'ProsConsBlockRenderer';
+
+const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const variant = theme === 'light' ? 'light' : 'dark';
     const cardBackground = theme === 'light'
         ? 'bg-white shadow-lg'
@@ -354,9 +365,11 @@ const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock; theme: Co
             </div>
         </div>
     );
-};
+});
 
-const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock; theme: ContentTheme }> = ({ block, theme }) => {
+TimelineBlockRenderer.displayName = 'TimelineBlockRenderer';
+
+const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const frame = imageFrameClasses[theme];
     const hasValidUrl = isValidImageUrl(block.url);
     const altText = getImageAltText(block.alt, block.caption, 'Guide image');
@@ -381,9 +394,11 @@ const ImageBlockRenderer: FunctionComponent<{ block: ImageBlock; theme: ContentT
             </figure>
         </div>
     );
-};
+});
 
-const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock; theme: ContentTheme }> = ({ block, theme }) => {
+ImageBlockRenderer.displayName = 'ImageBlockRenderer';
+
+const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const styles = galleryClasses[theme];
 
     return (
@@ -420,9 +435,11 @@ const ImageGalleryRenderer: FunctionComponent<{ block: ImageGalleryBlock; theme:
             </div>
         </div>
     );
-};
+});
 
-const TableBlockRenderer: FunctionComponent<{ block: TableBlock; theme: ContentTheme }> = ({ block, theme }) => {
+ImageGalleryRenderer.displayName = 'ImageGalleryRenderer';
+
+const TableBlockRenderer: FunctionComponent<{ block: TableBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const styles = tableClasses[theme];
 
     return (
@@ -466,6 +483,8 @@ const TableBlockRenderer: FunctionComponent<{ block: TableBlock; theme: ContentT
             )}
         </div>
     );
-};
+});
+
+TableBlockRenderer.displayName = 'TableBlockRenderer';
 
 export default ContentRenderer;

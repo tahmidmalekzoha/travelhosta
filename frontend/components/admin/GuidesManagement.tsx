@@ -2,14 +2,20 @@
 
 import { FunctionComponent, useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { GuideData, Language } from '../../types';
+import { GuideData, Language, GuideDataWithAudit } from '../../types';
 import { useGuides } from '../../contexts/GuidesContext';
 import { useCategories } from '../../contexts/CategoriesContext';
-import { Plus, Edit, Trash2, Search, Calendar, MapPin, Tag, Sparkles, Languages } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Calendar, MapPin, Tag, Sparkles, Languages, User } from 'lucide-react';
 import EnhancedGuideForm from './EnhancedGuideForm';
 import Timeline from '../Timeline';
 import ContentRenderer from '../ContentRenderer';
 import Toast, { ToastType } from '../shared/Toast';
+import GuideAuditInfo from './GuideAuditInfo';
+import { supabase } from '../../utils/supabase';
+import { formCacheManager } from '../../utils/formCache';
+// Note: useGuidesManagementState hook is available for future enhancements
+// (sorting, pagination, advanced filtering). Current implementation is simpler
+// and already uses FormCacheManager for localStorage centralization.
 
 
 /**
@@ -43,9 +49,6 @@ const hasMeaningfulImage = (imageUrl: string | null | undefined): imageUrl is st
     return !normalizedUrl.endsWith('dummy.jpg');
 };
 
-const FORM_DATA_STORAGE_KEY = 'guideFormData';
-const EDITOR_STATE_STORAGE_KEY = 'guideEditorState';
-
 /**
  * Guides management component for creating, editing, and deleting guides
  * Provides CRUD operations and preview functionality
@@ -64,6 +67,7 @@ const GuidesManagement: FunctionComponent = () => {
     const [viewLanguage, setViewLanguage] = useState<Language>('en');
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [guidesWithAudit, setGuidesWithAudit] = useState<GuideDataWithAudit[]>([]);
 
     // Restore state from URL and localStorage on mount
     useEffect(() => {
@@ -73,36 +77,22 @@ const GuidesManagement: FunctionComponent = () => {
         const guideId = searchParams.get('guideId');
 
         if (mode === 'create') {
-            // Restore form data from localStorage if available
-            try {
-                const savedData = localStorage.getItem(FORM_DATA_STORAGE_KEY);
-                if (savedData) {
-                    const parsedData = JSON.parse(savedData);
-                    setEditingGuide(parsedData);
-                }
-            } catch (error) {
-                console.error('Error restoring form data:', error);
+            // Restore form data from cache if available
+            const cachedData = formCacheManager.loadFormData();
+            if (cachedData) {
+                setEditingGuide(cachedData as GuideData);
             }
             setShowForm(true);
         } else if (mode === 'edit' && guideId) {
             const guide = guides.find(g => g.id === parseInt(guideId));
             if (guide) {
-                // Try to restore form data from localStorage (user's unsaved changes)
-                try {
-                    const savedData = localStorage.getItem(FORM_DATA_STORAGE_KEY);
-                    if (savedData) {
-                        const parsedData = JSON.parse(savedData);
-                        // Only restore if it's the same guide
-                        if (parsedData.id === guide.id) {
-                            setEditingGuide(parsedData);
-                        } else {
-                            setEditingGuide(guide);
-                        }
-                    } else {
-                        setEditingGuide(guide);
-                    }
-                } catch (error) {
-                    console.error('Error restoring form data:', error);
+                // Try to restore form data from cache (user's unsaved changes)
+                const cachedData = formCacheManager.loadFormData();
+                if (cachedData && cachedData.id === guide.id) {
+                    // Use cached data if it's for the same guide
+                    setEditingGuide(cachedData as GuideData);
+                } else {
+                    // Use fresh guide data
                     setEditingGuide(guide);
                 }
                 setShowForm(true);
@@ -117,16 +107,65 @@ const GuidesManagement: FunctionComponent = () => {
         setIsInitialized(true);
     }, [searchParams, guides, isInitialized]);
 
-    // Save form state to localStorage when editing
+    // Note: Form state is now auto-saved by useGuideForm hook via FormCacheManager
+    // No need to manually save here
+
+    // Fetch guides with audit info from guides table joined with user_profiles
     useEffect(() => {
-        if (showForm && editingGuide) {
+        const fetchGuidesWithAudit = async () => {
             try {
-                localStorage.setItem(FORM_DATA_STORAGE_KEY, JSON.stringify(editingGuide));
+                const { data, error } = await supabase
+                    .from('guides')
+                    .select(`
+                        *,
+                        creator:user_profiles!guides_created_by_fkey(email, username, display_name),
+                        editor:user_profiles!guides_last_edited_by_fkey(email, username, display_name)
+                    `)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error fetching guides with audit info:', error);
+                    return;
+                }
+
+                if (data) {
+                    // Transform to match GuideDataWithAudit type
+                    const transformedData: GuideDataWithAudit[] = data.map((guide: any) => ({
+                        id: guide.id,
+                        title: guide.title,
+                        description: guide.description,
+                        division: guide.division,
+                        category: guide.category,
+                        imageUrl: guide.image_url,
+                        tags: guide.tags,
+                        titleBn: guide.title_bn,
+                        descriptionBn: guide.description_bn,
+                        content: guide.content,
+                        contentBn: guide.content_bn,
+                        itinerary: guide.itinerary,
+                        created_by: guide.created_by,
+                        last_edited_by: guide.last_edited_by,
+                        last_edited_at: guide.last_edited_at,
+                        created_at: guide.created_at,
+                        updated_at: guide.updated_at,
+                        creator_email: guide.creator?.email || null,
+                        creator_username: guide.creator?.username || null,
+                        creator_display_name: guide.creator?.display_name || null,
+                        last_editor_email: guide.editor?.email || null,
+                        last_editor_username: guide.editor?.username || null,
+                        last_editor_display_name: guide.editor?.display_name || null,
+                    }));
+                    setGuidesWithAudit(transformedData);
+                }
             } catch (error) {
-                console.error('Error saving form data:', error);
+                console.error('Error in fetchGuidesWithAudit:', error);
             }
+        };
+
+        if (guides.length > 0) {
+            fetchGuidesWithAudit();
         }
-    }, [showForm, editingGuide]);
+    }, [guides]);
 
     const showToast = useCallback((message: string, type: ToastType) => {
         setToast({ message, type });
@@ -147,13 +186,9 @@ const GuidesManagement: FunctionComponent = () => {
         router.push(`/admin/guides${queryString ? `?${queryString}` : ''}`, { scroll: false });
     }, [router]);
 
-    // Clear form data from localStorage
+    // Clear form data from cache
     const clearFormData = useCallback(() => {
-        try {
-            localStorage.removeItem(FORM_DATA_STORAGE_KEY);
-        } catch (error) {
-            console.error('Error clearing form data:', error);
-        }
+        formCacheManager.clearAll();
     }, []);
 
     const handleViewGuide = useCallback((guide: GuideData) => {
@@ -167,8 +202,8 @@ const GuidesManagement: FunctionComponent = () => {
     
     // Memoize filtered guides to avoid recalculating on every render
     const filteredGuides = useMemo(
-        () => filterGuides(guides, searchTerm),
-        [guides, searchTerm]
+        () => filterGuides(guidesWithAudit.length > 0 ? guidesWithAudit : guides, searchTerm),
+        [guidesWithAudit, guides, searchTerm]
     );
 
     const hasBengaliContent = useMemo(() => {
@@ -390,6 +425,9 @@ const GuidesManagement: FunctionComponent = () => {
                     )}
                 </div>
 
+                {/* Audit Information */}
+                <GuideAuditInfo guideId={viewingGuide.id} className="mt-6" />
+
                 {/* Toast Notification */}
                 {toastComponent}
             </div>
@@ -457,6 +495,8 @@ const GuidesManagement: FunctionComponent = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredGuides.map((guide) => {
                     const cardImageUrl = hasMeaningfulImage(guide.imageUrl) ? guide.imageUrl : undefined;
+                    const guideWithAudit = guide as GuideDataWithAudit;
+                    const hasCreatorInfo = guideWithAudit.creator_display_name || guideWithAudit.creator_username;
 
                     return (
                         <div key={guide.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -503,6 +543,20 @@ const GuidesManagement: FunctionComponent = () => {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Creator Information */}
+                                {hasCreatorInfo && (
+                                    <div className="mb-3 pb-3 border-b border-gray-200">
+                                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                                            <User size={12} className="text-[#cd8453]" />
+                                            <span className="font-medium">Created by:</span>
+                                            <span className="truncate">{guideWithAudit.creator_display_name}</span>
+                                            {guideWithAudit.creator_username && (
+                                                <span className="text-gray-400 truncate">@{guideWithAudit.creator_username}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                                 
                                 <div className="flex items-center justify-between gap-2">
                                     <button

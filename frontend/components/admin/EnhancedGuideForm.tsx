@@ -17,18 +17,7 @@ import GuideTagsSelector from './GuideTagsSelector';
 import GuideContentEditor from './GuideContentEditor';
 import TableEditor from './TableEditor';
 import Toast from '../shared/Toast';
-
-// Helper function to clear all form-related localStorage
-const clearFormStorage = () => {
-    try {
-        localStorage.removeItem('guideFormData');
-        localStorage.removeItem('guideContentText');
-        localStorage.removeItem('guideContentTextBn');
-        localStorage.removeItem('guideFormSession');
-    } catch (error) {
-        console.error('Error clearing form storage:', error);
-    }
-};
+import { formCacheManager } from '../../utils/formCache';
 
 interface EnhancedGuideFormProps {
     guide?: GuideData;
@@ -121,11 +110,11 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     };
 
     /**
-     * Handle cancel - clear localStorage
+     * Handle cancel - clear cache
      */
     const handleCancel = () => {
         if (window.confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-            clearFormStorage();
+            formCacheManager.clearAll();
             onCancel();
         }
     };
@@ -135,9 +124,9 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
      */
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            // Only show warning if there's unsaved data in localStorage
-            const hasUnsavedData = localStorage.getItem('guideFormData') !== null;
-            if (hasUnsavedData) {
+            // Only show warning if there's unsaved data in cache
+            const stats = formCacheManager.getCacheStats();
+            if (stats.hasFormData || stats.hasContentText) {
                 e.preventDefault();
                 e.returnValue = '';
             }

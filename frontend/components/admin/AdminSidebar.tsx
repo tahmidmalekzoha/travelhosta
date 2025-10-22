@@ -3,7 +3,7 @@
 import { FunctionComponent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Image, BookOpen, Users, Tags, Star, LogOut, MapPin, X, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, Image, BookOpen, Users, Tags, Star, LogOut, MapPin, X, ChevronLeft, UserCircle, FileText } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface AdminSidebarProps {
@@ -18,7 +18,7 @@ interface AdminSidebarProps {
  */
 const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose, isCollapsed = false, onToggleCollapse }) => {
     const pathname = usePathname();
-    const { signOut } = useAuth();
+    const { signOut, profile } = useAuth();
 
     const navItems = [
         { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,6 +27,8 @@ const AdminSidebar: FunctionComponent<AdminSidebarProps> = ({ isOpen, onClose, i
         { path: '/admin/featured', label: 'Featured Guides', icon: Star },
         { path: '/admin/categories', label: 'Categories', icon: Tags },
         { path: '/admin/users', label: 'Users', icon: Users },
+        { path: '/admin/audit', label: 'Audit Logs', icon: FileText },
+        { path: '/admin/profile', label: 'Profile', icon: UserCircle },
         { path: '/admin/itinerary-demo', label: 'Itinerary Demo', icon: MapPin },
     ];
 

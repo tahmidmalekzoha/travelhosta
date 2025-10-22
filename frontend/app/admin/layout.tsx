@@ -8,6 +8,7 @@ import { CategoriesProvider } from '../../contexts/CategoriesContext';
 import { HeroProvider } from '../../contexts/HeroContext';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import AdminHeader from '../../components/admin/AdminHeader';
+import ErrorBoundary from '../../components/shared/ErrorBoundary';
 
 /**
  * Admin layout component that wraps all admin pages
@@ -30,8 +31,8 @@ export default function AdminLayout({
             if (!user || !profile) {
                 // No user or profile - redirect to signin
                 router.push('/signin?redirect=/admin');
-            } else if (profile.role !== 'admin') {
-                // User exists but not admin - redirect to home
+            } else if (profile.role !== 'admin' && profile.role !== 'superadmin') {
+                // User exists but not admin or superadmin - redirect to home
                 router.push('/');
             }
         }
@@ -52,30 +53,32 @@ export default function AdminLayout({
     }
 
     // Prevent flash of content for unauthorized users
-    if (!user || !profile || profile.role !== 'admin') {
+    if (!user || !profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
         return null;
     }
 
     return (
-        <GuidesProvider>
-            <CategoriesProvider>
-                <HeroProvider>
-                    <div className="flex h-screen bg-[#f2eee9] overflow-hidden">
-                        <AdminSidebar 
-                            isOpen={sidebarOpen} 
-                            onClose={handleSidebarClose}
-                            isCollapsed={sidebarCollapsed}
-                            onToggleCollapse={handleSidebarToggleCollapse}
-                        />
-                        <div className="flex-1 flex flex-col overflow-hidden">
-                            <AdminHeader onMenuClick={handleSidebarOpen} />
-                            <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-                                {children}
-                            </main>
+        <ErrorBoundary>
+            <GuidesProvider>
+                <CategoriesProvider>
+                    <HeroProvider>
+                        <div className="flex h-screen bg-[#f2eee9] overflow-hidden">
+                            <AdminSidebar 
+                                isOpen={sidebarOpen} 
+                                onClose={handleSidebarClose}
+                                isCollapsed={sidebarCollapsed}
+                                onToggleCollapse={handleSidebarToggleCollapse}
+                            />
+                            <div className="flex-1 flex flex-col overflow-hidden">
+                                <AdminHeader onMenuClick={handleSidebarOpen} />
+                                <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+                                    {children}
+                                </main>
+                            </div>
                         </div>
-                    </div>
-                </HeroProvider>
-            </CategoriesProvider>
-        </GuidesProvider>
+                    </HeroProvider>
+                </CategoriesProvider>
+            </GuidesProvider>
+        </ErrorBoundary>
     );
 }

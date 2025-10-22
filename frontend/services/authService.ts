@@ -11,18 +11,21 @@ import type { AuthError, User, Session } from '@supabase/supabase-js';
 // TYPES
 // =====================================================
 
-export type UserRole = 'user' | 'admin';
+export type UserRole = 'user' | 'admin' | 'superadmin';
 
 export interface UserProfile {
     id: string;
     email: string;
     full_name: string | null;
+    display_name: string | null;
+    username: string | null;
     role: UserRole;
     avatar_url: string | null;
     date_of_birth: string | null;
     created_at: string;
     updated_at: string;
     last_sign_in_at: string | null;
+    last_name_change_at: string | null;
 }
 
 export interface SignUpData {
@@ -176,8 +179,8 @@ export const signIn = async (data: SignInData): Promise<AuthResponse> => {
             };
         }
 
-        // Step 3: Validate user has a valid role (user or admin)
-        if (!profile.role || (profile.role !== 'user' && profile.role !== 'admin')) {
+        // Step 3: Validate user has a valid role (user, admin, or superadmin)
+        if (!profile.role || !['user', 'admin', 'superadmin'].includes(profile.role)) {
             console.error('Invalid user role:', profile.role);
             
             // Sign out the user since they don't have a valid role
@@ -366,7 +369,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
  */
 export const updateUserProfile = async (
     userId: string,
-    updates: Partial<Omit<UserProfile, 'id' | 'email' | 'role' | 'created_at' | 'updated_at'>>
+    updates: Partial<Omit<UserProfile, 'id' | 'email' | 'role' | 'created_at' | 'updated_at' | 'username' | 'display_name' | 'last_name_change_at'>>
 ): Promise<AuthResponse> => {
     try {
         const { data, error } = await supabase
@@ -397,14 +400,123 @@ export const updateUserProfile = async (
 };
 
 /**
- * Check if user is admin
+ * Update user display name (with 24-hour cooldown)
+ */
+export const updateDisplayName = async (newDisplayName: string): Promise<AuthResponse> => {
+    try {
+        const { data, error } = await supabase.rpc('update_user_display_name', {
+            new_display_name: newDisplayName,
+        });
+
+        if (error) {
+            return {
+                success: false,
+                error: error.message || 'Failed to update display name.',
+            };
+        }
+
+        // Parse the JSONB response
+        const result = data as { success: boolean; error?: string; message?: string; next_change_at?: string };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Failed to update display name.',
+            };
+        }
+
+        // Refresh the profile
+        const user = await getCurrentUser();
+        if (user) {
+            const profile = await getUserProfile(user.id);
+            return {
+                success: true,
+                profile: profile || undefined,
+            };
+        }
+
+        return {
+            success: true,
+        };
+    } catch (error) {
+        console.error('Update display name error:', error);
+        return {
+            success: false,
+            error: 'An unexpected error occurred while updating display name.',
+        };
+    }
+};
+
+/**
+ * Set username (one-time or admin-only change)
+ */
+export const setUsername = async (newUsername: string): Promise<AuthResponse> => {
+    try {
+        const { data, error } = await supabase.rpc('set_username', {
+            new_username: newUsername,
+        });
+
+        if (error) {
+            return {
+                success: false,
+                error: error.message || 'Failed to set username.',
+            };
+        }
+
+        // Parse the JSONB response
+        const result = data as { success: boolean; error?: string; message?: string };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Failed to set username.',
+            };
+        }
+
+        // Refresh the profile
+        const user = await getCurrentUser();
+        if (user) {
+            const profile = await getUserProfile(user.id);
+            return {
+                success: true,
+                profile: profile || undefined,
+            };
+        }
+
+        return {
+            success: true,
+        };
+    } catch (error) {
+        console.error('Set username error:', error);
+        return {
+            success: false,
+            error: 'An unexpected error occurred while setting username.',
+        };
+    }
+};
+
+/**
+ * Check if user is admin or superadmin
  */
 export const isAdmin = async (userId: string): Promise<boolean> => {
     try {
         const profile = await getUserProfile(userId);
-        return profile?.role === 'admin';
+        return profile?.role === 'admin' || profile?.role === 'superadmin';
     } catch (error) {
         console.error('Check admin error:', error);
+        return false;
+    }
+};
+
+/**
+ * Check if user is superadmin
+ */
+export const isSuperAdmin = async (userId: string): Promise<boolean> => {
+    try {
+        const profile = await getUserProfile(userId);
+        return profile?.role === 'superadmin';
+    } catch (error) {
+        console.error('Check superadmin error:', error);
         return false;
     }
 };
@@ -534,7 +646,7 @@ export const validateSession = async (): Promise<{
         }
 
         // Step 3: Validate role
-        if (!profile.role || (profile.role !== 'user' && profile.role !== 'admin')) {
+        if (!profile.role || !['user', 'admin', 'superadmin'].includes(profile.role)) {
             return {
                 isValid: false,
                 user: session.user,
@@ -598,7 +710,7 @@ export const onAuthStateChange = (
 // =====================================================
 
 /**
- * Promote user to admin (admin only)
+ * Promote user to admin (superadmin only)
  */
 export const promoteToAdmin = async (userId: string): Promise<AuthResponse> => {
     try {
@@ -609,7 +721,7 @@ export const promoteToAdmin = async (userId: string): Promise<AuthResponse> => {
         if (error) {
             return {
                 success: false,
-                error: 'Failed to promote user to admin.',
+                error: error.message || 'Failed to promote user to admin.',
             };
         }
 
@@ -621,6 +733,118 @@ export const promoteToAdmin = async (userId: string): Promise<AuthResponse> => {
         return {
             success: false,
             error: 'An unexpected error occurred while promoting user.',
+        };
+    }
+};
+
+/**
+ * Demote admin to user (superadmin only)
+ */
+export const demoteToUser = async (userId: string): Promise<AuthResponse> => {
+    try {
+        const { error } = await supabase.rpc('demote_to_user', {
+            target_user_id: userId,
+        });
+
+        if (error) {
+            return {
+                success: false,
+                error: error.message || 'Failed to demote user.',
+            };
+        }
+
+        return {
+            success: true,
+        };
+    } catch (error) {
+        console.error('Demote to user error:', error);
+        return {
+            success: false,
+            error: 'An unexpected error occurred while demoting user.',
+        };
+    }
+};
+
+/**
+ * Promote admin to superadmin (superadmin only)
+ */
+export const promoteToSuperAdmin = async (userId: string): Promise<AuthResponse> => {
+    try {
+        const { error } = await supabase.rpc('promote_to_superadmin', {
+            target_user_id: userId,
+        });
+
+        if (error) {
+            return {
+                success: false,
+                error: error.message || 'Failed to promote user to superadmin.',
+            };
+        }
+
+        return {
+            success: true,
+        };
+    } catch (error) {
+        console.error('Promote to superadmin error:', error);
+        return {
+            success: false,
+            error: 'An unexpected error occurred while promoting user.',
+        };
+    }
+};
+
+/**
+ * Demote superadmin to admin (superadmin only)
+ */
+export const demoteSuperAdminToAdmin = async (userId: string): Promise<AuthResponse> => {
+    try {
+        const { error } = await supabase.rpc('demote_superadmin_to_admin', {
+            target_user_id: userId,
+        });
+
+        if (error) {
+            return {
+                success: false,
+                error: error.message || 'Failed to demote superadmin.',
+            };
+        }
+
+        return {
+            success: true,
+        };
+    } catch (error) {
+        console.error('Demote superadmin error:', error);
+        return {
+            success: false,
+            error: 'An unexpected error occurred while demoting superadmin.',
+        };
+    }
+};
+
+/**
+ * Delete user account (superadmin only)
+ */
+export const deleteUser = async (userId: string): Promise<AuthResponse> => {
+    try {
+        const { error } = await supabase.rpc('delete_user', {
+            target_user_id: userId,
+        });
+
+        if (error) {
+            return {
+                success: false,
+                error: error.message || 'Failed to delete user.',
+            };
+        }
+
+        return {
+            success: true,
+        };
+    } catch (error) {
+        console.error('Delete user error:', error);
+        return {
+            success: false,
+            error: 'An unexpected error occurred while deleting user.',
         };
     }
 };
@@ -638,13 +862,20 @@ export const authService = {
     validateSession,
     getUserProfile,
     updateUserProfile,
+    updateDisplayName,
+    setUsername,
     isAdmin,
+    isSuperAdmin,
     getAllUserProfiles,
     sendPasswordResetEmail,
     updatePassword,
     refreshSession,
     onAuthStateChange,
     promoteToAdmin,
+    demoteToUser,
+    promoteToSuperAdmin,
+    demoteSuperAdminToAdmin,
+    deleteUser,
 };
 
 export default authService;

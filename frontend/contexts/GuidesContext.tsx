@@ -48,7 +48,7 @@ const dbGuideToGuideData = (dbGuide: DbGuide): GuideData => {
 /**
  * Convert GuideData to database insert format
  */
-const guideDataToDbInsert = (guide: Omit<GuideData, 'id'>): Omit<DbGuideInsert, 'id'> => {
+const guideDataToDbInsert = (guide: Omit<GuideData, 'id'>): Omit<DbGuideInsert, 'id' | 'created_at' | 'updated_at' | 'created_by' | 'last_edited_by' | 'last_edited_at'> => {
     // Helper function to check if image URL is dummy/placeholder
     const isDummyImage = (url: string): boolean => {
         if (!url) return true;
@@ -62,6 +62,8 @@ const guideDataToDbInsert = (guide: Omit<GuideData, 'id'>): Omit<DbGuideInsert, 
     // Convert empty or dummy image URLs to null
     const imageUrl = guide.imageUrl && !isDummyImage(guide.imageUrl) ? guide.imageUrl : null;
 
+    // Only include the fields that should be set by the client
+    // created_by, created_at, updated_at, last_edited_by, last_edited_at are managed by triggers
     return {
         title: guide.title,
         description: guide.description,
@@ -140,21 +142,33 @@ export function GuidesProvider({ children }: { children: React.ReactNode }) {
             setError(null);
             const dbGuide = guideDataToDbInsert(guideData);
             
+            console.log('🚀 Inserting guide with data:', dbGuide);
+            
             const { data, error: insertError } = await supabase
                 .from('guides')
-                .insert([dbGuide])
+                .insert(dbGuide)
                 .select()
                 .single();
 
-            if (insertError) throw insertError;
+            if (insertError) {
+                console.error('❌ Insert error details:', {
+                    message: insertError.message,
+                    code: insertError.code,
+                    details: insertError.details,
+                    hint: insertError.hint,
+                });
+                throw insertError;
+            }
 
             if (data) {
+                console.log('✅ Guide created successfully:', data);
                 const newGuide = dbGuideToGuideData(data);
                 setGuides(prev => [newGuide, ...prev]);
             }
         } catch (err) {
             console.error('Error adding guide:', err);
-            setError(err instanceof Error ? err.message : 'Failed to add guide');
+            const errorMessage = err instanceof Error ? err.message : 'Failed to add guide';
+            setError(errorMessage);
             throw err;
         }
     }, []);
