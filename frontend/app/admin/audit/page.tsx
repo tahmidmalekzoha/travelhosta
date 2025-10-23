@@ -16,6 +16,23 @@ interface GuideInfo {
     editor_username?: string;
 }
 
+interface RawGuideData {
+    id: number;
+    title: string;
+    created_at: string | null;
+    created_by: string | null;
+    last_edited_by: string | null;
+    last_edited_at: string | null;
+    creator?: {
+        display_name: string | null;
+        username: string | null;
+    } | null;
+    editor?: {
+        display_name: string | null;
+        username: string | null;
+    } | null;
+}
+
 const AuditPage: FunctionComponent = () => {
     const [guides, setGuides] = useState<GuideInfo[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -34,13 +51,13 @@ const AuditPage: FunctionComponent = () => {
                 created_by, 
                 last_edited_by, 
                 last_edited_at,
-                creator:created_by(display_name, username),
-                editor:last_edited_by(display_name, username)
+                creator:user_profiles!guides_created_by_fkey(display_name, username),
+                editor:user_profiles!guides_last_edited_by_fkey(display_name, username)
             `)
             .order('created_at', { ascending: false });
         
         if (data) {
-            const transformed = data.map((guide: any) => ({
+            const transformed = data.map((guide: RawGuideData) => ({
                 id: guide.id,
                 title: guide.title,
                 created_at: guide.created_at,
@@ -49,8 +66,8 @@ const AuditPage: FunctionComponent = () => {
                 last_edited_at: guide.last_edited_at,
                 creator_display_name: guide.creator?.display_name || 'Unknown',
                 creator_username: guide.creator?.username || 'unknown',
-                editor_display_name: guide.editor?.display_name,
-                editor_username: guide.editor?.username,
+                editor_display_name: guide.editor?.display_name || undefined,
+                editor_username: guide.editor?.username || undefined,
             }));
             setGuides(transformed);
         }

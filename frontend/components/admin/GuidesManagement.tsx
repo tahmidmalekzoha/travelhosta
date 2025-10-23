@@ -114,6 +114,36 @@ const GuidesManagement: FunctionComponent = () => {
     useEffect(() => {
         const fetchGuidesWithAudit = async () => {
             try {
+                interface RawGuideData {
+                    id: number;
+                    title: string;
+                    description: string;
+                    division: string;
+                    category: string;
+                    image_url: string | null;
+                    tags: string[] | null;
+                    title_bn: string | null;
+                    description_bn: string | null;
+                    content: any;
+                    content_bn: any;
+                    itinerary: any;
+                    created_by: string | null;
+                    last_edited_by: string | null;
+                    last_edited_at: string | null;
+                    created_at: string | null;
+                    updated_at: string | null;
+                    creator: {
+                        email: string | null;
+                        username: string | null;
+                        display_name: string | null;
+                    } | null;
+                    editor: {
+                        email: string | null;
+                        username: string | null;
+                        display_name: string | null;
+                    } | null;
+                }
+
                 const { data, error } = await supabase
                     .from('guides')
                     .select(`
@@ -130,24 +160,24 @@ const GuidesManagement: FunctionComponent = () => {
 
                 if (data) {
                     // Transform to match GuideDataWithAudit type
-                    const transformedData: GuideDataWithAudit[] = data.map((guide: any) => ({
+                    const transformedData: GuideDataWithAudit[] = data.map((guide: RawGuideData) => ({
                         id: guide.id,
                         title: guide.title,
                         description: guide.description,
                         division: guide.division,
                         category: guide.category,
                         imageUrl: guide.image_url,
-                        tags: guide.tags,
-                        titleBn: guide.title_bn,
-                        descriptionBn: guide.description_bn,
+                        tags: guide.tags || undefined,
+                        titleBn: guide.title_bn || undefined,
+                        descriptionBn: guide.description_bn || undefined,
                         content: guide.content,
                         contentBn: guide.content_bn,
                         itinerary: guide.itinerary,
-                        created_by: guide.created_by,
-                        last_edited_by: guide.last_edited_by,
-                        last_edited_at: guide.last_edited_at,
-                        created_at: guide.created_at,
-                        updated_at: guide.updated_at,
+                        created_by: guide.created_by || undefined,
+                        last_edited_by: guide.last_edited_by || undefined,
+                        last_edited_at: guide.last_edited_at || undefined,
+                        created_at: guide.created_at || undefined,
+                        updated_at: guide.updated_at || undefined,
                         creator_email: guide.creator?.email || null,
                         creator_username: guide.creator?.username || null,
                         creator_display_name: guide.creator?.display_name || null,
