@@ -2,7 +2,8 @@
 
 import { FunctionComponent, useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { GuideData, Language, GuideDataWithAudit } from '../../types';
+import { GuideData, Language, GuideDataWithAudit, ContentBlock, ItineraryStep } from '../../types';
+import { Json } from '../../types/supabase';
 import { useGuides } from '../../contexts/GuidesContext';
 import { useCategories } from '../../contexts/CategoriesContext';
 import { Plus, Edit, Trash2, Search, Calendar, MapPin, Tag, Sparkles, Languages, User } from 'lucide-react';
@@ -124,9 +125,9 @@ const GuidesManagement: FunctionComponent = () => {
                     tags: string[] | null;
                     title_bn: string | null;
                     description_bn: string | null;
-                    content: any;
-                    content_bn: any;
-                    itinerary: any;
+                    content: Json;
+                    content_bn: Json;
+                    itinerary: Json;
                     created_by: string | null;
                     last_edited_by: string | null;
                     last_edited_at: string | null;
@@ -170,9 +171,9 @@ const GuidesManagement: FunctionComponent = () => {
                         tags: guide.tags || undefined,
                         titleBn: guide.title_bn || undefined,
                         descriptionBn: guide.description_bn || undefined,
-                        content: guide.content,
-                        contentBn: guide.content_bn,
-                        itinerary: guide.itinerary,
+                        content: (guide.content as unknown) as ContentBlock[] | undefined,
+                        contentBn: (guide.content_bn as unknown) as ContentBlock[] | undefined,
+                        itinerary: (guide.itinerary as unknown) as ItineraryStep[] | undefined,
                         created_by: guide.created_by || undefined,
                         last_edited_by: guide.last_edited_by || undefined,
                         last_edited_at: guide.last_edited_at || undefined,
