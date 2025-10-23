@@ -47,19 +47,29 @@ export function useContentParser(
         if (isInitialized) return;
 
         try {
-            // Try to restore from cache first
-            const cachedContent = formCacheManager.loadContentText();
-
-            if (cachedContent) {
-                setContentText(cachedContent.contentEn);
-                setContentTextBn(cachedContent.contentBn);
-            } else {
-                // Fallback to guide data
+            // If editing an existing guide, ALWAYS load from guide data (database)
+            // Ignore cache to show the actual persisted content
+            if (guide?.id) {
                 if (guide?.content) {
                     setContentText(contentToText(guide.content));
+                } else {
+                    setContentText('');
                 }
                 if (guide?.contentBn) {
                     setContentTextBn(contentToText(guide.contentBn));
+                } else {
+                    setContentTextBn('');
+                }
+            } else {
+                // Only use cache for NEW guides (no ID yet)
+                const cachedContent = formCacheManager.loadContentText();
+
+                if (cachedContent) {
+                    setContentText(cachedContent.contentEn);
+                    setContentTextBn(cachedContent.contentBn);
+                } else {
+                    setContentText('');
+                    setContentTextBn('');
                 }
             }
         } catch (error) {
@@ -67,9 +77,13 @@ export function useContentParser(
             // Fallback to guide data
             if (guide?.content) {
                 setContentText(contentToText(guide.content));
+            } else {
+                setContentText('');
             }
             if (guide?.contentBn) {
                 setContentTextBn(contentToText(guide.contentBn));
+            } else {
+                setContentTextBn('');
             }
         }
 

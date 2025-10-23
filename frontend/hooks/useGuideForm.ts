@@ -49,6 +49,7 @@ export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
     // Update form data when guide prop changes
     useEffect(() => {
         if (guide) {
+            console.log('📝 Updating form with guide data:', guide.id);
             setFormData({
                 title: guide.title || '',
                 description: guide.description || '',
@@ -63,7 +64,7 @@ export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
                 id: guide.id
             });
         }
-    }, [guide?.id]); // Only re-run when guide ID changes
+    }, [guide]); // Re-run when guide object changes
 
     // Save form data to cache on every change
     useEffect(() => {

@@ -80,22 +80,19 @@ const GuidesManagement: FunctionComponent = () => {
         if (mode === 'create') {
             // Restore form data from cache if available
             const cachedData = formCacheManager.loadFormData();
-            if (cachedData) {
+            if (cachedData && !cachedData.id) {
+                // Only use cached data if it's for a new guide (no ID)
+                console.log('📦 Restoring new guide from cache');
                 setEditingGuide(cachedData as GuideData);
             }
             setShowForm(true);
         } else if (mode === 'edit' && guideId) {
             const guide = guides.find(g => g.id === parseInt(guideId));
             if (guide) {
-                // Try to restore form data from cache (user's unsaved changes)
-                const cachedData = formCacheManager.loadFormData();
-                if (cachedData && cachedData.id === guide.id) {
-                    // Use cached data if it's for the same guide
-                    setEditingGuide(cachedData as GuideData);
-                } else {
-                    // Use fresh guide data
-                    setEditingGuide(guide);
-                }
+                // Always use fresh guide data when editing
+                // The form hooks will handle the initial load correctly
+                console.log('✏️ Loading guide for editing:', guide.id);
+                setEditingGuide(guide);
                 setShowForm(true);
             }
         } else if (mode === 'view' && guideId) {
