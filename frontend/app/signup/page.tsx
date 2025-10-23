@@ -99,6 +99,7 @@ export default function SignUp() {
             // Use Supabase email authentication
             const { authService } = await import('../../services/authService');
             
+            console.log('🔄 Attempting signup for:', formData.email);
             const response = await authService.signUp({
                 email: formData.email,
                 password: formData.password,
@@ -106,7 +107,10 @@ export default function SignUp() {
                 dateOfBirth: formData.dateOfBirth,
             });
 
+            console.log('📋 Signup response:', response);
+
             if (!response.success) {
+                console.error('❌ Signup failed:', response.error);
                 setError(response.error || 'Failed to create account');
                 setLoading(false);
                 return;

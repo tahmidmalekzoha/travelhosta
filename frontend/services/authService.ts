@@ -70,6 +70,12 @@ const mapAuthError = (error: AuthError): string => {
         case 'Email rate limit exceeded':
             return 'Too many requests. Please try again later.';
         default:
+            // Check for duplicate email error patterns
+            if (error.message?.toLowerCase().includes('already registered') || 
+                error.message?.toLowerCase().includes('already exists') ||
+                error.message?.toLowerCase().includes('duplicate')) {
+                return 'An account with this email already exists.';
+            }
             return error.message || 'An error occurred. Please try again.';
     }
 };
@@ -85,7 +91,10 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
     try {
         const { email, password, fullName, dateOfBirth } = data;
 
+        console.log('🔄 Starting signup process for:', email);
+
         // Sign up with Supabase Auth
+        // Supabase will prevent duplicate signups automatically
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password,
@@ -99,6 +108,7 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
         });
 
         if (authError) {
+            console.error('❌ Auth signup error:', authError);
             return {
                 success: false,
                 error: mapAuthError(authError),
@@ -106,20 +116,57 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
         }
 
         if (!authData.user) {
+            console.error('❌ No user returned from signup');
             return {
                 success: false,
                 error: 'Failed to create user account.',
             };
         }
 
+        console.log('✅ Auth response received. User ID:', authData.user.id);
+        console.log('📊 Session exists:', !!authData.session);
+        console.log('📊 Identities count:', authData.user.identities?.length || 0);
+
+        // CRITICAL: When email confirmation is disabled, Supabase's behavior:
+        // - New user: Returns user + session + identities array with data
+        // - Existing user: Returns user WITHOUT session + empty/no identities array
+        // This is the ONLY way to detect duplicate signups when confirmation is disabled
+        
+        if (!authData.session) {
+            console.log('⚠️ No session returned - this indicates existing user');
+            console.log('❌ Signup blocked - email already exists');
+            return {
+                success: false,
+                error: 'An account with this email already exists. Please sign in instead.',
+            };
+        }
+
+        // Double-check with identities array
+        if (!authData.user.identities || authData.user.identities.length === 0) {
+            console.log('⚠️ No identities array - this indicates existing user');
+            console.log('❌ Signup blocked - email already exists');
+            return {
+                success: false,
+                error: 'An account with this email already exists. Please sign in instead.',
+            };
+        }
+
         // Fetch the newly created profile
         const profile = await getUserProfile(authData.user.id);
+
+        // If no profile was created, this is a problem
+        if (!profile && authData.user) {
+            console.error('⚠️ User created in auth but profile not found in database');
+            // Still return success since auth account was created
+            // The profile should be created by the database trigger
+        }
 
         // Cache the session if profile exists
         if (profile) {
             sessionCache.saveSessionCache(profile);
         }
 
+        console.log('✅ Signup complete for:', email);
         return {
             success: true,
             user: authData.user,
@@ -127,7 +174,7 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
             profile: profile || undefined,
         };
     } catch (error) {
-        console.error('Sign up error:', error);
+        console.error('❌ Unexpected signup error:', error);
         return {
             success: false,
             error: 'An unexpected error occurred during sign up.',

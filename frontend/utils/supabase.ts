@@ -22,4 +22,10 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     // Cookie options for server-side rendering
     flowType: 'pkce', // Use PKCE flow for better security
   },
+  global: {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  },
 })
