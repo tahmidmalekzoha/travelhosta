@@ -76,8 +76,8 @@ const StickyNavbar: FunctionComponent = () => {
             <div 
                 className={`fixed top-[82px] right-[50px] z-50 flex flex-col gap-2 md:gap-3 items-end transition-all duration-500 ease-in-out ${
                     isVisible 
-                        ? 'translate-x-0 opacity-100' 
-                        : 'translate-x-[150%] opacity-0'
+                        ? 'translate-y-0 opacity-100' 
+                        : '-translate-y-[200%] opacity-0'
                 }`}
             >
                 <SigninButton />

@@ -145,8 +145,8 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
             <div className="relative px-4 lg:px-[37px] pt-[55px]">
                 <div className="flex flex-col-reverse lg:flex-row items-start lg:items-start justify-between gap-4">
                     <div className="flex flex-col sm:flex-row items-start gap-4">
-                        <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#28231d] h-[85px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#1f1a15]">
-                            <span className="absolute left-[11.54px] top-[9.44px] flex h-[65.062px] w-[65.062px] items-center justify-center rounded-full bg-[#f2eee9] text-[#28231d]">
+                        <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#1b3c44] h-[85px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#152e34]">
+                            <span className="absolute left-[11.54px] top-[9.44px] flex h-[65.062px] w-[65.062px] items-center justify-center rounded-full bg-[#f2eee9] text-[#1b3c44]">
                                 <ArrowLeft size={28} strokeWidth={2.5} />
                             </span>
                             <span className="font-['Schibsted_Grotesk'] font-normal text-[50.37px] text-[#f2eee9] ml-[93.4px] mr-[34px]">Back</span>
@@ -317,24 +317,38 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                                     )}
 
                                                     {step.tips && step.tips.length > 0 && (
-                                                        <div className="mb-[40px] lg:mb-[69px] space-y-[15px]">
-                                                            {step.tips.map((tip, tipIndex) => (
-                                                                <div key={`${step.id}-tip-${tipIndex}`} className="flex items-start gap-[12px]">
-                                                                    <Lightbulb size={24} className="flex-shrink-0 mt-[3px] text-[#D6AD46]" strokeWidth={2} />
-                                                                    <p className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9] flex-1">{tip}</p>
+                                                        <div className="mb-[40px] lg:mb-[69px]">
+                                                            <div className="bg-[#D6AD46]/10 border-2 border-[#D6AD46]/30 rounded-[40px] px-[20px] lg:px-[25px] py-[20px] lg:py-[25px]">
+                                                                <div className="flex items-center gap-[12px] mb-[15px]">
+                                                                    <Lightbulb size={24} className="flex-shrink-0 text-[#D6AD46]" strokeWidth={2} />
+                                                                    <h4 className="font-['Schibsted_Grotesk'] font-bold text-[22px] lg:text-[24px] text-[#f2eee9]">Tips</h4>
                                                                 </div>
-                                                            ))}
+                                                                <div className="space-y-[10px]">
+                                                                    {step.tips.map((tip, tipIndex) => (
+                                                                        <p key={`${step.id}-tip-${tipIndex}`} className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]">
+                                                                            • {tip}
+                                                                        </p>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     )}
 
                                                     {step.notes && step.notes.length > 0 && (
-                                                        <div className="mb-[40px] lg:mb-[69px] space-y-[15px]">
-                                                            {step.notes.map((note, noteIndex) => (
-                                                                <div key={`${step.id}-note-${noteIndex}`} className="flex items-start gap-[13px]">
-                                                                    <Info size={26} className="flex-shrink-0 text-[#D6AD46]" strokeWidth={2} />
-                                                                    <p className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9] flex-1">{note}</p>
+                                                        <div className="mb-[40px] lg:mb-[69px]">
+                                                            <div className="bg-[#D6AD46]/10 border-2 border-[#D6AD46]/30 rounded-[40px] px-[20px] lg:px-[25px] py-[20px] lg:py-[25px]">
+                                                                <div className="flex items-center gap-[13px] mb-[15px]">
+                                                                    <Info size={24} className="flex-shrink-0 text-[#D6AD46]" strokeWidth={2} />
+                                                                    <h4 className="font-['Schibsted_Grotesk'] font-bold text-[22px] lg:text-[24px] text-[#f2eee9]">Notes</h4>
                                                                 </div>
-                                                            ))}
+                                                                <div className="space-y-[10px]">
+                                                                    {step.notes.map((note, noteIndex) => (
+                                                                        <p key={`${step.id}-note-${noteIndex}`} className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]">
+                                                                            • {note}
+                                                                        </p>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
@@ -393,13 +407,20 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                         // Notes block
                         if (block.type === 'notes' && 'notes' in block) {
                             return (
-                                <div key={block.id || `notes-${blockIndex}`} className="mb-[76px] space-y-[15px]">
-                                    {block.notes.map((note, noteIndex) => (
-                                        <div key={noteIndex} className="flex items-start gap-[13px]">
-                                            <Info size={26} className="flex-shrink-0 text-[#D6AD46]" strokeWidth={2} />
-                                            <p className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9] flex-1">{note}</p>
+                                <div key={block.id || `notes-${blockIndex}`} className="mb-[76px]">
+                                    <div className="bg-[#D6AD46]/10 border-2 border-[#D6AD46]/30 rounded-[40px] px-[20px] lg:px-[25px] py-[20px] lg:py-[25px]">
+                                        <div className="flex items-center gap-[13px] mb-[15px]">
+                                            <Info size={24} className="flex-shrink-0 text-[#D6AD46]" strokeWidth={2} />
+                                            <h4 className="font-['Schibsted_Grotesk'] font-bold text-[22px] lg:text-[24px] text-[#f2eee9]">Notes</h4>
                                         </div>
-                                    ))}
+                                        <div className="space-y-[10px]">
+                                            {block.notes.map((note, noteIndex) => (
+                                                <p key={noteIndex} className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]">
+                                                    • {note}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         }
@@ -407,13 +428,20 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                         // Tips block
                         if (block.type === 'tips' && 'tips' in block) {
                             return (
-                                <div key={block.id || `tips-${blockIndex}`} className="mb-[76px] space-y-[15px]">
-                                    {block.tips.map((tip, tipIndex) => (
-                                        <div key={tipIndex} className="flex items-start gap-[12px]">
-                                            <Lightbulb size={24} className="flex-shrink-0 mt-[3px] text-[#D6AD46]" strokeWidth={2} />
-                                            <p className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9] flex-1">{tip}</p>
+                                <div key={block.id || `tips-${blockIndex}`} className="mb-[76px]">
+                                    <div className="bg-[#D6AD46]/10 border-2 border-[#D6AD46]/30 rounded-[40px] px-[20px] lg:px-[25px] py-[20px] lg:py-[25px]">
+                                        <div className="flex items-center gap-[12px] mb-[15px]">
+                                            <Lightbulb size={24} className="flex-shrink-0 text-[#D6AD46]" strokeWidth={2} />
+                                            <h4 className="font-['Schibsted_Grotesk'] font-bold text-[22px] lg:text-[24px] text-[#f2eee9]">Tips</h4>
                                         </div>
-                                    ))}
+                                        <div className="space-y-[10px]">
+                                            {block.tips.map((tip, tipIndex) => (
+                                                <p key={tipIndex} className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]">
+                                                    • {tip}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         }

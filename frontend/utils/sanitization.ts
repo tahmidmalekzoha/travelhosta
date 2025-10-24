@@ -5,7 +5,7 @@
  * Uses DOMPurify for HTML sanitization
  */
 
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * Sanitize HTML content to prevent XSS attacks

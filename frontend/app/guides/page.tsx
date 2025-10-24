@@ -3,12 +3,13 @@
 export const dynamic = 'force-dynamic';
 
 import { Suspense, useState, useMemo, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import StickyNavbar from '../../components/StickyNavbar';
 import GuideCard from '../../components/shared/GuideCard';
 import Footer from '../../components/Footer';
 import { useGuides } from '../../contexts/GuidesContext';
 import { useCategories } from '../../contexts/CategoriesContext';
+import { ArrowLeft } from 'lucide-react';
 
 // Constants for filter options
 const ALL_DIVISIONS = 'All Divisions';
@@ -19,6 +20,7 @@ const ALL_GUIDES = 'All Guides';
  * Features division, category, and tag filtering with search functionality
  */
 export default function Guides() {
+    const router = useRouter();
     const { guides } = useGuides();
     const { categories, divisions } = useCategories();
     const [selectedDivision, setSelectedDivision] = useState(ALL_DIVISIONS);
@@ -81,19 +83,31 @@ export default function Guides() {
         setSearchTerm('');
     }, []);
 
+    const handleBack = () => router.push('/');
+
     return (
         <div className="min-h-screen bg-[#f2eee9] text-[#1b3c44] font-['Schibsted_Grotesk']">
             {/* Sticky Navigation */}
             <StickyNavbar />
 
             {/* Main Content */}
-            <div className="pt-24 md:pt-32 lg:pt-[167px] px-6 md:px-12 lg:px-20">
+            <div className="px-4 lg:px-[37px] pt-[55px]">
                 <Suspense fallback={null}>
                     <QueryTagSync onTag={handleQueryTag} />
                 </Suspense>
 
+                {/* Back Button */}
+                <div className="mb-8 lg:mb-12">
+                    <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#1b3c44] h-[85px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#152e34]">
+                        <span className="absolute left-[11.54px] top-[9.44px] flex h-[65.062px] w-[65.062px] items-center justify-center rounded-full bg-[#f2eee9] text-[#1b3c44]">
+                            <ArrowLeft size={28} strokeWidth={2.5} />
+                        </span>
+                        <span className="font-['Schibsted_Grotesk'] font-normal text-[50.37px] text-[#f2eee9] ml-[93.4px] mr-[34px]">Back</span>
+                    </button>
+                </div>
+
                 {/* Header Section */}
-                <div className="flex flex-col items-center mb-12 gap-8 lg:gap-[85px]">
+                <div className="flex flex-col items-center mb-12 gap-8 lg:gap-[85px] px-2 lg:px-0">
                     {/* Main Title */}
                     <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold leading-none text-center">
                         Guides
