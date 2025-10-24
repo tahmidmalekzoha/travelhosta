@@ -262,7 +262,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
             </div>
 
             <div className="relative px-4 lg:px-[38px] pt-[80px] lg:pt-[121px] pb-[80px] lg:pb-[120px]">
-                <div className="bg-[#28231d] rounded-tl-[80px] rounded-tr-[81px] rounded-bl-[80px] rounded-br-[81px] shadow-[0px_6px_72.8px_-32px_rgba(0,0,0,0.25)] px-4 lg:px-[99px] py-[60px] lg:py-[80px]">
+                <div className="bg-[#1b3c44] rounded-tl-[80px] rounded-tr-[81px] rounded-bl-[80px] rounded-br-[81px] shadow-[0px_6px_72.8px_-32px_rgba(0,0,0,0.25)] px-4 lg:px-[99px] py-[60px] lg:py-[80px]">
                     
                     <div className="mb-[76px]">
                         <h2 className="font-['Schibsted_Grotesk'] font-bold text-[48px] lg:text-[96px] leading-[normal] text-[#f2eee9] mb-[60px] lg:mb-[122px]">About this Journey</h2>
@@ -279,26 +279,38 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                     </h2>
                                     
                                     <div className="space-y-[40px]">
-                                        {steps.map((step, index) => (
+                                        {steps.map((step, index) => {
+                                            const isFirst = index === 0;
+                                            const isLast = index === steps.length - 1;
+                                            
+                                            return (
                                             <div key={step.id ?? index} className="relative flex items-start gap-[21px]">
+                                                {/* Connecting line - spans through current item to next */}
                                                 {index < steps.length - 1 && (
-                                                    <div className="absolute left-[40.5px] top-[81px] w-[3px] h-[calc(100%+40px)] bg-[#f2eee9]/30" />
+                                                    <div className="absolute left-[25px] top-[55px] w-[3px] bg-[#f2eee9]/30" style={{ height: 'calc(100% + 45px)' }} />
                                                 )}
                                                 
-                                                <div className="relative z-10 flex-shrink-0">
-                                                    <div className="flex h-[81.299px] w-[81.299px] items-center justify-center rounded-full border-[6px] border-[#f2eee9]/60 bg-[#cd8453]">
-                                                        <div className="h-[14px] w-[14px] rounded-full bg-[#28231d]" />
+                                                <div className="relative z-10 flex-shrink-0 mt-[5px]">
+                                                    {/* White circle with outer ring */}
+                                                    <div className="relative flex h-[50px] w-[50px] items-center justify-center rounded-full bg-white">
+                                                        {/* Outer ring - centered around the inner circle */}
+                                                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[66px] h-[66px] rounded-full border-[2px] border-[#f2eee9]/30"></div>
                                                     </div>
+                                                    
+                                                    {/* Bottom line for last icon */}
+                                                    {isLast && (
+                                                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-[13px] w-[3px] h-[30px] bg-[#f2eee9]/30" />
+                                                    )}
                                                 </div>
 
-                                                <div className="flex-1 pt-[13px]">
+                                                <div className="flex-1">
                                                     <h3 className="font-['Schibsted_Grotesk'] font-bold text-[24px] lg:text-[41.961px] leading-[normal] text-[#f2eee9] mb-[40px] lg:mb-[30px]">{step.title}</h3>
 
                                                     {step.details && step.details.length > 0 && (
                                                         <div className="flex flex-wrap gap-[10px] mb-[40px] lg:mb-[69px]">
                                                             {step.details.map((detail, detailIndex) => (
-                                                                <div key={`${step.id}-detail-${detailIndex}`} className="inline-flex items-center justify-center rounded-[39.338px] bg-[#40372e] h-[60px] lg:h-[78px] px-[20px] lg:px-[27px]">
-                                                                    <span className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[26.225px] leading-[normal] text-[#f2eee9]">{detail}</span>
+                                                                <div key={`${step.id}-detail-${detailIndex}`} className="inline-flex items-center justify-center rounded-[39.338px] bg-white h-[60px] lg:h-[78px] px-[20px] lg:px-[27px]">
+                                                                    <span className="font-['Schibsted_Grotesk'] font-normal text-[18px] lg:text-[26.225px] leading-[normal] text-[#1b3c44]">{detail}</span>
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -327,7 +339,8 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                                     )}
                                                 </div>
                                             </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             );
@@ -349,10 +362,10 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                             return (
                                 <div key={block.id || `table-${blockIndex}`} className="mb-[76px] overflow-x-auto">
                                     <div className="min-w-[600px]">
-                                        <div className="bg-[#e4d9d3] h-[80px] lg:h-[103px] rounded-tl-[60px] rounded-tr-[60px] flex items-center">
+                                        <div className="bg-[#1b3c44] h-[80px] lg:h-[103px] rounded-tl-[60px] rounded-tr-[60px] flex items-center">
                                             {block.headers.map((header, index) => (
                                                 <div key={index} className="flex-1 flex items-center justify-center px-2">
-                                                    <p className="font-['Schibsted_Grotesk'] font-bold text-[18px] lg:text-[27.806px] text-[#40372e] text-center">{header}</p>
+                                                    <p className="font-['Schibsted_Grotesk'] font-bold text-[18px] lg:text-[27.806px] text-white text-center">{header}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -360,12 +373,12 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                         {block.rows.map((row, rowIndex) => {
                                             const isLastRow = rowIndex === block.rows.length - 1;
                                             return (
-                                                <div key={rowIndex} className={`bg-[#40372e] h-[70px] lg:h-[98px] flex items-center ${isLastRow ? 'rounded-bl-[60px] rounded-br-[60px] border border-[#f2eee9]' : ''}`}>
+                                                <div key={rowIndex} className={`bg-white h-[70px] lg:h-[98px] flex items-center ${isLastRow ? 'rounded-bl-[60px] rounded-br-[60px] border border-[#f2eee9]' : ''}`}>
                                                     {row.map((cell, cellIndex) => {
                                                         const isFirstColumn = cellIndex === 0;
                                                         return (
                                                             <div key={cellIndex} className="flex-1 flex items-center justify-center px-2">
-                                                                <p className={`font-['Schibsted_Grotesk'] ${isFirstColumn ? 'font-bold' : 'font-normal'} text-[16px] lg:text-[27.806px] text-white text-center`}>{cell}</p>
+                                                                <p className={`font-['Schibsted_Grotesk'] ${isFirstColumn ? 'font-bold' : 'font-normal'} text-[16px] lg:text-[27.806px] text-[#1b3c44] text-center`}>{cell}</p>
                                                             </div>
                                                         );
                                                     })}

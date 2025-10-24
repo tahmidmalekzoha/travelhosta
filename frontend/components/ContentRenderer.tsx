@@ -124,12 +124,12 @@ const tableClasses: Record<ContentTheme, {
     },
     dark: {
         wrapper: 'overflow-x-auto',
-        header: 'bg-[#e4d9d3]',
-        headerCell: 'text-[#40372e] rounded-tl-[60px] first:rounded-tl-[60px] last:rounded-tr-[60px]',
+        header: 'bg-[#1b3c44]',
+        headerCell: 'text-white rounded-tl-[60px] first:rounded-tl-[60px] last:rounded-tr-[60px]',
         border: 'border-0',
-        rowEven: 'bg-[#40372e] text-white',
-        rowOdd: 'bg-[#40372e] text-white',
-        hover: 'hover:bg-[#4a3f37]',
+        rowEven: 'bg-white text-[#1b3c44]',
+        rowOdd: 'bg-white text-[#1b3c44]',
+        hover: 'hover:bg-[#f2eee9]',
         caption: 'text-[#f2eee9]/70'
     }
 };
@@ -349,7 +349,7 @@ const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock; theme: Co
     const variant = theme === 'light' ? 'light' : 'dark';
     const cardBackground = theme === 'light'
         ? 'bg-white shadow-lg'
-        : 'bg-[#1f1a15]/90 border border-white/5 shadow-[0_80px_200px_-120px_rgba(0,0,0,1)] backdrop-blur';
+        : 'bg-[#1b3c44] border border-white/5 shadow-[0_80px_200px_-120px_rgba(0,0,0,1)] backdrop-blur';
 
     return (
         <div className="max-w-4xl mx-auto">

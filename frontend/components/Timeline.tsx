@@ -23,35 +23,40 @@ const Timeline: FunctionComponent<TimelineProps> = memo(({ steps, className = ''
     }
 
     return (
-        <div className={`relative ${className}`}>
-            {/* Vertical line */}
-            <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-[#cd8453]" />
-            
-            {/* Steps */}
+        <div className={`${className}`}>
             <div className="space-y-6">
                 {steps.map((step, index) => (
                     <div key={step.id} className="relative flex items-start">
-                        {/* Orange marker */}
-                        <div className="relative z-10 flex-shrink-0">
-                            <div className="w-8 h-8 bg-[#cd8453] rounded-full border-4 border-white shadow-md flex items-center justify-center">
-                                <div className="w-2 h-2 bg-white rounded-full" />
+                        {/* Circle container */}
+                        <div className="relative mr-6 flex-shrink-0">
+                            {/* White circle */}
+                            <div className="relative w-8 h-8 rounded-full bg-white shadow-md">
+                                {/* Vertical line before - extends from circle center upward */}
+                                {index > 0 && (
+                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full w-[2px] h-6 bg-[#cd8453]" />
+                                )}
+                                
+                                {/* Vertical line after - extends from circle center downward */}
+                                {index < steps.length - 1 && (
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-[2px] bg-[#cd8453]" style={{ height: 'calc(1.5rem + 24px)' }} />
+                                )}
                             </div>
                         </div>
                         
                         {/* Content */}
-                        <div className="ml-6 flex-grow">
+                        <div className="flex-grow">
                             {/* Step title */}
                             <h3 className="text-lg font-bold text-[#1b3c44] mb-3">
                                 {step.title}
                             </h3>
-                            
+                        
                             {/* Step details */}
                             {step.details && step.details.length > 0 && (
                                 <div className="space-y-2 mb-4">
                                     {step.details.map((detail, detailIndex) => (
                                         <div
                                             key={detailIndex}
-                                            className="inline-block bg-[#1b3c44] text-white px-4 py-2 rounded-lg text-sm mr-2 mb-2"
+                                            className="inline-block bg-white text-[#1b3c44] px-4 py-2 rounded-lg text-sm mr-2 mb-2 border border-[#1b3c44]/20"
                                         >
                                             {detail}
                                         </div>
