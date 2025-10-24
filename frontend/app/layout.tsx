@@ -1,18 +1,7 @@
 import './globals.css';
 import { Inter, Anek_Bangla } from 'next/font/google';
 import type { Metadata } from 'next';
-import LenisProvider from '@/components/LenisProvider';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { GuidesProvider } from '@/contexts/GuidesContext';
-import { CategoriesProvider } from '@/contexts/CategoriesContext';
-import { HeroProvider } from '@/contexts/HeroContext';
-import ErrorBoundary from '@/components/shared/ErrorBoundary';
-import { configureSanitizer } from '@/utils/sanitization';
-
-// Configure security utilities on app initialization
-if (typeof window !== 'undefined') {
-    configureSanitizer();
-}
+import Providers from '@/components/Providers';
 
 const inter = Inter({ subsets: ['latin'] });
 const anekBangla = Anek_Bangla({ 
@@ -40,19 +29,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html lang="en">
             <body className={`${inter.className} ${anekBangla.variable}`}>
-                <ErrorBoundary>
-                    <AuthProvider>
-                        <CategoriesProvider>
-                            <GuidesProvider>
-                                <HeroProvider>
-                                    <LenisProvider>
-                                        {children}
-                                    </LenisProvider>
-                                </HeroProvider>
-                            </GuidesProvider>
-                        </CategoriesProvider>
-                    </AuthProvider>
-                </ErrorBoundary>
+                <Providers>
+                    {children}
+                </Providers>
             </body>
         </html>
     );
