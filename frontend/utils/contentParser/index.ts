@@ -11,7 +11,7 @@ import { parseTextBlock, stringifyTextBlock, validateTextBlock } from './textPar
 import { parseTimelineBlock, stringifyTimelineBlock, validateTimelineBlock } from './timelineParser';
 import { parseImageBlock, stringifyImageBlock, validateImageBlock, parseImageGalleryBlock, stringifyImageGalleryBlock, validateImageGalleryBlock } from './imageParser';
 import { parseTableBlock, stringifyTableBlock, validateTableBlock } from './tableParser';
-import { parseTipsBlock, stringifyTipsBlock, validateTipsBlock, parseNotesBlock, stringifyNotesBlock, validateNotesBlock } from './tipsParser';
+import { parseTipsBlock, stringifyTipsBlock, validateTipsBlock, parseNotesBlock, stringifyNotesBlock, validateNotesBlock, parseWarningBlock, stringifyWarningBlock, validateWarningBlock } from './tipsParser';
 import { parseProsConsBlock, stringifyProsConsBlock, validateProsConsBlock } from './prosConsParser';
 
 /**
@@ -48,6 +48,9 @@ export function parseGuideContent(text: string): ContentBlock[] {
                     break;
                 case 'notes':
                     block = parseNotesBlock(blockBuffer, blockAttrs, context);
+                    break;
+                case 'warning':
+                    block = parseWarningBlock(blockBuffer, blockAttrs, context);
                     break;
                 case 'proscons':
                     block = parseProsConsBlock(blockBuffer, blockAttrs, context);
@@ -140,6 +143,9 @@ export function contentToText(blocks: ContentBlock[]): string {
                 case 'notes':
                     lines = stringifyNotesBlock(block);
                     break;
+                case 'warning':
+                    lines = stringifyWarningBlock(block);
+                    break;
                 case 'proscons':
                     lines = stringifyProsConsBlock(block);
                     break;
@@ -188,6 +194,9 @@ export function validateContent(blocks: ContentBlock[]): string[] {
                     break;
                 case 'notes':
                     blockErrors = validateNotesBlock(block, index);
+                    break;
+                case 'warning':
+                    blockErrors = validateWarningBlock(block, index);
                     break;
                 case 'proscons':
                     blockErrors = validateProsConsBlock(block, index);
@@ -245,6 +254,14 @@ Location A to Location B
 :::
 
 
+:::warning [title="Safety Alert"]
+- Do not travel alone in remote areas after dark
+- Keep emergency contact numbers saved
+- Inform someone about your travel plans
+- Carry a first aid kit
+:::
+
+
 :::proscons [title="Visiting in Summer"]
 [pros]
 - Clear weather and excellent visibility
@@ -296,6 +313,7 @@ export type {
     TableBlock,
     TipsBlock,
     NotesBlock,
+    WarningBlock,
     ProsConsBlock,
     ItineraryStep
 } from './types';

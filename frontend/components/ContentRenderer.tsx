@@ -8,11 +8,12 @@ import {
     TableBlock,
     TipsBlock,
     NotesBlock,
+    WarningBlock,
     ProsConsBlock
 } from '../types';
 import Timeline from './Timeline';
 import ImagePlaceholder from './shared/ImagePlaceholder';
-import { Lightbulb, Info, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Lightbulb, Info, TriangleAlert, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { isValidImageUrl, getImageAltText } from '../utils/imageUtils';
 import { sanitizeMarkdown } from '../utils/sanitization';
 
@@ -29,7 +30,7 @@ const typographyClasses: Record<ContentTheme, { paragraph: string; heading: stri
         heading: 'text-[#1b3c44]'
     },
     dark: {
-        paragraph: 'font-[\'Schibsted_Grotesk\'] font-normal text-[50.37px] leading-[normal] text-white',
+        paragraph: 'font-[\'Schibsted_Grotesk\'] font-normal text-[28px] lg:text-[50.37px] leading-[normal] text-white',
         heading: 'text-[#f2eee9]'
     }
 };
@@ -42,10 +43,10 @@ const tipClasses: Record<ContentTheme, { wrapper: string; icon: string; text: st
         title: 'text-[#1b3c44]'
     },
     dark: {
-        wrapper: 'bg-transparent border-0 px-0 py-0',
+        wrapper: 'bg-[#D6AD46]/10 border-2 border-[#D6AD46]/30 rounded-[40px] px-[20px] lg:px-[25px] py-[20px] lg:py-[25px]',
         icon: 'text-[#D6AD46]',
         text: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
-        title: 'text-[#fbe7c8]'
+        title: 'font-[\'Schibsted_Grotesk\'] font-bold text-[22px] lg:text-[24px] text-[#f2eee9]'
     }
 };
 
@@ -57,10 +58,25 @@ const noteClasses: Record<ContentTheme, { wrapper: string; icon: string; text: s
         title: 'text-[#1b3c44]'
     },
     dark: {
-        wrapper: 'bg-transparent border-0 px-0 py-0',
+        wrapper: 'bg-[#D6AD46]/10 border-2 border-[#D6AD46]/30 rounded-[40px] px-[20px] lg:px-[25px] py-[20px] lg:py-[25px]',
         icon: 'text-[#D6AD46]',
         text: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
-        title: 'text-[#e6f4ff]'
+        title: 'font-[\'Schibsted_Grotesk\'] font-bold text-[22px] lg:text-[24px] text-[#f2eee9]'
+    }
+};
+
+const warningClasses: Record<ContentTheme, { wrapper: string; icon: string; text: string; title: string }> = {
+    light: {
+        wrapper: 'bg-[#fff4e6] border border-[#ff9800]/40 px-8 py-6 rounded-[28px]',
+        icon: 'text-[#f57c00]',
+        text: 'text-[18px] sm:text-[20px] leading-[1.65] text-[#1b3c44] tracking-[0.01em]',
+        title: 'text-[#1b3c44]'
+    },
+    dark: {
+        wrapper: 'bg-[#D6AD46]/10 border-2 border-[#D6AD46]/30 rounded-[40px] px-[20px] lg:px-[25px] py-[20px] lg:py-[25px]',
+        icon: 'text-[#ffb74d]',
+        text: 'font-[\'Schibsted_Grotesk\'] font-normal text-[18px] lg:text-[20px] leading-[normal] text-[#f2eee9]',
+        title: 'font-[\'Schibsted_Grotesk\'] font-bold text-[22px] lg:text-[24px] text-[#f2eee9]'
     }
 };
 
@@ -162,7 +178,7 @@ const imageFrameClasses: Record<ContentTheme, { frame: string; captionBg: string
     }
 };
 
-const ContentRenderer: FunctionComponent<ContentRendererProps> = memo(({ blocks, theme = 'light' }) => {
+const ContentRenderer: FunctionComponent<ContentRendererProps> = ({ blocks, theme = 'light' }) => {
     return (
         <div className="space-y-[76px]">
             {blocks.map((block) => {
@@ -181,6 +197,8 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = memo(({ blocks,
                         return <TipsBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'notes':
                         return <NotesBlockRenderer key={block.id} block={block} theme={theme} />;
+                    case 'warning':
+                        return <WarningBlockRenderer key={block.id} block={block} theme={theme} />;
                     case 'proscons':
                         return <ProsConsBlockRenderer key={block.id} block={block} theme={theme} />;
                     default:
@@ -189,7 +207,7 @@ const ContentRenderer: FunctionComponent<ContentRendererProps> = memo(({ blocks,
             })}
         </div>
     );
-});
+};
 
 ContentRenderer.displayName = 'ContentRenderer';
 
@@ -233,19 +251,19 @@ const TipsBlockRenderer: FunctionComponent<{ block: TipsBlock; theme: ContentThe
     return (
         <div className="max-w-4xl mx-auto">
             <div className={styles.wrapper}>
-                {block.title && (
-                    <h3 className={`text-[20px] sm:text-[22px] font-semibold mb-4 tracking-[0.02em] ${styles.title}`}>
-                        {block.title}
-                    </h3>
+                {(block.title || theme === 'dark') && (
+                    <div className="flex items-center gap-[12px] mb-[15px]">
+                        <Lightbulb size={24} className={`flex-shrink-0 ${styles.icon}`} strokeWidth={2} />
+                        <h4 className={styles.title}>
+                            {block.title || 'Tips'}
+                        </h4>
+                    </div>
                 )}
-                <div className={theme === 'dark' ? 'space-y-[15px]' : 'space-y-0'}>
+                <div className={theme === 'dark' ? 'space-y-[10px]' : 'space-y-0'}>
                     {block.tips.map((tip, index) => (
-                        <div key={index} className="flex items-start gap-[12px]">
-                            <Lightbulb className={`${styles.icon} flex-shrink-0 mt-[3px]`} size={24} strokeWidth={2} />
-                            <p className={`${styles.text} flex-grow`}>
-                                {tip}
-                            </p>
-                        </div>
+                        <p key={index} className={`${styles.text}`}>
+                            {theme === 'dark' ? '• ' : ''}{tip}
+                        </p>
                     ))}
                 </div>
             </div>
@@ -261,19 +279,19 @@ const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock; theme: ContentT
     return (
         <div className="max-w-4xl mx-auto">
             <div className={styles.wrapper}>
-                {block.title && (
-                    <h3 className={`text-[20px] sm:text-[22px] font-semibold mb-4 tracking-[0.02em] ${styles.title}`}>
-                        {block.title}
-                    </h3>
+                {(block.title || theme === 'dark') && (
+                    <div className="flex items-center gap-[13px] mb-[15px]">
+                        <Info size={24} className={`flex-shrink-0 ${styles.icon}`} strokeWidth={2} />
+                        <h4 className={styles.title}>
+                            {block.title || 'Notes'}
+                        </h4>
+                    </div>
                 )}
-                <div className={theme === 'dark' ? 'space-y-[15px]' : 'space-y-0'}>
+                <div className={theme === 'dark' ? 'space-y-[10px]' : 'space-y-0'}>
                     {block.notes.map((note, index) => (
-                        <div key={index} className="flex items-start gap-[13px]">
-                            <Info className={`${styles.icon} flex-shrink-0`} size={26} strokeWidth={2} />
-                            <p className={`${styles.text} flex-grow`}>
-                                {note}
-                            </p>
-                        </div>
+                        <p key={index} className={`${styles.text}`}>
+                            {theme === 'dark' ? '• ' : ''}{note}
+                        </p>
                     ))}
                 </div>
             </div>
@@ -282,6 +300,34 @@ const NotesBlockRenderer: FunctionComponent<{ block: NotesBlock; theme: ContentT
 });
 
 NotesBlockRenderer.displayName = 'NotesBlockRenderer';
+
+const WarningBlockRenderer: FunctionComponent<{ block: WarningBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
+    const styles = warningClasses[theme];
+
+    return (
+        <div className="max-w-4xl mx-auto">
+            <div className={styles.wrapper}>
+                {(block.title || theme === 'dark') && (
+                    <div className="flex items-center gap-[13px] mb-[15px]">
+                        <TriangleAlert size={24} className={`flex-shrink-0 ${styles.icon}`} strokeWidth={2} />
+                        <h4 className={styles.title}>
+                            {block.title || 'Warning'}
+                        </h4>
+                    </div>
+                )}
+                <div className={theme === 'dark' ? 'space-y-[10px]' : 'space-y-0'}>
+                    {block.warnings.map((warning, index) => (
+                        <p key={index} className={`${styles.text}`}>
+                            {theme === 'dark' ? '• ' : ''}{warning}
+                        </p>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+});
+
+WarningBlockRenderer.displayName = 'WarningBlockRenderer';
 
 const ProsConsBlockRenderer: FunctionComponent<{ block: ProsConsBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const styles = prosConsClasses[theme];
@@ -347,22 +393,15 @@ ProsConsBlockRenderer.displayName = 'ProsConsBlockRenderer';
 
 const TimelineBlockRenderer: FunctionComponent<{ block: TimelineBlock; theme: ContentTheme }> = memo(({ block, theme }) => {
     const variant = theme === 'light' ? 'light' : 'dark';
-    const cardBackground = theme === 'light'
-        ? 'bg-white shadow-lg'
-        : 'bg-[#1b3c44] border border-white/5 shadow-[0_80px_200px_-120px_rgba(0,0,0,1)] backdrop-blur';
 
     return (
         <div className="max-w-4xl mx-auto">
             {block.title && (
-                <div className="text-center mb-10">
-                    <h2 className={`text-[44px] sm:text-[56px] md:text-[72px] font-bold leading-[1.05] tracking-[-0.01em] mb-4 ${typographyClasses[theme].heading}`}>
-                        {block.title}
-                    </h2>
-                </div>
+                <h2 className={`font-['Schibsted_Grotesk'] font-bold text-[48px] lg:text-[96px] leading-[normal] ${typographyClasses[theme].heading} mb-[40px] lg:mb-[66px]`}>
+                    {block.title}
+                </h2>
             )}
-            <div className={`${cardBackground} rounded-[44px] p-8 md:p-14 lg:p-16 xl:p-20 transition-all`}>
-                <Timeline steps={block.steps} variant={variant} />
-            </div>
+            <Timeline steps={block.steps} variant={variant} />
         </div>
     );
 });

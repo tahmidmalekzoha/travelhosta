@@ -2,7 +2,7 @@
  * Tips and notes block parsers
  */
 
-import type { TipsBlock, NotesBlock, BlockParser, BlockStringifier, BlockValidator } from './types';
+import type { TipsBlock, NotesBlock, WarningBlock, BlockParser, BlockStringifier, BlockValidator } from './types';
 import { extractListItems } from './baseParser';
 
 /**
@@ -86,6 +86,49 @@ export const validateNotesBlock: BlockValidator<NotesBlock> = (block, index) => 
     
     if (!block.notes || block.notes.length === 0) {
         errors.push(`Block ${index + 1}: Notes block is empty`);
+    }
+    
+    return errors;
+};
+
+/**
+ * Parses warning block from buffer
+ */
+export const parseWarningBlock: BlockParser<WarningBlock> = (buffer, attrs, context) => {
+    return {
+        type: 'warning',
+        id: context.generateId('warning'),
+        title: attrs.title,
+        warnings: extractListItems(buffer)
+    };
+};
+
+/**
+ * Converts warning block to string format
+ */
+export const stringifyWarningBlock: BlockStringifier<WarningBlock> = (block) => {
+    const lines: string[] = [];
+    
+    if (block.title) {
+        lines.push(`:::warning [title="${block.title}"]`);
+    } else {
+        lines.push(`:::warning`);
+    }
+    
+    block.warnings.forEach(warning => lines.push(`- ${warning}`));
+    lines.push(':::');
+    
+    return lines;
+};
+
+/**
+ * Validates warning block
+ */
+export const validateWarningBlock: BlockValidator<WarningBlock> = (block, index) => {
+    const errors: string[] = [];
+    
+    if (!block.warnings || block.warnings.length === 0) {
+        errors.push(`Block ${index + 1}: Warning block is empty`);
     }
     
     return errors;

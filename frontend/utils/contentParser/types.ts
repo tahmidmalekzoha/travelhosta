@@ -11,6 +11,7 @@ import type {
     TableBlock, 
     TipsBlock, 
     NotesBlock,
+    WarningBlock,
     ProsConsBlock,
     ItineraryStep 
 } from '../../types';
@@ -27,6 +28,7 @@ export type {
     TableBlock,
     TipsBlock,
     NotesBlock,
+    WarningBlock,
     ProsConsBlock,
     ItineraryStep
 };

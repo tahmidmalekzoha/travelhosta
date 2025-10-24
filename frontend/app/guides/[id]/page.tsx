@@ -78,7 +78,16 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
     const { guides } = useGuides();
     const unwrappedParams = React.use(params);
     const guide = guides.find(g => g.id === parseInt(unwrappedParams.id));
-    const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
+    
+    // Initialize language from localStorage, default to 'en'
+    const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('preferredLanguage');
+            return (stored === 'bn' || stored === 'en') ? stored : 'en';
+        }
+        return 'en';
+    });
+    
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
     const [lightboxCaption, setLightboxCaption] = useState<string | undefined>(undefined);
     const [lightboxAlt, setLightboxAlt] = useState<string | undefined>(undefined);
@@ -89,6 +98,14 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
         guide ? hasBengaliContent(guide) : false, 
         [guide]
     );
+
+    // Save language preference to localStorage whenever it changes
+    const handleLanguageChange = (lang: Language) => {
+        setCurrentLanguage(lang);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('preferredLanguage', lang);
+        }
+    };
 
     const pageTitle = currentLanguage === 'en' && guide ? guide.title : (guide?.titleBn || guide?.title || '');
     const descriptionText = currentLanguage === 'en' && guide ? guide.description : (guide?.descriptionBn || guide?.description || '');
@@ -166,7 +183,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                                 
                                 {/* English button */}
                                 <button
-                                    onClick={() => setCurrentLanguage('en')}
+                                    onClick={() => handleLanguageChange('en')}
                                     className="relative z-10 flex items-center justify-center h-[65.062px] w-[65.062px] transition-all duration-200 hover:scale-105"
                                 >
                                     <span className={`font-['Schibsted_Grotesk'] font-bold text-[22px] transition-colors duration-300 ${
@@ -180,7 +197,7 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
 
                                 {/* Bengali button */}
                                 <button
-                                    onClick={() => setCurrentLanguage('bn')}
+                                    onClick={() => handleLanguageChange('bn')}
                                     className="relative z-10 flex items-center justify-center h-[65.062px] w-[65.062px] transition-all duration-200 hover:scale-105"
                                 >
                                     <span className={`font-['Schibsted_Grotesk'] font-bold text-[22px] transition-colors duration-300 ${
