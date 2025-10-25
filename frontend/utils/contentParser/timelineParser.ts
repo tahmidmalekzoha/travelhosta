@@ -182,7 +182,13 @@ export const stringifyTimelineBlock: BlockStringifier<TimelineBlock> = (block) =
         lines.push(`:::timeline`);
     }
     
-    block.steps.forEach(step => {
+    block.steps.forEach((step, stepIndex) => {
+        // Add spacing between steps (except before the first step)
+        if (stepIndex > 0) {
+            lines.push('');
+            lines.push('');
+        }
+        
         lines.push(step.title);
         step.details.forEach(detail => lines.push(`- ${detail}`));
         

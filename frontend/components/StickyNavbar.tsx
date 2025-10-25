@@ -74,7 +74,7 @@ const StickyNavbar: FunctionComponent = () => {
 
             {/* Fixed positioned buttons with scroll-based visibility */}
             <div 
-                className={`fixed top-[82px] right-[50px] z-50 flex flex-col gap-2 md:gap-3 items-end transition-all duration-500 ease-in-out ${
+                className={`fixed top-12 md:top-16 lg:top-[82px] right-4 md:right-8 lg:right-[50px] z-50 flex flex-col gap-2 md:gap-3 items-end transition-all duration-500 ease-in-out ${
                     isVisible 
                         ? 'translate-y-0 opacity-100' 
                         : '-translate-y-[200%] opacity-0'

@@ -29,6 +29,8 @@ const GuidesContext = createContext<GuidesContextType | undefined>(undefined);
  * Convert database guide to GuideData format
  */
 const dbGuideToGuideData = (dbGuide: DbGuide): GuideData => {
+    console.log('🔍 Converting DB guide to GuideData, content type:', typeof dbGuide.content, 'is array:', Array.isArray(dbGuide.content));
+    
     return {
         id: dbGuide.id,
         title: dbGuide.title,
@@ -62,6 +64,26 @@ const guideDataToDbInsert = (guide: Omit<GuideData, 'id'>): Omit<DbGuideInsert, 
     // Convert empty or dummy image URLs to null
     const imageUrl = guide.imageUrl && !isDummyImage(guide.imageUrl) ? guide.imageUrl : null;
 
+    // Ensure content is properly serialized as JSON
+    // This prevents double-serialization and preserves the exact structure
+    const serializeContent = (content: any) => {
+        if (!content) return null;
+        if (Array.isArray(content) && content.length === 0) return null;
+        // If it's already an array of objects, return as-is (Supabase will handle JSON serialization)
+        if (Array.isArray(content)) {
+            return content;
+        }
+        // If it's a string, try to parse it (shouldn't happen, but defensive coding)
+        if (typeof content === 'string') {
+            try {
+                return JSON.parse(content);
+            } catch {
+                return null;
+            }
+        }
+        return content;
+    };
+
     // Only include the fields that should be set by the client
     // created_by, created_at, updated_at, last_edited_by, last_edited_at are managed by triggers
     return {
@@ -71,11 +93,11 @@ const guideDataToDbInsert = (guide: Omit<GuideData, 'id'>): Omit<DbGuideInsert, 
         category: guide.category,
         image_url: imageUrl,
         tags: guide.tags || null,
-        content: (guide.content as any) || null,
-        itinerary: (guide.itinerary as any) || null,
+        content: serializeContent(guide.content),
+        itinerary: serializeContent(guide.itinerary),
         title_bn: guide.titleBn || null,
         description_bn: guide.descriptionBn || null,
-        content_bn: (guide.contentBn as any) || null,
+        content_bn: serializeContent(guide.contentBn),
     };
 };
 
@@ -143,6 +165,7 @@ export function GuidesProvider({ children }: { children: React.ReactNode }) {
             const dbGuide = guideDataToDbInsert(guideData);
             
             console.log('🚀 Inserting guide with data:', dbGuide);
+            console.log('📝 Content structure:', JSON.stringify(dbGuide.content, null, 2));
             
             const { data, error: insertError } = await supabase
                 .from('guides')
@@ -162,6 +185,7 @@ export function GuidesProvider({ children }: { children: React.ReactNode }) {
 
             if (data) {
                 console.log('✅ Guide created successfully:', data);
+                console.log('📥 Retrieved content structure:', JSON.stringify(data.content, null, 2));
                 const newGuide = dbGuideToGuideData(data);
                 setGuides(prev => [newGuide, ...prev]);
             }
@@ -179,6 +203,9 @@ export function GuidesProvider({ children }: { children: React.ReactNode }) {
             setError(null);
             const dbGuide = guideDataToDbInsert(guideData);
             
+            console.log('🔄 Updating guide with data:', dbGuide);
+            console.log('📝 Content structure before update:', JSON.stringify(dbGuide.content, null, 2));
+            
             const { data, error: updateError } = await supabase
                 .from('guides')
                 .update(dbGuide)
@@ -189,6 +216,8 @@ export function GuidesProvider({ children }: { children: React.ReactNode }) {
             if (updateError) throw updateError;
 
             if (data) {
+                console.log('✅ Guide updated successfully:', data);
+                console.log('📥 Retrieved content structure after update:', JSON.stringify(data.content, null, 2));
                 const updatedGuide = dbGuideToGuideData(data);
                 setGuides(prev => prev.map(guide => 
                     guide.id === id ? updatedGuide : guide

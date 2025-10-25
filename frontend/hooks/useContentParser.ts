@@ -50,8 +50,13 @@ export function useContentParser(
             // If editing an existing guide, ALWAYS load from guide data (database)
             // Ignore cache to show the actual persisted content
             if (guide?.id) {
+                console.log('📖 Loading guide content for editing, guide ID:', guide.id);
+                console.log('📦 Original content from DB:', guide.content);
+                
                 if (guide?.content) {
-                    setContentText(contentToText(guide.content));
+                    const convertedText = contentToText(guide.content);
+                    console.log('📝 Converted content to text:', convertedText);
+                    setContentText(convertedText);
                 } else {
                     setContentText('');
                 }
@@ -103,6 +108,7 @@ export function useContentParser(
 
         if (contentText.trim()) {
             parsedContent = parseGuideContent(contentText);
+            console.log('🔄 Parsed content blocks:', parsedContent);
             errors = validateContent(parsedContent);
         }
 

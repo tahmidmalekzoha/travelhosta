@@ -26,17 +26,17 @@ export default function Home() {
             <StickyNavbar />
 
             {/* Hero Section */}
-            <div className="w-full p-[18px] h-[98vh] box-border">
+            <div className="w-full p-3 md:p-[18px] h-[60vh] md:h-[80vh] lg:h-[98vh] box-border">
                 <HeroSection />
             </div>
 
             {/* Description Section */}
-            <div className="w-full h-[100vh] flex items-center justify-center py-[120px]">
-                <div className="w-full px-20">
+            <div className="w-full min-h-[60vh] md:min-h-[80vh] lg:min-h-[100vh] flex items-center justify-center py-12 md:py-16 lg:py-[120px] px-4 md:px-8">
+                <div className="w-full px-4 md:px-12 lg:px-20">
                     <ScrollReveal
                         enableBlur={true}
                         blurStrength={3}
-                        textClassName="text-[64px] font-medium text-left leading-[40px]"
+                        textClassName="text-2xl md:text-4xl lg:text-5xl xl:text-[64px] font-medium text-left leading-tight md:leading-snug lg:leading-[1.2]"
                         containerClassName=""
                     >
                         At TravelHosta, we make exploring easy and affordable. Guides for every
@@ -50,13 +50,13 @@ export default function Home() {
             {/* Cards Section */}
             <div className="w-full px-6 md:px-12 lg:px-20 py-12 md:py-16 lg:py-20">
                 {/* Section Header */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 md:mb-16 lg:mb-20 gap-8">
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-[#1b3c44]">
+                <div className="flex flex-row justify-between items-center mb-8 md:mb-12 lg:mb-16 xl:mb-20 gap-4 md:gap-6 lg:gap-8">
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-bold leading-tight text-[#1b3c44] flex-shrink min-w-0">
                         Featured Travel Guides
                     </h2>
 
                     {/* See All Button */}
-                    <div className="w-[297px] h-[92px] flex-shrink-0 p-0">
+                    <div className="flex-shrink-0">
                         <ViewAllGuidesButton />
                     </div>
                 </div>
@@ -73,7 +73,7 @@ export default function Home() {
             </div>
 
             {/* FAQ Section */}
-            <div className="w-full h-[100vh] flex items-center justify-center bg-[#213c44]">
+            <div className="w-full min-h-screen flex items-center justify-center bg-[#213c44]">
                 <FAQSection />
             </div>
 
