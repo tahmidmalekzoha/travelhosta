@@ -72,7 +72,7 @@ const SigninButton: FunctionComponent = () => {
                 width="w-[130px] sm:w-[160px] md:w-[200px] lg:w-[240px] xl:w-[297px]"
                 height="h-[48px] sm:h-[54px] md:h-[60px] lg:h-[70px] xl:h-[92px]"
                 textSize="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[36px] xl:text-[48px]"
-                icon={<ArrowRight size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />}
+                icon={<ArrowRight className="w-[45%] h-[45%]" strokeWidth={2.5} />}
             />
         </div>
     );

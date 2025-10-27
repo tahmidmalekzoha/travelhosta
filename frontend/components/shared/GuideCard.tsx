@@ -68,11 +68,6 @@ const GuideCard: FunctionComponent<GuideCardProps> = memo(({ guide }) => {
                         {guide.title}
                     </h3>
                     
-                    {/* Description - additional info for guides */}
-                    <p className="text-white/90 font-['Schibsted_Grotesk'] text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg leading-tight mb-1 sm:mb-1.5 md:mb-2 lg:mb-3 line-clamp-2">
-                        {guide.description}
-                    </p>
-                    
                     {/* Division & Itinerary info */}
                     <div className="flex items-center justify-between mb-1 sm:mb-1.5 md:mb-2 lg:mb-3 xl:mb-4">
                         <span className="text-white/80 text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg font-medium font-['Schibsted_Grotesk']">
@@ -107,16 +102,16 @@ const GuideCard: FunctionComponent<GuideCardProps> = memo(({ guide }) => {
                     {/* View Button - matching homepage style */}
                     <button
                         onClick={handleViewClick}
-                        className="flex items-center justify-between bg-white/10 border border-white/20 rounded-[16px] sm:rounded-[20px] md:rounded-[24px] lg:rounded-[28px] xl:rounded-[32px] py-1.5 px-2.5 sm:py-2 sm:px-3 md:py-2.5 md:px-4 lg:py-3 lg:px-5 xl:py-3 xl:px-6 cursor-pointer transition-all duration-300 backdrop-blur-md min-h-[36px] sm:min-h-[40px] md:min-h-[44px] lg:min-h-[48px] xl:min-h-[56px] hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5 group"
+                        className="flex items-center justify-between bg-white/10 border border-white/20 rounded-[16px] sm:rounded-[20px] md:rounded-[24px] lg:rounded-[28px] xl:rounded-[32px] py-1.5 px-2 sm:py-2 sm:px-3 md:py-2.5 md:px-4 lg:py-3 lg:px-5 xl:py-3 xl:px-6 cursor-pointer transition-all duration-300 backdrop-blur-md min-h-[32px] sm:min-h-[40px] md:min-h-[44px] lg:min-h-[48px] xl:min-h-[56px] hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5 group"
                         aria-label={`View details for ${guide.title}`}
                     >
-                        <div className="text-white font-['Schibsted_Grotesk'] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-semibold flex-grow">
+                        <div className="text-white font-['Schibsted_Grotesk'] text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-xl font-semibold flex-grow">
                             <div>View Guide</div>
                         </div>
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-white/20 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 group-hover:bg-white/30 group-hover:scale-110">
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8 bg-white/20 rounded-full flex items-center justify-center transition-all duration-300 flex-shrink-0 group-hover:bg-white/30 group-hover:scale-110">
                             <div className="flex items-center justify-center w-full h-full">
                                 <svg
-                                    className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 text-white transition-transform duration-300 group-hover:translate-x-0.5"
+                                    className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 lg:w-3.5 lg:h-3.5 xl:w-4 xl:h-4 text-white transition-transform duration-300 group-hover:translate-x-0.5"
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 15 15"
                                     aria-hidden="true"
