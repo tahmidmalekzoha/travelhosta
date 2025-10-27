@@ -5,7 +5,14 @@
  * Uses DOMPurify for HTML sanitization
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'dompurify';
+
+// Initialize DOMPurify only on the client side
+let purify: typeof DOMPurify | null = null;
+
+if (typeof window !== 'undefined') {
+    purify = DOMPurify;
+}
 
 /**
  * Sanitize HTML content to prevent XSS attacks
@@ -20,9 +27,13 @@ import DOMPurify from 'isomorphic-dompurify';
  */
 export function sanitizeHtml(html: string): string {
     if (!html) return '';
+    
+    // If running on server, return empty string or the original (choose based on your needs)
+    // For security, returning empty on server is safer
+    if (!purify) return '';
 
     // Configure DOMPurify with safe defaults
-    return DOMPurify.sanitize(html, {
+    return purify.sanitize(html, {
         ALLOWED_TAGS: [
             'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
             'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre'
@@ -46,10 +57,15 @@ export function sanitizeHtml(html: string): string {
  */
 export function sanitizeText(text: string): string {
     if (!text) return '';
-
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    
+    // Server-side compatible escaping
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .replace(/\//g, '&#x2F;');
 }
 
 /**
@@ -67,7 +83,12 @@ export function sanitizeUrl(url: string): string {
     if (!url) return '';
 
     try {
-        const parsed = new URL(url, window.location.origin);
+        // Handle relative URLs
+        if (url.startsWith('/')) {
+            return url;
+        }
+        
+        const parsed = new URL(url);
         const allowedProtocols = ['http:', 'https:', 'mailto:'];
 
         if (allowedProtocols.includes(parsed.protocol)) {
@@ -150,10 +171,10 @@ export function isSafeContent(content: string): boolean {
  * Call this once on app initialization
  */
 export function configureSanitizer(): void {
-    if (typeof window === 'undefined') return;
+    if (!purify) return;
 
     // Add custom hooks for additional security
-    DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    purify.addHook('afterSanitizeAttributes', (node) => {
         // Ensure all links open in new tab and have noopener
         if (node.tagName === 'A') {
             node.setAttribute('target', '_blank');

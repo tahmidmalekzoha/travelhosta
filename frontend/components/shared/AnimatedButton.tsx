@@ -47,10 +47,10 @@ const AnimatedButton: FunctionComponent<AnimatedButtonProps> = ({
             className={`group ${width} relative ${height} text-left ${textSize} text-[#1b3c44] font-['Schibsted_Grotesk'] transition-all duration-300 active:scale-95 cursor-pointer border-none bg-transparent ${className}`}
         >
             {/* Background */}
-            <div className={`absolute inset-0 rounded-[52px] bg-[#e4d9d3] transition-all duration-300 group-hover:bg-[#ddd2cc] shadow-md`} />
+            <div className={`absolute inset-0 rounded-[28px] sm:rounded-[36px] md:rounded-[44px] lg:rounded-[52px] bg-[#e4d9d3] transition-all duration-300 group-hover:bg-[#ddd2cc] shadow-md`} />
 
             {/* Text with sliding animation */}
-            <div className="absolute inset-y-[13%] left-[13%] right-[30%] z-10 overflow-hidden">
+            <div className="absolute inset-y-[10%] sm:inset-y-[12%] md:inset-y-[13%] left-[10%] sm:left-[12%] md:left-[13%] right-[28%] sm:right-[30%] z-10 overflow-hidden">
                 <div className="transition-transform duration-300 h-[200%] group-hover:-translate-y-1/2">
                     <div className={`h-1/2 flex items-center justify-start whitespace-nowrap ${textSize} leading-none text-[#1b3c44]`}>{text}</div>
                     <div className={`h-1/2 flex items-center justify-start whitespace-nowrap ${textSize} leading-none text-[#1b3c44]`}>{text}</div>
@@ -59,20 +59,20 @@ const AnimatedButton: FunctionComponent<AnimatedButtonProps> = ({
 
             {/* Circle Background */}
             <div
-                className={`absolute top-[13%] right-[5%] bg-[#cd8453] aspect-square rounded-full transition-all duration-300 group-hover:bg-[#b86f42] ${isRotated ? 'rotate-180' : ''}`}
+                className={`absolute top-[10%] sm:top-[12%] md:top-[13%] right-[5%] bg-[#cd8453] aspect-square rounded-full transition-all duration-300 group-hover:bg-[#b86f42] ${isRotated ? 'rotate-180' : ''}`}
                 style={{ width: '22%', height: '75%' }}
             />
 
             {/* Icon - Support both React icon and image src */}
             {icon ? (
                 <div
-                    className={`absolute top-1/2 -translate-y-1/2 right-[11%] z-10 flex items-center justify-center text-[#f2eee9] transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
+                    className={`absolute top-1/2 -translate-y-1/2 right-[10%] sm:right-[11%] z-10 flex items-center justify-center text-[#f2eee9] transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
                 >
                     {icon}
                 </div>
             ) : iconSrc ? (
                 <img
-                    className={`absolute top-1/2 -translate-y-1/2 right-[11%] z-10 transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
+                    className={`absolute top-1/2 -translate-y-1/2 right-[10%] sm:right-[11%] z-10 transition-transform duration-300 ${isRotated ? 'rotate-180' : ''}`}
                     style={{ width: '10.5%', height: 'auto' }}
                     alt={iconAlt}
                     src={iconSrc}

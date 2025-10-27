@@ -34,7 +34,7 @@ const HeroSection: FunctionComponent = () => {
     const heroSubtitle = activeHero?.subtitle || HERO_CONFIG.subtitle;
 
     return (
-        <div className="w-full relative h-full rounded-[47px] overflow-hidden shadow-2xl scroll-fade-in">
+        <div className="w-full relative h-full rounded-[24px] sm:rounded-[32px] md:rounded-[38px] lg:rounded-[47px] overflow-hidden shadow-2xl scroll-fade-in">
             {/* Hero Background Image with overlay */}
             <div
                 className="absolute inset-0 bg-cover bg-center scroll-slide-up transition-all duration-300"
@@ -44,17 +44,17 @@ const HeroSection: FunctionComponent = () => {
             />
 
             {/* TRAVELHOSTA Logo */}
-            <div className="absolute top-6 md:top-8 lg:top-12 left-4 md:left-8 lg:left-12 z-10 scroll-slide-left">
+            <div className="absolute top-3 sm:top-4 md:top-6 lg:top-8 xl:top-12 left-3 sm:left-4 md:left-6 lg:left-8 xl:left-12 z-10 scroll-slide-left">
                 <img
                     src={HERO_CONFIG.logoSrc}
                     alt={heroTitle}
-                    className="w-[300px] md:w-[500px] lg:w-[600px] xl:w-[730px] h-[60px] md:h-[90px] lg:h-[110px] xl:h-[130px] drop-shadow-lg"
+                    className="w-[180px] sm:w-[240px] md:w-[350px] lg:w-[500px] xl:w-[730px] h-[36px] sm:h-[48px] md:h-[70px] lg:h-[90px] xl:h-[130px] drop-shadow-lg"
                 />
             </div>
 
             {/* Subtitle */}
-            <div className="absolute bottom-6 md:bottom-8 lg:bottom-12 left-4 md:left-8 lg:left-12 z-10 scroll-slide-up">
-                <h2 className="text-white text-2xl md:text-4xl lg:text-5xl xl:text-[64px] font-normal tracking-wide drop-shadow-lg" style={{ fontFamily: 'Lato, sans-serif' }}>
+            <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-12 left-3 sm:left-4 md:left-6 lg:left-8 xl:left-12 z-10 scroll-slide-up">
+                <h2 className="text-white text-lg sm:text-xl md:text-2xl lg:text-4xl xl:text-5xl 2xl:text-[64px] font-normal tracking-wide drop-shadow-lg" style={{ fontFamily: 'Lato, sans-serif' }}>
                     {heroSubtitle}
                 </h2>
             </div>

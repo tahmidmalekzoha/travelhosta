@@ -10,11 +10,11 @@ interface MenuExpandedProps {
 
 // Navigation menu items configuration
 const MENU_ITEMS = [
-    { label: 'Home', path: '/', top: '4.188rem' },
-    { label: 'Guides', path: '/guides', top: '11.063rem' },
-    { label: 'Destinations', path: '/destinations', top: '17.938rem' },
-    { label: 'About us', path: '/about', top: '24.813rem' },
-    { label: 'Contact', path: '/contact', top: '31.688rem' },
+    { label: 'Home', path: '/' },
+    { label: 'Guides', path: '/guides' },
+    { label: 'Destinations', path: '/destinations' },
+    { label: 'About us', path: '/about' },
+    { label: 'Contact', path: '/contact' },
 ] as const;
 
 // Menu styling constants
@@ -25,10 +25,8 @@ const MENU_STYLES = {
     },
     text: {
         color: '#f2eee9',
-        fontSize: '3.75rem',
         fontFamily: 'Lato, sans-serif',
     },
-    itemLeft: '3.75rem',
 } as const;
 
 /**
@@ -48,46 +46,42 @@ const MenuExpanded: FunctionComponent<MenuExpandedProps> = ({ isOpen, onClose })
 
     return (
         <div
-            className="fixed top-[82px] right-[50px] z-40 transition-all duration-300 ease-out"
+            className="fixed top-[60px] sm:top-[70px] md:top-[82px] right-2 sm:right-4 md:right-8 lg:right-[50px] z-40 transition-all duration-300 ease-out w-[calc(100vw-1rem)] sm:w-[90vw] md:w-[600px] lg:w-[772px] max-w-[772px]"
             style={{
-                width: '48.25rem',
-                height: '47.375rem',
-                fontSize: MENU_STYLES.text.fontSize,
                 color: MENU_STYLES.text.color,
                 fontFamily: MENU_STYLES.text.fontFamily
             }}
         >
             {/* Background */}
             <div
-                className="absolute rounded-[49px]"
+                className="absolute rounded-[28px] sm:rounded-[35px] md:rounded-[42px] lg:rounded-[49px] inset-0"
                 style={{
                     backgroundColor: MENU_STYLES.background.color,
-                    width: '48.25rem',
-                    height: '47.375rem',
-                    top: '-30px',
-                    right: '-16px'
+                    top: '-20px',
+                    right: '-8px',
+                    bottom: '-20px',
+                    left: '-8px'
                 }}
             />
 
             {/* Navigation Menu Items */}
-            {MENU_ITEMS.map((item) => (
-                <button
-                    key={item.path}
-                    onClick={() => handleNavigation(item.path)}
-                    className="absolute cursor-pointer hover:opacity-80 transition-opacity"
-                    style={{
-                        top: item.top,
-                        left: MENU_STYLES.itemLeft,
-                        fontSize: MENU_STYLES.text.fontSize,
-                        color: MENU_STYLES.text.color,
-                        fontFamily: MENU_STYLES.text.fontFamily,
-                        background: 'none',
-                        border: 'none'
-                    }}
-                >
-                    {item.label}
-                </button>
-            ))}
+            <div className="relative py-12 sm:py-14 md:py-16 lg:py-20 px-4 sm:px-6 md:px-8 lg:px-12 space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
+                {MENU_ITEMS.map((item) => (
+                    <button
+                        key={item.path}
+                        onClick={() => handleNavigation(item.path)}
+                        className="block w-full text-left cursor-pointer hover:opacity-80 transition-opacity text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.75rem] py-2 sm:py-3"
+                        style={{
+                            color: MENU_STYLES.text.color,
+                            fontFamily: MENU_STYLES.text.fontFamily,
+                            background: 'none',
+                            border: 'none'
+                        }}
+                    >
+                        {item.label}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 };

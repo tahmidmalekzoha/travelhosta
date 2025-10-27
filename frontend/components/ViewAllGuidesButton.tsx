@@ -18,22 +18,22 @@ const ViewAllGuidesButton: FunctionComponent = () => {
     return (
         <button
             onClick={handleClick}
-            className="group w-[160px] sm:w-[200px] md:w-[250px] lg:w-[297px] h-[50px] sm:h-[60px] md:h-[76px] lg:h-[92px] relative text-left text-[26px] sm:text-[32px] md:text-[40px] lg:text-[48px] text-[#f2eee9] font-['Schibsted_Grotesk'] border-none bg-transparent cursor-pointer active:scale-95 transition-transform"
+            className="group w-[130px] sm:w-[150px] md:w-[180px] lg:w-[220px] xl:w-[297px] h-[44px] sm:h-[50px] md:h-[60px] lg:h-[70px] xl:h-[92px] relative text-left text-[20px] sm:text-[24px] md:text-[30px] lg:text-[38px] xl:text-[48px] text-[#f2eee9] font-['Schibsted_Grotesk'] border-none bg-transparent cursor-pointer active:scale-95 transition-transform"
             aria-label="View all travel guides"
         >
             {/* Background */}
-            <div className="absolute top-0 left-0 rounded-[32px] sm:rounded-[40px] md:rounded-[46px] lg:rounded-[52px] bg-[#1b3c44] w-full h-full transition-colors duration-300 group-hover:bg-[#0f2a30]" />
+            <div className="absolute top-0 left-0 rounded-[24px] sm:rounded-[28px] md:rounded-[36px] lg:rounded-[44px] xl:rounded-[52px] bg-[#1b3c44] w-full h-full transition-colors duration-300 group-hover:bg-[#0f2a30]" />
 
             {/* Circle */}
-            <div className="absolute top-[6px] sm:top-[8px] md:top-[10px] lg:top-[12px] right-[8px] sm:right-[10px] md:right-[12px] lg:right-[15px] bg-[#f2eee9] w-[38px] sm:w-[44px] md:w-[55px] lg:w-[66px] h-[38px] sm:h-[44px] md:h-[56px] lg:h-[69px] rounded-full transition-colors duration-300 group-hover:bg-[#ebe6e0]" />
+            <div className="absolute top-[4px] sm:top-[6px] md:top-[8px] lg:top-[10px] xl:top-[12px] right-[6px] sm:right-[8px] md:right-[10px] lg:right-[12px] xl:right-[15px] bg-[#f2eee9] w-[36px] sm:w-[38px] md:w-[44px] lg:w-[50px] xl:w-[66px] h-[36px] sm:h-[38px] md:h-[44px] lg:h-[50px] xl:h-[69px] rounded-full transition-colors duration-300 group-hover:bg-[#ebe6e0]" />
 
             {/* Text with sliding animation */}
-            <div className="absolute top-[6px] sm:top-[8px] md:top-[10px] lg:top-[12px] left-[16px] sm:left-[20px] md:left-[30px] lg:left-[39px] right-[60px] sm:right-[70px] md:right-[85px] lg:right-[100px] h-[38px] sm:h-[44px] md:h-[56px] lg:h-[68px] overflow-hidden z-10">
+            <div className="absolute top-[4px] sm:top-[6px] md:top-[8px] lg:top-[10px] xl:top-[12px] left-[12px] sm:left-[14px] md:left-[18px] lg:left-[25px] xl:left-[39px] right-[50px] sm:right-[54px] md:right-[62px] lg:right-[72px] xl:right-[100px] h-[36px] sm:h-[38px] md:h-[44px] lg:h-[50px] xl:h-[68px] overflow-hidden z-10">
                 <div className="transition-transform duration-300 h-[200%] group-hover:-translate-y-1/2">
-                    <div className="h-1/2 flex items-center justify-start text-[26px] sm:text-[32px] md:text-[40px] lg:text-[48px] leading-none text-[#f2eee9] whitespace-nowrap">
+                    <div className="h-1/2 flex items-center justify-start text-[20px] sm:text-[24px] md:text-[30px] lg:text-[38px] xl:text-[48px] leading-none text-[#f2eee9] whitespace-nowrap">
                         See All
                     </div>
-                    <div className="h-1/2 flex items-center justify-start text-[26px] sm:text-[32px] md:text-[40px] lg:text-[48px] leading-none text-[#f2eee9] whitespace-nowrap">
+                    <div className="h-1/2 flex items-center justify-start text-[20px] sm:text-[24px] md:text-[30px] lg:text-[38px] xl:text-[48px] leading-none text-[#f2eee9] whitespace-nowrap">
                         See All
                     </div>
                 </div>
@@ -41,7 +41,7 @@ const ViewAllGuidesButton: FunctionComponent = () => {
 
             {/* Arrow */}
             <img
-                className="absolute top-1/2 -translate-y-1/2 right-[18px] sm:right-[21px] md:right-[26px] lg:right-[32px] w-[18px] sm:w-[20px] md:w-[26px] lg:w-[31px] h-[18px] sm:h-[20px] md:h-[26px] lg:h-[32px] z-10 transition-transform duration-500 group-hover:rotate-12"
+                className="absolute top-1/2 -translate-y-1/2 right-[14px] sm:right-[16px] md:right-[20px] lg:right-[24px] xl:right-[32px] w-[16px] sm:w-[18px] md:w-[20px] lg:w-[24px] xl:w-[31px] h-[16px] sm:h-[18px] md:h-[20px] lg:h-[24px] xl:h-[32px] z-10 transition-transform duration-500 group-hover:rotate-12"
                 alt="Arrow"
                 src="Group.svg"
             />

@@ -33,29 +33,29 @@ const SigninButton: FunctionComponent = () => {
         const displayName = profile.full_name || user.email?.split('@')[0] || 'User';
         
         return (
-            <div className="flex flex-col gap-2 items-end">
-                <div className="bg-white px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg flex items-center gap-2 md:gap-3">
+            <div className="flex flex-col gap-1.5 sm:gap-2 items-end">
+                <div className="bg-white px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-full shadow-lg flex items-center gap-1.5 sm:gap-2 md:gap-3">
                     <div className="text-right">
-                        <p className="text-xs md:text-sm font-semibold text-[#1b3c44]">{displayName}</p>
-                        <p className="text-[10px] md:text-xs text-gray-600">{profile.role}</p>
+                        <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-[#1b3c44]">{displayName}</p>
+                        <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-600">{profile.role}</p>
                     </div>
-                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold text-sm md:text-base">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold text-xs sm:text-sm md:text-base">
                         {displayName.charAt(0).toUpperCase()}
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2">
                     {(profile.role === 'admin' || profile.role === 'superadmin') && (
                         <button
                             onClick={handleAdminPanel}
-                            className="bg-[#cd8453] text-white px-3 md:px-4 py-1.5 md:py-2 rounded-full hover:bg-[#1b3c44] transition-colors flex items-center gap-1 md:gap-2 text-xs md:text-sm"
+                            className="bg-[#cd8453] text-white px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full hover:bg-[#1b3c44] transition-colors flex items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-xs md:text-sm"
                         >
-                            <Settings size={14} className="md:w-4 md:h-4" />
+                            <Settings size={12} className="sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
                             Admin
                         </button>
                     )}
                     <button
                         onClick={handleLogout}
-                        className="bg-gray-200 text-[#1b3c44] px-3 md:px-4 py-1.5 md:py-2 rounded-full hover:bg-gray-300 transition-colors text-xs md:text-sm"
+                        className="bg-gray-200 text-[#1b3c44] px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full hover:bg-gray-300 transition-colors text-[10px] sm:text-xs md:text-sm"
                     >
                         Logout
                     </button>
@@ -65,14 +65,16 @@ const SigninButton: FunctionComponent = () => {
     }
 
     return (
-        <AnimatedButton
-            text="Sign In"
-            onClick={handleSignIn}
-            width="w-[180px] md:w-[240px] lg:w-[297px]"
-            height="h-[60px] md:h-[76px] lg:h-[92px]"
-            textSize="text-[28px] md:text-[38px] lg:text-[48px]"
-            icon={<ArrowRight size={18} strokeWidth={2.5} className="md:w-6 md:h-6" />}
-        />
+        <div className="flex justify-end">
+            <AnimatedButton
+                text="Sign In"
+                onClick={handleSignIn}
+                width="w-[130px] sm:w-[160px] md:w-[200px] lg:w-[240px] xl:w-[297px]"
+                height="h-[48px] sm:h-[54px] md:h-[60px] lg:h-[70px] xl:h-[92px]"
+                textSize="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[36px] xl:text-[48px]"
+                icon={<ArrowRight size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />}
+            />
+        </div>
     );
 };
 

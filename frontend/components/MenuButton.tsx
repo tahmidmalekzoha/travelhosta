@@ -15,15 +15,17 @@ interface MenuButtonProps {
  */
 const MenuButton: FunctionComponent<MenuButtonProps> = ({ onClick, isOpen = false }) => {
     return (
-        <AnimatedButton
-            text="Menu"
-            onClick={onClick}
-            width="w-[180px] md:w-[200px] lg:w-[250px]"
-            height="h-[60px] md:h-[76px] lg:h-[92px]"
-            textSize="text-[28px] md:text-[38px] lg:text-[48px]"
-            icon={<MenuIcon size={20} strokeWidth={2} className="md:w-7 md:h-7" />}
-            isRotated={isOpen}
-        />
+        <div className="flex justify-end">
+            <AnimatedButton
+                text="Menu"
+                onClick={onClick}
+                width="w-[130px] sm:w-[160px] md:w-[180px] lg:w-[200px] xl:w-[250px]"
+                height="h-[48px] sm:h-[54px] md:h-[60px] lg:h-[70px] xl:h-[92px]"
+                textSize="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[36px] xl:text-[48px]"
+                icon={<MenuIcon size={16} strokeWidth={2} className="sm:w-[18px] sm:h-[18px] md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" />}
+                isRotated={isOpen}
+            />
+        </div>
     );
 };
 
