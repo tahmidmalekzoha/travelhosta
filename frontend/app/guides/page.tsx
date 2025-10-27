@@ -33,6 +33,24 @@ export default function Guides() {
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
 
+    // Close dropdowns when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            // Check if click is outside any accordion
+            if (!target.closest('[data-accordion]')) {
+                setIsDivisionOpen(false);
+                setIsCategoryOpen(false);
+                setIsTagsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const handleQueryTag = useCallback((tagFromUrl: string | null) => {
         if (tagFromUrl) {
             setSelectedTags([tagFromUrl]);
@@ -190,9 +208,13 @@ export default function Guides() {
                     {/* Mobile Accordion Filters */}
                     <div className="md:hidden flex flex-wrap gap-2 justify-center">
                         {/* Division Accordion */}
-                        <div className="bg-white rounded-xl shadow-sm flex-1 min-w-[110px] max-w-[140px] relative z-30">
+                        <div className="bg-white rounded-xl shadow-sm flex-1 min-w-[110px] max-w-[140px] relative z-30" data-accordion>
                             <button
-                                onClick={() => setIsDivisionOpen(!isDivisionOpen)}
+                                onClick={() => {
+                                    setIsDivisionOpen(!isDivisionOpen);
+                                    setIsCategoryOpen(false);
+                                    setIsTagsOpen(false);
+                                }}
                                 className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-gray-50 transition-colors rounded-xl"
                             >
                                 <div className="flex items-center gap-1.5">
@@ -234,9 +256,13 @@ export default function Guides() {
                         </div>
 
                         {/* Category Accordion */}
-                        <div className="bg-white rounded-xl shadow-sm flex-1 min-w-[110px] max-w-[140px] relative z-20">
+                        <div className="bg-white rounded-xl shadow-sm flex-1 min-w-[110px] max-w-[140px] relative z-20" data-accordion>
                             <button
-                                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                                onClick={() => {
+                                    setIsCategoryOpen(!isCategoryOpen);
+                                    setIsDivisionOpen(false);
+                                    setIsTagsOpen(false);
+                                }}
                                 className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-gray-50 transition-colors rounded-xl"
                             >
                                 <div className="flex items-center gap-1.5">
@@ -279,9 +305,13 @@ export default function Guides() {
 
                         {/* Tags Accordion */}
                         {allTags.length > 0 && (
-                            <div className="bg-white rounded-xl shadow-sm flex-1 min-w-[110px] max-w-[140px] relative z-10">
+                            <div className="bg-white rounded-xl shadow-sm flex-1 min-w-[110px] max-w-[140px] relative z-10" data-accordion>
                                 <button
-                                    onClick={() => setIsTagsOpen(!isTagsOpen)}
+                                    onClick={() => {
+                                        setIsTagsOpen(!isTagsOpen);
+                                        setIsDivisionOpen(false);
+                                        setIsCategoryOpen(false);
+                                    }}
                                     className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-gray-50 transition-colors rounded-xl"
                                 >
                                     <div className="flex items-center gap-1.5">
@@ -298,17 +328,17 @@ export default function Guides() {
                                     />
                                 </button>
                                 {isTagsOpen && (
-                                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg z-50 px-2.5 py-2.5">
-                                        <div className="flex flex-wrap gap-1.5 max-h-[180px] overflow-y-auto">
+                                    <div className="absolute top-full right-0 left-auto mt-1 bg-white rounded-xl shadow-lg z-50 px-2.5 py-2.5 max-h-[180px] overflow-y-auto min-w-[280px] sm:min-w-[320px]">
+                                        <div className="grid grid-cols-2 gap-1.5">
                                             {allTags.map((tag) => {
                                                 const isSelected = selectedTags.includes(tag);
                                                 return (
                                                     <button
                                                         key={tag}
-                                                        className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-all ${
+                                                        className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-all ${
                                                             isSelected
-                                                                ? 'bg-[#cd8453] text-white shadow-sm'
-                                                                : 'bg-gray-100 text-gray-700 border border-gray-200 hover:border-[#cd8453]'
+                                                                ? 'bg-[#cd8453] text-white font-medium'
+                                                                : 'bg-gray-50 text-[#1b3c44] hover:bg-gray-100'
                                                         }`}
                                                         onClick={() => toggleTag(tag)}
                                                     >
@@ -381,7 +411,7 @@ export default function Guides() {
                                         return (
                                             <button 
                                                 key={tag}
-                                                className={`px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2 lg:px-6 lg:py-2 rounded-full text-xs sm:text-sm md:text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm ${
+                                                className={`px-3.5 py-2 sm:px-4 sm:py-2 md:px-5 md:py-2 lg:px-6 lg:py-2 rounded-full text-xs sm:text-sm md:text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm ${
                                                     isSelected 
                                                         ? 'bg-[#cd8453] text-white shadow-md' 
                                                         : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-[#cd8453]'
