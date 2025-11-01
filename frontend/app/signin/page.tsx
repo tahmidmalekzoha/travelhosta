@@ -96,8 +96,13 @@ export default function SignIn() {
                         </h1>
                     </div>
 
-                    {/* Signpost Image - Positioned at bottom right, visible from large screens */}
+                    {/* Signpost image - full size for desktops */}
                     <div className="hidden lg:block absolute right-0 bottom-0 w-[320px] h-[360px] lg:w-[380px] lg:h-[420px] xl:w-[450px] xl:h-[480px] 2xl:w-[500px] 2xl:h-[515px] z-0">
+                        <img src="/images/signpost.svg" alt="Travel Signpost" className="w-full h-full object-contain" />
+                    </div>
+
+                    {/* Signpost image - scaled accent for tablets and mobile */}
+                    <div className="lg:hidden absolute bottom-0 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-44 sm:w-52 md:w-60 h-auto z-0 opacity-90 pointer-events-none">
                         <img src="/images/signpost.svg" alt="Travel Signpost" className="w-full h-full object-contain" />
                     </div>
 
