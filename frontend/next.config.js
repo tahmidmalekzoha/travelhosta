@@ -15,6 +15,10 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: '*.netlify.app',
             },
+            {
+                protocol: 'https',
+                hostname: '*.vercel.app',
+            },
         ],
     },
     eslint: {
