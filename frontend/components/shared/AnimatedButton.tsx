@@ -60,19 +60,19 @@ const AnimatedButton: FunctionComponent<AnimatedButtonProps> = ({
 
             {/* Circle Background - Maintains aspect ratio at all sizes */}
             <div
-                className={`absolute top-1/2 -translate-y-1/2 right-[8px] sm:right-[9px] md:right-[10px] lg:right-[11px] xl:right-[11px] bg-[#cd8453] rounded-full transition-all duration-300 group-hover:bg-[#b86f42] ${isRotated ? 'rotate-180' : ''} w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] md:w-[48px] md:h-[48px] lg:w-[54px] lg:h-[54px] xl:w-[66px] xl:h-[66px]`}
+                className={`absolute top-1/2 -translate-y-1/2 right-[6px] sm:right-[7px] md:right-[8px] lg:right-[9px] bg-[#cd8453] rounded-full transition-all duration-300 group-hover:bg-[#b86f42] ${isRotated ? 'rotate-180' : ''} w-[30px] h-[30px] sm:w-[32px] sm:h-[32px] md:w-[36px] md:h-[36px] lg:w-[42px] lg:h-[42px]`}
             />
 
             {/* Icon - Centered in circle */}
             {icon ? (
                 <div
-                    className={`absolute top-1/2 -translate-y-1/2 right-[8px] sm:right-[9px] md:right-[10px] lg:right-[11px] xl:right-[11px] z-10 flex items-center justify-center text-[#f2eee9] transition-transform duration-300 ${isRotated ? 'rotate-180' : ''} w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] md:w-[48px] md:h-[48px] lg:w-[54px] lg:h-[54px] xl:w-[66px] xl:h-[66px]`}
+                    className={`absolute top-1/2 -translate-y-1/2 right-[6px] sm:right-[7px] md:right-[8px] lg:right-[9px] z-10 flex items-center justify-center text-[#f2eee9] transition-transform duration-300 ${isRotated ? 'rotate-180' : ''} w-[30px] h-[30px] sm:w-[32px] sm:h-[32px] md:w-[36px] md:h-[36px] lg:w-[42px] lg:h-[42px]`}
                 >
                     {icon}
                 </div>
             ) : iconSrc ? (
                 <img
-                    className={`absolute top-1/2 -translate-y-1/2 right-[8px] sm:right-[9px] md:right-[10px] lg:right-[11px] xl:right-[11px] z-10 transition-transform duration-300 ${isRotated ? 'rotate-180' : ''} w-[36px] h-[36px] sm:w-[40px] sm:h-[40px] md:w-[48px] md:h-[48px] lg:w-[54px] lg:h-[54px] xl:w-[66px] xl:h-[66px]`}
+                    className={`absolute top-1/2 -translate-y-1/2 right-[6px] sm:right-[7px] md:right-[8px] lg:right-[9px] z-10 transition-transform duration-300 ${isRotated ? 'rotate-180' : ''} w-[30px] h-[30px] sm:w-[32px] sm:h-[32px] md:w-[36px] md:h-[36px] lg:w-[42px] lg:h-[42px]`}
                     alt={iconAlt}
                     src={iconSrc}
                 />

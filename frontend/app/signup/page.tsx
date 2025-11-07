@@ -119,9 +119,9 @@ export default function SignUp() {
     // Success screen
     if (success) {
         return (
-            <div className="min-h-screen bg-[#f2eee9] flex items-center justify-center">
-                <div className="bg-[#1b3c44] rounded-[39px] p-12 text-center max-w-md">
-                    <h2 className="text-4xl font-bold text-[#f2eee9] mb-4 font-['Schibsted_Grotesk']">
+            <div className="min-h-screen bg-[#1b3c44] flex items-center justify-center">
+                <div className="p-8 text-center max-w-md w-full">
+                    <h2 className="text-3xl font-bold text-[#f2eee9] mb-4 font-['Schibsted_Grotesk']">
                         Welcome aboard!
                     </h2>
                     <p className="text-[#f2eee9] text-lg mb-6">
@@ -134,234 +134,243 @@ export default function SignUp() {
     }
 
     return (
-        <div className="w-screen h-screen bg-[#f2eee9] p-4 sm:p-5 md:p-6 lg:p-[18px] box-border overflow-hidden">
-            <div className="bg-[#1b3c44] rounded-[24px] sm:rounded-[28px] md:rounded-[32px] lg:rounded-[39px] relative overflow-hidden w-full h-full">
-                <StickyNavbar />
+        <div className="min-h-screen bg-[#1b3c44] relative overflow-hidden">
+            <StickyNavbar />
 
-                <div className="relative w-full h-full flex flex-col items-center justify-center lg:block">
-                    {/* Desktop Hero Heading */}
-                    <div className="hidden lg:block absolute left-[52px] top-[64px] text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold whitespace-nowrap leading-[1] tracking-[0px] text-[72px] xl:text-[96px] 2xl:text-[128px]">
-                        Let&apos;s Plan. Pack &amp; Go.
-                    </div>
+            {/* Back Button */}
+            <div className="absolute top-4 sm:top-8 md:top-12 lg:top-16 left-4 sm:left-6 md:left-8 lg:left-12 z-20">
+                <button 
+                    onClick={() => router.push('/')} 
+                    className="group relative inline-flex items-center rounded-full bg-[#f2eee9] h-[40px] sm:h-[44px] md:h-[48px] lg:h-[56px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#e4d9d3]"
+                >
+                    <span className="absolute left-[5px] sm:left-[6px] md:left-[6px] lg:left-[7px] top-1/2 -translate-y-1/2 flex h-[32px] w-[32px] sm:h-[35px] sm:w-[35px] md:h-[38px] md:w-[38px] lg:h-[44px] lg:w-[44px] items-center justify-center rounded-full bg-[#1b3c44] text-[#f2eee9]">
+                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </span>
+                    <span className="font-['Schibsted_Grotesk'] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-[24px] text-[#1b3c44] ml-[40px] mr-[10px] sm:ml-[44px] sm:mr-[10px] md:ml-[48px] md:mr-[12px] lg:ml-[56px] lg:mr-[16px]">Back</span>
+                </button>
+            </div>
 
-                    {/* Mobile / Tablet Heading */}
-                    <div className="lg:hidden w-full text-center px-6 sm:px-10 md:px-12 mb-6 z-10">
-                        <h1 className="text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold leading-tight text-3xl sm:text-4xl md:text-5xl">
-                            Let&apos;s Plan. Pack &amp; Go.
-                        </h1>
-                    </div>
-
-                    {/* Desktop Signpost */}
-                    <div className="hidden lg:block absolute right-[100px] bottom-0 w-[320px] h-[330px] xl:w-[420px] xl:h-[440px] 2xl:w-[500px] 2xl:h-[515px]">
-                        <img src="/images/signpost.svg" alt="Travel Signpost" className="w-full h-full object-contain" />
-                    </div>
-
-                    {/* Mobile Signpost */}
-                    <div className="lg:hidden absolute bottom-0 right-1/2 translate-x-1/2 sm:right-6 sm:translate-x-0 w-40 sm:w-48 md:w-56 h-auto opacity-80 pointer-events-none select-none z-0">
-                        <img src="/images/signpost.svg" alt="Travel Signpost" className="w-full h-full object-contain" />
-                    </div>
-
-                    <form
-                        onSubmit={handleSubmit}
-                        className="relative flex flex-col gap-5 sm:gap-6 md:gap-7 w-full max-w-[520px] sm:max-w-[560px] md:max-w-[620px] px-4 sm:px-6 md:px-8 lg:px-0 lg:max-w-none lg:h-full lg:block z-10"
-                    >
-                        {/* Error Message */}
-                        {error && (
-                            <div className="bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base md:text-lg lg:absolute lg:left-[79px] lg:top-[250px] lg:w-[1154px] lg:z-10">
-                                {error}
-                            </div>
-                        )}
-
-                        {/* Full Name Field */}
-                        <div className="flex flex-col gap-3 sm:gap-4 lg:gap-[28px] w-full lg:w-[564px] lg:h-[149px] lg:absolute lg:left-[79px] lg:top-[294px]">
-                            <label
-                                htmlFor="fullName"
-                                className="text-white font-['Schibsted_Grotesk'] text-left text-lg sm:text-xl md:text-2xl lg:text-[28px] tracking-[-0.28px] px-1 lg:px-0 lg:flex lg:items-center lg:justify-center lg:ml-[29px] lg:w-[123px] lg:h-[35px]"
-                            >
-                                Full name
-                            </label>
-                            <input
-                                id="fullName"
-                                type="text"
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={handleInputChange}
-                                className="bg-[#e4d9d3] rounded-[30px] md:rounded-[34px] lg:rounded-[37px] px-5 md:px-6 text-base sm:text-lg md:text-xl lg:text-xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200 h-14 sm:h-16 md:h-[70px] lg:h-[86px] w-full lg:w-[562px]"
-                                placeholder="Enter your full name"
-                                required
-                            />
+            <div className="flex flex-col lg:flex-row min-h-screen pt-24 sm:pt-28 md:pt-32 lg:pt-36">
+                {/* Left side - Hero Content */}
+                <div className="lg:w-1/2 flex flex-col justify-center p-8 sm:p-10 md:p-12 lg:p-16 xl:p-20 relative order-1">
+                    {/* Hero text - vertically centered */}
+                    <div>
+                        {/* Mobile hero text */}
+                        <div className="lg:hidden mb-8">
+                            <h1 className="text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold text-4xl sm:text-5xl leading-tight mb-4">
+                                Let&apos;s Plan. Pack &amp; Go.
+                            </h1>
+                            <p className="text-[#f2eee9]/80 font-['Schibsted_Grotesk'] text-lg sm:text-xl leading-relaxed">
+                                Start your journey with us. Create an account and unlock a world of travel possibilities.
+                            </p>
                         </div>
-
-                        {/* Email Field */}
-                        <div className="flex flex-col gap-3 sm:gap-4 lg:gap-[28px] w-full lg:w-[564px] lg:h-[149px] lg:absolute lg:left-[671px] lg:top-[294px]">
-                            <label
-                                htmlFor="email"
-                                className="text-white font-['Schibsted_Grotesk'] text-left text-lg sm:text-xl md:text-2xl lg:text-[28px] tracking-[-0.28px] px-1 lg:px-0 lg:flex lg:items-center lg:justify-center lg:ml-[29px] lg:w-[69px] lg:h-[35px]"
-                            >
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className="bg-[#e4d9d3] rounded-[30px] md:rounded-[34px] lg:rounded-[37px] px-5 md:px-6 text-base sm:text-lg md:text-xl lg:text-xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200 h-14 sm:h-16 md:h-[70px] lg:h-[86px] w-full lg:w-[562px]"
-                                placeholder="Enter your email"
-                                required
-                            />
+                        
+                        {/* Desktop hero text - single line, centered */}
+                        <div className="hidden lg:block text-center">
+                            <h1 className="text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold text-5xl xl:text-6xl 2xl:text-7xl leading-tight mb-6">
+                                Let&apos;s Plan. Pack &amp; Go.
+                            </h1>
+                            <p className="text-[#f2eee9]/80 font-['Schibsted_Grotesk'] text-xl xl:text-2xl 2xl:text-3xl leading-relaxed max-w-2xl mx-auto">
+                                Start your journey with us. Create an account and unlock a world of travel possibilities.
+                            </p>
                         </div>
+                    </div>
+                    
+                    {/* Decorative signpost - attached at bottom and centered */}
+                    <div className="hidden lg:flex absolute bottom-0 left-0 right-0 justify-center">
+                        <img src="/images/signpost.svg" alt="Travel Signpost" className="w-48 h-48 xl:w-56 xl:h-56 2xl:w-64 2xl:h-64 object-contain" />
+                    </div>
+                </div>
 
-                        {/* Date of Birth Field */}
-                        <div className="flex flex-col gap-3 sm:gap-4 lg:gap-[28px] w-full lg:w-[564px] lg:h-[149px] lg:absolute lg:left-[79px] lg:top-[473px]">
-                            <label
-                                htmlFor="dateOfBirth"
-                                className="text-white font-['Schibsted_Grotesk'] text-left text-lg sm:text-xl md:text-2xl lg:text-[28px] tracking-[-0.28px] px-1 lg:px-0 lg:flex lg:items-center lg:justify-center lg:ml-[29px] lg:w-[158px] lg:h-[35px]"
-                            >
-                                Date of Birth
-                            </label>
-                            <input
-                                id="dateOfBirth"
-                                type="date"
-                                name="dateOfBirth"
-                                value={formData.dateOfBirth}
-                                onChange={handleInputChange}
-                                className="bg-[#e4d9d3] rounded-[30px] md:rounded-[34px] lg:rounded-[37px] px-5 md:px-6 text-base sm:text-lg md:text-xl lg:text-xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200 h-14 sm:h-16 md:h-[70px] lg:h-[86px] w-full lg:w-[562px]"
-                                required
-                            />
-                        </div>
+                {/* Right side - Sign Up Form */}
+                <div className="lg:w-1/2 flex items-start justify-start p-8 sm:p-10 md:p-12 lg:pl-8 lg:pr-20 xl:pl-12 xl:pr-24 order-2 lg:pt-24 xl:pt-28">
+                    <div className="w-full max-w-md">
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {/* Error Message */}
+                            {error && (
+                                <div className="bg-red-500/20 border border-red-500 rounded-2xl text-red-200 text-center p-4 text-sm">
+                                    {error}
+                                </div>
+                            )}
 
-                        {/* New Password Field */}
-                        <div className="flex flex-col gap-3 sm:gap-4 lg:gap-[28px] w-full lg:w-[564px] lg:h-[149px] lg:absolute lg:left-[671px] lg:top-[473px]">
-                            <label
-                                htmlFor="password"
-                                className="text-white font-['Schibsted_Grotesk'] text-left text-lg sm:text-xl md:text-2xl lg:text-[28px] tracking-[-0.28px] px-1 lg:px-0 lg:flex lg:items-center lg:justify-center lg:ml-[29px] lg:w-[191px] lg:h-[35px]"
-                            >
-                                New Password
-                            </label>
-                            <div className="relative h-14 sm:h-16 md:h-[70px] lg:h-[86px] w-full lg:w-[562px]">
+                            {/* Full Name Field */}
+                            <div className="space-y-2">
+                                <label htmlFor="fullName" className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg block">
+                                    Full Name
+                                </label>
                                 <input
-                                    id="password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="password"
-                                    value={formData.password}
+                                    id="fullName"
+                                    type="text"
+                                    name="fullName"
+                                    value={formData.fullName}
                                     onChange={handleInputChange}
-                                    className="bg-[#e4d9d3] rounded-[30px] md:rounded-[34px] lg:rounded-[37px] px-5 md:px-6 pr-12 md:pr-14 lg:pr-16 text-base sm:text-lg md:text-xl lg:text-xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200 w-full h-full"
-                                    placeholder="Enter your password"
+                                    className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
+                                    placeholder="Enter your full name"
                                     required
                                 />
+                            </div>
+
+                            {/* Email Field */}
+                            <div className="space-y-2">
+                                <label htmlFor="email" className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg block">
+                                    Email
+                                </label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
+                                    placeholder="Enter your email"
+                                    required
+                                />
+                            </div>
+
+                            {/* Date of Birth Field */}
+                            <div className="space-y-2">
+                                <label htmlFor="dateOfBirth" className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg block">
+                                    Date of Birth
+                                </label>
+                                <input
+                                    id="dateOfBirth"
+                                    type="date"
+                                    name="dateOfBirth"
+                                    value={formData.dateOfBirth}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
+                                    required
+                                />
+                            </div>
+
+                            {/* Password Field */}
+                            <div className="space-y-2">
+                                <label htmlFor="password" className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg block">
+                                    Password
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 pr-12 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
+                                        placeholder="Enter your password"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors focus:outline-none"
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showPassword ? (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Confirm Password Field */}
+                            <div className="space-y-2">
+                                <label htmlFor="confirmPassword" className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg block">
+                                    Confirm Password
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        id="confirmPassword"
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 pr-12 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
+                                        placeholder="Confirm your password"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors focus:outline-none"
+                                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showConfirmPassword ? (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Terms and Conditions */}
+                            <div className="flex items-center gap-2.5">
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 md:right-5 lg:right-6 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors focus:outline-none"
-                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    onClick={() => setAcceptTerms(!acceptTerms)}
+                                    className={`rounded-md flex items-center justify-center transition-colors w-5 h-5 border flex-shrink-0 ${acceptTerms ? 'bg-[#cd8453] border-[#cd8453]' : 'bg-[#e4d9d3] border-[#e4d9d3]'}`}
+                                    aria-label="Accept terms and conditions"
                                 >
-                                    {showPassword ? (
-                                        <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    {acceptTerms && (
+                                        <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
                                     )}
                                 </button>
+                                <span className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-sm">
+                                    I accept the{' '}
+                                    <Link href="/terms" className="text-[#cd8453] hover:underline transition-colors">
+                                        Terms and Conditions
+                                    </Link>
+                                </span>
                             </div>
-                        </div>
 
-                        {/* Confirm Password Field */}
-                        <div className="flex flex-col gap-3 sm:gap-4 lg:gap-[28px] w-full lg:w-[564px] lg:h-[149px] lg:absolute lg:left-[671px] lg:top-[652px]">
-                            <label
-                                htmlFor="confirmPassword"
-                                className="text-white font-['Schibsted_Grotesk'] text-left text-lg sm:text-xl md:text-2xl lg:text-[28px] tracking-[-0.28px] px-1 lg:px-0 lg:flex lg:items-center lg:justify-center lg:ml-[29px] lg:w-[234px] lg:h-[35px]"
-                            >
-                                Confirm Password
-                            </label>
-                            <div className="relative h-14 sm:h-16 md:h-[70px] lg:h-[86px] w-full lg:w-[562px]">
-                                <input
-                                    id="confirmPassword"
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    name="confirmPassword"
-                                    value={formData.confirmPassword}
-                                    onChange={handleInputChange}
-                                    className="bg-[#e4d9d3] rounded-[30px] md:rounded-[34px] lg:rounded-[37px] px-5 md:px-6 pr-12 md:pr-14 lg:pr-16 text-base sm:text-lg md:text-xl lg:text-xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200 w-full h-full"
-                                    placeholder="Confirm your password"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    className="absolute right-4 md:right-5 lg:right-6 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors focus:outline-none"
-                                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                                >
-                                    {showConfirmPassword ? (
-                                        <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Terms and Conditions */}
-                        <div className="flex items-center gap-3 sm:gap-4 text-left text-white font-['Schibsted_Grotesk'] text-sm sm:text-base md:text-lg lg:text-[24px] tracking-[-0.24px] px-2 sm:px-4 md:px-6 lg:px-0 lg:absolute lg:left-[170px] lg:top-[659px] lg:h-[30px] lg:w-[379px]">
-                            <button
-                                type="button"
-                                onClick={() => setAcceptTerms(!acceptTerms)}
-                                className={`rounded-[12px] sm:rounded-[14px] lg:rounded-[15px] flex items-center justify-center transition-colors w-6 h-6 sm:w-7 sm:h-7 lg:w-[29px] lg:h-[30px] border ${acceptTerms ? 'bg-[#cd8453] border-[#cd8453]' : 'bg-[#e4d9d3] border-[#e4d9d3]'}`}
-                                aria-label="Accept terms and conditions"
-                            >
-                                {acceptTerms && (
-                                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-4 lg:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                )}
-                            </button>
-                            <span className="flex-1">
-                                I accept{' '}
-                                <Link href="/terms" className="underline hover:text-[#cd8453] transition-colors">
-                                    Terms and Conditions
-                                </Link>
-                            </span>
-                        </div>
-
-                        {/* Submit Button */}
-                        <div className="flex justify-center pt-2 lg:absolute lg:left-[232px] lg:top-[722px] lg:pt-0">
+                            {/* Submit Button */}
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="relative w-48 sm:w-52 md:w-60 lg:w-[248px] h-14 sm:h-16 md:h-[70px] lg:h-[76px] group disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full relative h-12 lg:h-14 group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <div className="absolute inset-0 rounded-[32px] sm:rounded-[40px] md:rounded-[46px] lg:rounded-[52px] bg-[#e4d9d3] group-hover:bg-[#d4c9c3] transition-colors" />
-                                <span className="absolute left-0 top-0 h-full w-[70%] flex items-center justify-center text-lg sm:text-xl md:text-2xl lg:text-[36px] font-['Schibsted_Grotesk'] text-black">
-                                    {loading ? 'Creating...' : 'Submit'}
+                                <div className="absolute inset-0 rounded-2xl bg-[#e4d9d3] group-hover:bg-[#d4c9c3] transition-colors" />
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-base lg:text-lg font-['Schibsted_Grotesk'] text-black font-medium">
+                                    {loading ? 'Creating Account...' : 'Create Account'}
                                 </span>
-                                <div className="absolute right-3 sm:right-4 md:right-5 lg:right-[20px] top-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-[54px] lg:h-[57px] rounded-full bg-[#cd8453] group-hover:bg-[#b8754a] transition-colors flex items-center justify-center">
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#cd8453] group-hover:bg-[#b8754a] transition-colors flex items-center justify-center">
                                     {loading ? (
-                                        <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                     ) : (
-                                        <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                         </svg>
                                     )}
                                 </div>
                             </button>
-                        </div>
 
-                        {/* Sign In Link */}
-                        <div className="text-center text-white font-['Schibsted_Grotesk'] text-base sm:text-lg md:text-xl lg:text-[24px] tracking-[-0.24px] pt-2 sm:pt-3 md:pt-4 lg:pt-0 lg:absolute lg:left-[180px] lg:top-[831px]">
-                            Already have an account?{' '}
-                            <Link href="/signin" className="text-[#cd8453] hover:underline transition-colors">
-                                Sign in
-                            </Link>
-                        </div>
-                    </form>
+                            {/* Sign In Link */}
+                            <div className="text-center pt-1">
+                                <span className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-sm">
+                                    Already have an account?{' '}
+                                    <Link href="/signin" className="text-[#cd8453] hover:underline transition-colors font-medium">
+                                        Sign In
+                                    </Link>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

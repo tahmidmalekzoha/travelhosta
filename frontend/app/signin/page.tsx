@@ -83,63 +83,84 @@ export default function SignIn() {
     }, [email, password]);
 
     return (
-        <div className="w-screen h-screen bg-[#f2eee9] p-[23px] box-border overflow-hidden">
-            <div className="bg-[#1b3c44] rounded-[20px] md:rounded-[30px] lg:rounded-[39px] relative w-full h-full overflow-hidden">
-                <StickyNavbar />
+        <div className="min-h-screen bg-[#1b3c44] relative overflow-hidden">
+            <StickyNavbar />
 
-                {/* Main Content Container - Responsive Layout */}
-                <div className="relative w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-                    {/* Hero Text - Hidden on very small screens, shown on tablets+ */}
-                    <div className="hidden md:block absolute left-4 sm:left-8 lg:left-16 xl:left-20 top-[49px] md:top-[52px] lg:top-[55px] xl:top-[58px] 2xl:top-[64px] max-w-[calc(100%-280px)] md:max-w-[calc(100%-300px)] lg:max-w-[calc(100%-350px)] xl:max-w-[calc(100%-400px)] z-10 mb-[6vh]">
-                        <h1 className="text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold leading-[1.1] whitespace-nowrap text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-[96px]">
-                            Let&apos;s Plan. Pack & Go.
-                        </h1>
-                    </div>
+            {/* Back Button */}
+            <div className="absolute top-4 sm:top-8 md:top-12 lg:top-16 left-4 sm:left-6 md:left-8 lg:left-12 z-20">
+                <button 
+                    onClick={() => router.push('/')} 
+                    className="group relative inline-flex items-center rounded-full bg-[#f2eee9] h-[40px] sm:h-[44px] md:h-[48px] lg:h-[56px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#e4d9d3]"
+                >
+                    <span className="absolute left-[5px] sm:left-[6px] md:left-[6px] lg:left-[7px] top-1/2 -translate-y-1/2 flex h-[32px] w-[32px] sm:h-[35px] sm:w-[35px] md:h-[38px] md:w-[38px] lg:h-[44px] lg:w-[44px] items-center justify-center rounded-full bg-[#1b3c44] text-[#f2eee9]">
+                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </span>
+                    <span className="font-['Schibsted_Grotesk'] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-[24px] text-[#1b3c44] ml-[40px] mr-[10px] sm:ml-[44px] sm:mr-[10px] md:ml-[48px] md:mr-[12px] lg:ml-[56px] lg:mr-[16px]">Back</span>
+                </button>
+            </div>
 
-                    {/* Signpost image - full size for desktops */}
-                    <div className="hidden lg:block absolute right-0 bottom-0 w-[320px] h-[360px] lg:w-[380px] lg:h-[420px] xl:w-[450px] xl:h-[480px] 2xl:w-[500px] 2xl:h-[515px] z-0">
-                        <img src="/images/signpost.svg" alt="Travel Signpost" className="w-full h-full object-contain" />
-                    </div>
-
-                    {/* Signpost image - scaled accent for tablets and mobile */}
-                    <div className="lg:hidden absolute bottom-0 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-44 sm:w-52 md:w-60 h-auto z-0 opacity-90 pointer-events-none">
-                        <img src="/images/signpost.svg" alt="Travel Signpost" className="w-full h-full object-contain" />
-                    </div>
-
-                    {/* Form Container - Centered with spacing to avoid hero text */}
-                    <div className="relative z-10 w-full max-w-[90%] sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-[600px] mx-auto mt-16 md:mt-20 lg:mt-24 xl:mt-32 2xl:mt-36">
-                        {/* Hero Text for Mobile - Only shown on small screens */}
-                        <div className="md:hidden mb-6 text-center">
-                            <h1 className="text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold leading-tight text-3xl sm:text-4xl">
-                                Let&apos;s Plan. Pack & Go.
+            <div className="flex flex-col lg:flex-row min-h-screen pt-24 sm:pt-28 md:pt-32 lg:pt-36">
+                {/* Left side - Hero Content */}
+                <div className="lg:w-1/2 flex flex-col justify-start p-8 sm:p-10 md:p-12 lg:p-16 xl:p-20 relative order-1 lg:pt-40 xl:pt-48">
+                    {/* Hero text - aligned with form start */}
+                    <div>
+                        {/* Mobile hero text */}
+                        <div className="lg:hidden mb-8">
+                            <h1 className="text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold text-4xl sm:text-5xl leading-tight mb-4">
+                                Let&apos;s Plan. Pack &amp; Go.
                             </h1>
+                            <p className="text-[#f2eee9]/80 font-['Schibsted_Grotesk'] text-lg sm:text-xl leading-relaxed">
+                                Welcome back! Sign in to continue your journey with us.
+                            </p>
                         </div>
+                        
+                        {/* Desktop hero text - aligned to start */}
+                        <div className="hidden lg:block">
+                            <h1 className="text-[#f2eee9] font-['Schibsted_Grotesk'] font-bold text-5xl xl:text-6xl 2xl:text-7xl leading-tight mb-6">
+                                Let&apos;s Plan. Pack &amp; Go.
+                            </h1>
+                            <p className="text-[#f2eee9]/80 font-['Schibsted_Grotesk'] text-xl xl:text-2xl 2xl:text-3xl leading-relaxed max-w-2xl">
+                                Welcome back! Sign in to continue your journey with us.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {/* Decorative signpost - attached at bottom and centered */}
+                    <div className="hidden lg:flex absolute bottom-0 left-0 right-0 justify-center">
+                        <img src="/images/signpost.svg" alt="Travel Signpost" className="w-48 h-48 xl:w-56 xl:h-56 2xl:w-64 2xl:h-64 object-contain" />
+                    </div>
+                </div>
 
-                        <form onSubmit={handleSignIn} className="w-full space-y-4 md:space-y-5 lg:space-y-6">
+                {/* Right side - Sign In Form */}
+                <div className="lg:w-1/2 flex items-start justify-start p-8 sm:p-10 md:p-12 lg:pl-8 lg:pr-20 xl:pl-12 xl:pr-24 order-2 lg:pt-24 xl:pt-28">
+                    <div className="w-full max-w-md">
+                        <form onSubmit={handleSignIn} className="space-y-5">
                             {error && (
-                                <div className="bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center p-3 md:p-4 text-sm md:text-base">
+                                <div className="bg-red-500/20 border border-red-500 rounded-2xl text-red-200 text-center p-4 text-sm">
                                     {error}
                                 </div>
                             )}
 
                             {/* Email Field */}
-                            <div className="space-y-2 md:space-y-2.5 lg:space-y-3">
-                                <label className="block text-white font-['Schibsted_Grotesk'] tracking-[-0.28px] text-xl md:text-2xl lg:text-[28px] px-2">
+                            <div className="space-y-2">
+                                <label className="block text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg">
                                     Email
                                 </label>
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full rounded-[28px] md:rounded-[32px] lg:rounded-[37px] bg-[#e4d9d3] h-16 md:h-20 lg:h-[86px] px-5 md:px-5.5 lg:px-6 text-lg md:text-xl lg:text-2xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200 border-none"
+                                    className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
                                     placeholder="Enter your email"
                                     required
                                 />
                             </div>
 
                             {/* Password Field */}
-                            <div className="space-y-2 md:space-y-2.5 lg:space-y-3">
-                                <label className="block text-white font-['Schibsted_Grotesk'] tracking-[-0.28px] text-xl md:text-2xl lg:text-[28px] px-2">
+                            <div className="space-y-2">
+                                <label className="block text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg">
                                     Password
                                 </label>
                                 <div className="relative">
@@ -147,22 +168,22 @@ export default function SignIn() {
                                         type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full rounded-[28px] md:rounded-[32px] lg:rounded-[37px] bg-[#e4d9d3] h-16 md:h-20 lg:h-[86px] px-5 md:px-5.5 lg:px-6 pr-14 md:pr-15 lg:pr-16 text-lg md:text-xl lg:text-2xl text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200 border-none"
+                                        className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 pr-12 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
                                         placeholder="Enter your password"
                                         required
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute top-1/2 right-5 md:right-5.5 lg:right-6 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors focus:outline-none z-10"
+                                        className="absolute top-1/2 right-4 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors focus:outline-none z-10"
                                         aria-label={showPassword ? "Hide password" : "Show password"}
                                     >
                                         {showPassword ? (
-                                            <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                                             </svg>
                                         ) : (
-                                            <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
@@ -172,52 +193,48 @@ export default function SignIn() {
                             </div>
 
                             {/* Remember Password Checkbox */}
-                            <div className="flex items-center justify-center gap-2.5 md:gap-3 lg:gap-3.5 py-2 md:py-2.5 lg:py-3">
+                            <div className="flex items-center gap-2.5">
                                 <button
                                     type="button"
                                     onClick={() => setRememberPassword(!rememberPassword)}
-                                    className={`rounded-full w-6 h-6 md:w-7 md:h-7 lg:w-[29px] lg:h-[30px] transition-colors flex items-center justify-center flex-shrink-0 ${rememberPassword ? 'bg-[#cd8453]' : 'bg-[#e4d9d3]'}`}
+                                    className={`rounded-md flex items-center justify-center transition-colors w-5 h-5 border flex-shrink-0 ${rememberPassword ? 'bg-[#cd8453] border-[#cd8453]' : 'bg-[#e4d9d3] border-[#e4d9d3]'}`}
                                     aria-label="Remember password"
                                 >
                                     {rememberPassword && (
-                                        <svg className="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-4.5 lg:h-4.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
                                     )}
                                 </button>
-                                <span className="text-white font-['Schibsted_Grotesk'] tracking-[-0.24px] text-base md:text-lg lg:text-xl xl:text-[24px]">
+                                <span className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-sm">
                                     Remember password
                                 </span>
                             </div>
 
                             {/* Submit Button */}
-                            <div className="pt-2 md:pt-3 lg:pt-4 flex justify-center">
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="relative w-48 md:w-56 lg:w-[246px] h-14 md:h-16 lg:h-[76px] text-2xl md:text-3xl lg:text-[36px] text-black hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
-                                >
-                                    <div className="absolute inset-0 rounded-[38px] md:rounded-[45px] lg:rounded-[52px] bg-[#e4d9d3] group-hover:bg-opacity-80 transition-colors" />
-                                    <div className="absolute inset-0 flex items-center gap-2 md:gap-2.5 lg:gap-3 px-6 md:px-7 lg:px-8 z-10">
-                                        <span className="font-['Schibsted_Grotesk'] whitespace-nowrap flex-shrink-0">
-                                            {loading ? 'Signing in...' : 'Sign in'}
-                                        </span>
-                                        <div className="w-10 h-10 md:w-12 md:h-12 lg:w-[54px] lg:h-[54px] bg-[#cd8453] rounded-full flex items-center justify-center flex-shrink-0 ml-auto">
-                                            {loading ? (
-                                                <div className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                            ) : (
-                                                <svg className="text-white w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            )}
-                                        </div>
-                                    </div>
-                                </button>
-                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full relative h-12 lg:h-14 group disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <div className="absolute inset-0 rounded-2xl bg-[#e4d9d3] group-hover:bg-[#d4c9c3] transition-colors" />
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-base lg:text-lg font-['Schibsted_Grotesk'] text-black font-medium">
+                                    {loading ? 'Signing in...' : 'Sign in'}
+                                </span>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#cd8453] group-hover:bg-[#b8754a] transition-colors flex items-center justify-center">
+                                    {loading ? (
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    )}
+                                </div>
+                            </button>
 
                             {/* Sign Up Link */}
-                            <div className="text-center pt-3 md:pt-4 lg:pt-5">
-                                <span className="text-white font-['Schibsted_Grotesk'] tracking-[-0.24px] text-base md:text-lg lg:text-xl xl:text-[24px]">
+                            <div className="text-center pt-1">
+                                <span className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-sm">
                                     No account?{' '}
                                     <Link href="/signup" className="text-[#cd8453] hover:underline transition-colors font-medium">
                                         Sign up

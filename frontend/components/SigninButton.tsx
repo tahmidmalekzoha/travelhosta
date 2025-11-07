@@ -69,10 +69,10 @@ const SigninButton: FunctionComponent = () => {
             <AnimatedButton
                 text="Sign In"
                 onClick={handleSignIn}
-                width="w-[130px] sm:w-[160px] md:w-[200px] lg:w-[240px] xl:w-[297px]"
-                height="h-[48px] sm:h-[54px] md:h-[60px] lg:h-[70px] xl:h-[92px]"
-                textSize="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[36px] xl:text-[48px]"
-                icon={<ArrowRight className="w-[45%] h-[45%]" strokeWidth={2.5} />}
+                width="w-[110px] sm:w-[130px] md:w-[150px] lg:w-[180px]"
+                height="h-[40px] sm:h-[44px] md:h-[48px] lg:h-[56px]"
+                textSize="text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px]"
+                icon={<ArrowRight className="w-[28%] h-[28%]" strokeWidth={2.5} />}
             />
         </div>
     );

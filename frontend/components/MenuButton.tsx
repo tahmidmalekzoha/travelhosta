@@ -19,10 +19,10 @@ const MenuButton: FunctionComponent<MenuButtonProps> = ({ onClick, isOpen = fals
             <AnimatedButton
                 text="Menu"
                 onClick={onClick}
-                width="w-[130px] sm:w-[160px] md:w-[180px] lg:w-[200px] xl:w-[264px]"
-                height="h-[48px] sm:h-[54px] md:h-[60px] lg:h-[70px] xl:h-[92px]"
-                textSize="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[36px] xl:text-[48px]"
-                icon={<MenuIcon className="w-[50%] h-[50%]" strokeWidth={2} />}
+                width="w-[110px] sm:w-[130px] md:w-[150px] lg:w-[170px]"
+                height="h-[40px] sm:h-[44px] md:h-[48px] lg:h-[56px]"
+                textSize="text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px]"
+                icon={<MenuIcon className="w-[30%] h-[30%]" strokeWidth={2} />}
                 isRotated={isOpen}
             />
         </div>
