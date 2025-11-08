@@ -1,9 +1,17 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { authService, type UserProfile } from '../services/authService';
-import { sessionCache } from '../utils/sessionCache';
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
+import type { Session, User } from '@supabase/supabase-js';
+import { authService, type UserProfile, type UserRole } from '@/services/authService';
+import { isAdminRole, isSuperAdminRole } from '@/services/authPolicies';
+import { logger } from '../utils/logger';
 
 interface AuthContextType {
     user: User | null;
@@ -18,208 +26,169 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const ACCEPTED_ROLES: UserRole[] = ['user', 'admin', 'superadmin'];
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Derived state: check if user is admin or superadmin
-    const isAdmin = profile?.role === 'admin' || profile?.role === 'superadmin';
-    const isSuperAdmin = profile?.role === 'superadmin';
-
-    // Initialize auth state
     useEffect(() => {
-        const initAuth = async () => {
+        let isMounted = true;
+
+        const applyUnauthenticatedState = (reason?: string) => {
+            if (reason) {
+                logger.info('AuthProvider.session.inactive', { reason });
+            }
+            setUser(null);
+            setProfile(null);
+            setSession(null);
+        };
+
+        const hydrateFromSession = async () => {
             try {
-                console.log('🔐 Initializing authentication...');
-                
-                // Step 0: Check if session is expired
-                if (sessionCache.isSessionExpired()) {
-                    console.log('⏰ Session expired - clearing auth state');
-                    await authService.signOut();
-                    setUser(null);
-                    setProfile(null);
-                    setSession(null);
-                    setIsLoading(false);
+                setIsLoading(true);
+                const result = await authService.validateSession();
+
+                if (!isMounted) {
                     return;
                 }
 
-                // Step 1: Try to get cached profile (avoid API call)
-                const cachedProfile = sessionCache.getCachedProfile();
-                
-                if (cachedProfile) {
-                    console.log('📦 Loading auth from cache:', cachedProfile.email);
-                    
-                    // Get session (this is from localStorage, not an API call)
-                    const currentSession = await authService.getCurrentSession();
-                    
-                    if (currentSession?.user) {
-                        // Use cached data - no API call needed!
-                        setSession(currentSession);
-                        setUser(currentSession.user);
-                        setProfile(cachedProfile);
-                        setIsLoading(false);
-                        return;
-                    }
-                }
-                
-                // Step 2: No cache or cache invalid - validate with Supabase
-                console.log('🔍 No valid cache - validating with Supabase...');
-                const currentSession = await authService.getCurrentSession();
-                
-                if (currentSession?.user) {
-                    console.log('📝 Session found in cookies for user:', currentSession.user.email);
-                    
-                    // Step 3: Fetch user profile from database (API call)
-                    let userProfile = await authService.getUserProfile(currentSession.user.id);
-                    
-                    // Retry once if profile is null (handle race conditions)
-                    if (!userProfile) {
-                        console.warn('⚠️ Profile not found on first attempt, retrying...');
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        userProfile = await authService.getUserProfile(currentSession.user.id);
-                    }
-                    
-                    // Step 4: Validate profile exists and has valid role
-                    if (!userProfile) {
-                        console.error('❌ User profile not found in database. Logging out...');
-                        await authService.signOut();
-                        sessionCache.clearSessionCache();
-                        setUser(null);
-                        setProfile(null);
-                        setSession(null);
-                    } else if (!userProfile.role || !['user', 'admin', 'superadmin'].includes(userProfile.role)) {
-                        console.error('❌ Invalid user role. Logging out...');
-                        await authService.signOut();
-                        sessionCache.clearSessionCache();
-                        setUser(null);
-                        setProfile(null);
-                        setSession(null);
-                    } else {
-                        // Step 5: All checks passed - cache the profile and update state
-                        console.log(`✅ Authentication validated: ${userProfile.email} (${userProfile.role})`);
-                        sessionCache.saveSessionCache(userProfile);
-                        setSession(currentSession);
-                        setUser(currentSession.user);
-                        setProfile(userProfile);
-                    }
+                if (result.isValid) {
+                    setUser(result.user);
+                    setProfile(result.profile);
+                    setSession(result.session);
                 } else {
-                    console.log('ℹ️ No active session found');
-                    sessionCache.clearSessionCache();
+                    applyUnauthenticatedState(result.reason);
                 }
             } catch (error) {
-                console.error('❌ Error initializing auth:', error);
-                // Clear everything on error
-                sessionCache.clearSessionCache();
-                setUser(null);
-                setProfile(null);
-                setSession(null);
+                logger.error('AuthProvider.session.syncFailed', error);
+                if (isMounted) {
+                    applyUnauthenticatedState('Failed to validate session');
+                }
             } finally {
-                setIsLoading(false);
+                if (isMounted) {
+                    setIsLoading(false);
+                }
             }
         };
 
-        initAuth();
+        hydrateFromSession();
 
-        // Listen to auth state changes
-        const { data: { subscription } } = authService.onAuthStateChange(async (event, newSession) => {
-            console.log('🔄 Auth state changed:', event);
-            
-            if (newSession?.user) {
-                console.log('📝 New session detected for user:', newSession.user.email);
-                
-                // Step 1: Fetch user profile from database
-                let userProfile = await authService.getUserProfile(newSession.user.id);
-                
-                // Retry once if profile is null (handle race conditions)
-                if (!userProfile) {
-                    console.warn('⚠️ Profile not found on first attempt, retrying...');
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    userProfile = await authService.getUserProfile(newSession.user.id);
-                }
-                
-                // Step 2: Validate profile exists and has valid role
-                if (!userProfile) {
-                    console.error('❌ User profile not found in database. Logging out...');
-                    await authService.signOut();
-                    sessionCache.clearSessionCache();
-                    setUser(null);
-                    setProfile(null);
-                    setSession(null);
-                } else if (!userProfile.role || !['user', 'admin', 'superadmin'].includes(userProfile.role)) {
-                    console.error('❌ Invalid user role. Logging out...');
-                    await authService.signOut();
-                    sessionCache.clearSessionCache();
-                    setUser(null);
-                    setProfile(null);
-                    setSession(null);
-                } else {
-                    // Step 3: All checks passed - cache profile and update state
-                    console.log(`✅ Session validated: ${userProfile.email} (${userProfile.role})`);
-                    sessionCache.saveSessionCache(userProfile);
-                    setSession(newSession);
-                    setUser(newSession.user);
-                    setProfile(userProfile);
-                }
-            } else {
-                console.log('ℹ️ Session ended - logging out');
-                sessionCache.clearSessionCache();
-                setSession(null);
-                setUser(null);
-                setProfile(null);
+        const {
+            data: { subscription },
+        } = authService.onAuthStateChange(async (event, nextSession) => {
+            if (!isMounted) {
+                return;
             }
 
-            setIsLoading(false);
+            logger.info('AuthProvider.authStateChange', { event });
+            setIsLoading(true);
+
+            if (nextSession?.user) {
+                try {
+                    const nextProfile = await authService.getUserProfile(nextSession.user.id);
+
+                    if (!isMounted) {
+                        return;
+                    }
+
+                    if (nextProfile && ACCEPTED_ROLES.includes(nextProfile.role)) {
+                        setUser(nextSession.user);
+                        setSession(nextSession);
+                        setProfile(nextProfile);
+                    } else {
+                        logger.warn('AuthProvider.authStateChange.invalidProfile', {
+                            userId: nextSession.user.id,
+                            hasProfile: Boolean(nextProfile),
+                            role: nextProfile?.role,
+                        });
+                        await authService.signOut();
+                        if (isMounted) {
+                            applyUnauthenticatedState('Invalid profile');
+                        }
+                    }
+                } catch (error) {
+                    logger.error('AuthProvider.authStateChange.profileFetchFailed', error);
+                    if (isMounted) {
+                        applyUnauthenticatedState('Failed to load profile');
+                    }
+                }
+            } else {
+                applyUnauthenticatedState('Session ended');
+            }
+
+            if (isMounted) {
+                setIsLoading(false);
+            }
         });
 
-        // Cleanup subscription on unmount
         return () => {
+            isMounted = false;
             subscription.unsubscribe();
         };
     }, []);
 
-    // Sign out handler
-    const handleSignOut = async () => {
+    const handleSignOut = useCallback(async () => {
+        setIsLoading(true);
         try {
             await authService.signOut();
-            sessionCache.clearSessionCache();
+        } catch (error) {
+            logger.error('AuthProvider.signOut.failed', error);
+        } finally {
             setUser(null);
             setProfile(null);
             setSession(null);
+            setIsLoading(false);
+        }
+    }, []);
+
+    const refreshProfile = useCallback(async () => {
+        if (!user) {
+            return;
+        }
+
+        try {
+            const nextProfile = await authService.getUserProfile(user.id);
+            setProfile(nextProfile);
         } catch (error) {
-            console.error('Error signing out:', error);
+            logger.error('AuthProvider.refreshProfile.failed', error);
         }
-    };
+    }, [user]);
 
-    // Refresh profile data
-    const refreshProfile = async () => {
-        if (user) {
-            try {
-                const userProfile = await authService.getUserProfile(user.id);
-                setProfile(userProfile);
-            } catch (error) {
-                console.error('Error refreshing profile:', error);
-            }
-        }
-    };
-
-    const value: AuthContextType = {
-        user,
-        profile,
-        session,
-        isLoading,
-        isAdmin,
-        isSuperAdmin,
-        signOut: handleSignOut,
-        refreshProfile,
-    };
-
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
+    const roleFlags = useMemo(
+        () => ({
+            isAdmin: isAdminRole(profile),
+            isSuperAdmin: isSuperAdminRole(profile),
+        }),
+        [profile],
     );
+
+    const value = useMemo(
+        () => ({
+            user,
+            profile,
+            session,
+            isLoading,
+            isAdmin: roleFlags.isAdmin,
+            isSuperAdmin: roleFlags.isSuperAdmin,
+            signOut: handleSignOut,
+            refreshProfile,
+        }),
+        [
+            user,
+            profile,
+            session,
+            isLoading,
+            roleFlags.isAdmin,
+            roleFlags.isSuperAdmin,
+            handleSignOut,
+            refreshProfile,
+        ],
+    );
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

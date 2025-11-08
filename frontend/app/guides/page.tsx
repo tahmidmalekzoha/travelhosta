@@ -7,8 +7,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import StickyNavbar from '../../components/StickyNavbar';
 import GuideCard from '../../components/shared/GuideCard';
 import Footer from '../../components/Footer';
-import { useGuides } from '../../contexts/GuidesContext';
-import { useCategories } from '../../contexts/CategoriesContext';
+import { GuidesProvider, useGuides } from '../../contexts/GuidesContext';
+import { CategoriesProvider, useCategories } from '../../contexts/CategoriesContext';
 import { ArrowLeft, ChevronDown, X } from 'lucide-react';
 
 // Constants for filter options
@@ -19,7 +19,7 @@ const ALL_GUIDES = 'All Guides';
  * Guides page component displaying filterable and searchable travel guides
  * Features division, category, and tag filtering with search functionality
  */
-export default function Guides() {
+function GuidesPageContent() {
     const router = useRouter();
     const { guides } = useGuides();
     const { categories, divisions } = useCategories();
@@ -483,6 +483,16 @@ export default function Guides() {
             {/* Footer Section */}
             <Footer />
         </div>
+    );
+}
+
+export default function Guides() {
+    return (
+        <GuidesProvider>
+            <CategoriesProvider>
+                <GuidesPageContent />
+            </CategoriesProvider>
+        </GuidesProvider>
     );
 }
 

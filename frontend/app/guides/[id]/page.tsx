@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Footer from '../../../components/Footer';
 import StickyNavbar from '../../../components/StickyNavbar';
 import ImageLightbox from '../../../components/shared/ImageLightbox';
-import { useGuides } from '../../../contexts/GuidesContext';
+import { GuidesProvider, useGuides } from '../../../contexts/GuidesContext';
 import { ArrowLeft, Tag, MapPin, Lightbulb, Info, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { GuideData, Language } from '../../../types';
 import { isValidImageUrl } from '../../../utils/imageUtils';
@@ -73,7 +73,7 @@ const parseMarkdownText = (text: string): React.ReactNode => {
     });
 };
 
-export default function GuideDetail({ params }: GuideDetailPageProps) {
+function GuideDetailContent({ params }: GuideDetailPageProps) {
     const router = useRouter();
     const { guides } = useGuides();
     const unwrappedParams = React.use(params);
@@ -618,5 +618,13 @@ export default function GuideDetail({ params }: GuideDetailPageProps) {
                 />
             )}
         </div>
+    );
+}
+
+export default function GuideDetail(props: GuideDetailPageProps) {
+    return (
+        <GuidesProvider>
+            <GuideDetailContent {...props} />
+        </GuidesProvider>
     );
 }

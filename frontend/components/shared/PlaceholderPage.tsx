@@ -1,7 +1,5 @@
-"use client";
-
 import { FunctionComponent } from 'react';
-import StickyNavbar from '../StickyNavbar';
+import PublicNavbar from '../PublicNavbar';
 
 interface PlaceholderPageProps {
     /** Main page title */
@@ -25,9 +23,9 @@ const PlaceholderPage: FunctionComponent<PlaceholderPageProps> = ({
     subtitle 
 }) => {
     return (
-        <div className="min-h-screen bg-[#f2eee9] flex items-center justify-center relative">
-            <StickyNavbar />
-            <div className="text-center">
+        <div className="min-h-screen bg-[#f2eee9]">
+            <PublicNavbar />
+            <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 py-24 text-center">
                 <h1 className="text-6xl font-bold text-[#1b3c44] mb-4 font-['Schibsted_Grotesk']">
                     {title}
                 </h1>

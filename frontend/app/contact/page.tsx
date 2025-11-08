@@ -1,5 +1,3 @@
-'use client';
-
 import PlaceholderPage from '../../components/shared/PlaceholderPage';
 
 /**

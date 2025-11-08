@@ -1,22 +1,17 @@
 ﻿"use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '../utils/supabase';
+import {
+    categoriesService,
+    type CategoryRecord,
+    type DivisionRecord,
+    type TagRecord,
+} from '../services/categoriesService';
+import { logger } from '../utils/logger';
 
-export interface Category {
-    id: string;
-    name: string;
-}
-
-export interface Division {
-    id: string;
-    name: string;
-}
-
-export interface Tag {
-    id: string;
-    name: string;
-}
+export type Category = CategoryRecord;
+export type Division = DivisionRecord;
+export type Tag = TagRecord;
 
 interface CategoriesContextType {
     categories: Category[];
@@ -40,6 +35,9 @@ interface CategoriesContextType {
 
 const CategoriesContext = createContext<CategoriesContextType | undefined>(undefined);
 
+const sortByName = <T extends { name: string }>(items: T[]): T[] =>
+    [...items].sort((a, b) => a.name.localeCompare(b.name));
+
 export function CategoriesProvider({ children }: { children: React.ReactNode }) {
     const [categories, setCategories] = useState<Category[]>([]);
     const [divisions, setDivisions] = useState<Division[]>([]);
@@ -49,214 +47,131 @@ export function CategoriesProvider({ children }: { children: React.ReactNode }) 
 
     const fetchCategories = useCallback(async () => {
         try {
-            const { data, error: fetchError } = await supabase
-                .from('categories')
-                .select('*')
-                .order('name', { ascending: true });
-
-            if (fetchError) {
-                console.error('Supabase error fetching categories:', fetchError);
-                throw fetchError;
-            }
-
-            const categoriesData = (data || []).map(cat => ({
-                id: cat.id.toString(),
-                name: cat.name
-            }));
-            
-            setCategories(categoriesData);
-        } catch (err) {
-            console.error('Error fetching categories:', err);
-            setError(err instanceof Error ? err.message : 'Failed to fetch categories');
+            const data = await categoriesService.fetchCategories();
+            setCategories(data);
+        } catch (caught) {
+            logger.error('Failed to fetch categories', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to fetch categories';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     const fetchDivisions = useCallback(async () => {
         try {
-            const { data, error: fetchError } = await supabase
-                .from('divisions')
-                .select('*')
-                .order('name', { ascending: true });
-
-            if (fetchError) {
-                console.error('Supabase error fetching divisions:', fetchError);
-                throw fetchError;
-            }
-
-            const divisionsData = (data || []).map(div => ({
-                id: div.id.toString(),
-                name: div.name
-            }));
-            
-            setDivisions(divisionsData);
-        } catch (err) {
-            console.error('Error fetching divisions:', err);
-            setError(err instanceof Error ? err.message : 'Failed to fetch divisions');
+            const data = await categoriesService.fetchDivisions();
+            setDivisions(data);
+        } catch (caught) {
+            logger.error('Failed to fetch divisions', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to fetch divisions';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     const fetchTags = useCallback(async () => {
         try {
-            const { data, error: fetchError } = await supabase
-                .from('tags')
-                .select('*')
-                .order('name', { ascending: true });
-
-            if (fetchError) {
-                console.error('Supabase error fetching tags:', fetchError);
-                throw fetchError;
-            }
-
-            const tagsData = (data || []).map(tag => ({
-                id: tag.id.toString(),
-                name: tag.name
-            }));
-            
-            setTags(tagsData);
-        } catch (err) {
-            console.error('Error fetching tags:', err);
-            setError(err instanceof Error ? err.message : 'Failed to fetch tags');
+            const data = await categoriesService.fetchTags();
+            setTags(data);
+        } catch (caught) {
+            logger.error('Failed to fetch tags', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to fetch tags';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
-            await Promise.all([fetchCategories(), fetchDivisions(), fetchTags()]);
-            setLoading(false);
+            setError(null);
+            try {
+                await Promise.all([fetchCategories(), fetchDivisions(), fetchTags()]);
+            } catch {
+                // Errors already logged and surfaced through state
+            } finally {
+                setLoading(false);
+            }
         };
+
         loadData();
     }, [fetchCategories, fetchDivisions, fetchTags]);
 
     const addCategory = useCallback(async (name: string) => {
         try {
             setError(null);
-            const { data, error: insertError } = await supabase
-                .from('categories')
-                .insert([{ name }])
-                .select()
-                .single();
-
-            if (insertError) throw insertError;
-
-            if (data) {
-                const newCategory: Category = {
-                    id: data.id.toString(),
-                    name: data.name
-                };
-                setCategories(prev => [...prev, newCategory].sort((a, b) => a.name.localeCompare(b.name)));
-            }
-        } catch (err) {
-            console.error('Error adding category:', err);
-            setError(err instanceof Error ? err.message : 'Failed to add category');
-            throw err;
+            const newCategory = await categoriesService.createCategory(name);
+            setCategories(prev => sortByName([...prev, newCategory]));
+        } catch (caught) {
+            logger.error('Failed to add category', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to add category';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     const removeCategory = useCallback(async (id: string) => {
         try {
             setError(null);
-            const { data, error: deleteError } = await supabase
-                .from('categories')
-                .delete()
-                .eq('id', parseInt(id))
-                .select();
-
-            if (deleteError) throw deleteError;
-
-            setCategories(prev => prev.filter(cat => cat.id !== id));
-        } catch (err) {
-            console.error('Error removing category:', err);
-            setError(err instanceof Error ? err.message : 'Failed to remove category');
-            throw err;
+            await categoriesService.deleteCategory(id);
+            setCategories(prev => prev.filter(category => category.id !== id));
+        } catch (caught) {
+            logger.error('Failed to remove category', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to remove category';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     const addDivision = useCallback(async (name: string) => {
         try {
             setError(null);
-            const { data, error: insertError } = await supabase
-                .from('divisions')
-                .insert([{ name }])
-                .select()
-                .single();
-
-            if (insertError) throw insertError;
-
-            if (data) {
-                const newDivision: Division = {
-                    id: data.id.toString(),
-                    name: data.name
-                };
-                setDivisions(prev => [...prev, newDivision].sort((a, b) => a.name.localeCompare(b.name)));
-            }
-        } catch (err) {
-            console.error('Error adding division:', err);
-            setError(err instanceof Error ? err.message : 'Failed to add division');
-            throw err;
+            const newDivision = await categoriesService.createDivision(name);
+            setDivisions(prev => sortByName([...prev, newDivision]));
+        } catch (caught) {
+            logger.error('Failed to add division', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to add division';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     const removeDivision = useCallback(async (id: string) => {
         try {
             setError(null);
-            const { data, error: deleteError } = await supabase
-                .from('divisions')
-                .delete()
-                .eq('id', parseInt(id))
-                .select();
-
-            if (deleteError) throw deleteError;
-
-            setDivisions(prev => prev.filter(div => div.id !== id));
-        } catch (err) {
-            console.error('Error removing division:', err);
-            setError(err instanceof Error ? err.message : 'Failed to remove division');
-            throw err;
+            await categoriesService.deleteDivision(id);
+            setDivisions(prev => prev.filter(division => division.id !== id));
+        } catch (caught) {
+            logger.error('Failed to remove division', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to remove division';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     const addTag = useCallback(async (name: string) => {
         try {
             setError(null);
-            const { data, error: insertError } = await supabase
-                .from('tags')
-                .insert([{ name }])
-                .select()
-                .single();
-
-            if (insertError) throw insertError;
-
-            if (data) {
-                const newTag: Tag = {
-                    id: data.id.toString(),
-                    name: data.name
-                };
-                setTags(prev => [...prev, newTag].sort((a, b) => a.name.localeCompare(b.name)));
-            }
-        } catch (err) {
-            console.error('Error adding tag:', err);
-            setError(err instanceof Error ? err.message : 'Failed to add tag');
-            throw err;
+            const newTag = await categoriesService.createTag(name);
+            setTags(prev => sortByName([...prev, newTag]));
+        } catch (caught) {
+            logger.error('Failed to add tag', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to add tag';
+            setError(message);
+            throw caught;
         }
     }, []);
 
     const removeTag = useCallback(async (id: string) => {
         try {
             setError(null);
-            const { data, error: deleteError } = await supabase
-                .from('tags')
-                .delete()
-                .eq('id', parseInt(id))
-                .select();
-
-            if (deleteError) throw deleteError;
-
+            await categoriesService.deleteTag(id);
             setTags(prev => prev.filter(tag => tag.id !== id));
-        } catch (err) {
-            console.error('Error removing tag:', err);
-            setError(err instanceof Error ? err.message : 'Failed to remove tag');
-            throw err;
+        } catch (caught) {
+            logger.error('Failed to remove tag', caught);
+            const message = caught instanceof Error ? caught.message : 'Failed to remove tag';
+            setError(message);
+            throw caught;
         }
     }, []);
 

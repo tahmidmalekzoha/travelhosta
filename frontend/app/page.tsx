@@ -8,13 +8,14 @@ import FAQSection from '../components/FAQSection';
 import Footer from '../components/Footer';
 import ScrollReveal from '../components/ScrollReveal';
 import StickyNavbar from '../components/StickyNavbar';
-import { useGuides } from '../contexts/GuidesContext';
+import { GuidesProvider, useGuides } from '../contexts/GuidesContext';
+import { HeroProvider } from '../contexts/HeroContext';
 
 /**
  * Main homepage containing all sections
  * Features responsive design with hero, description, cards, FAQ, and footer sections
  */
-export default function Home() {
+function HomeContent() {
     const { getFeaturedGuides } = useGuides();
     
     // Memoize featured guides to avoid recalculation on every render
@@ -80,5 +81,15 @@ export default function Home() {
             {/* Footer Section */}
             <Footer />
         </div>
+    );
+}
+
+export default function Home() {
+    return (
+        <GuidesProvider>
+            <HeroProvider>
+                <HomeContent />
+            </HeroProvider>
+        </GuidesProvider>
     );
 }
