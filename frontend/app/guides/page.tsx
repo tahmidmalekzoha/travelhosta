@@ -5,10 +5,14 @@ export const dynamic = 'force-dynamic';
 import { Suspense, useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import StickyNavbar from '../../components/StickyNavbar';
-import GuideCard from '../../components/shared/GuideCard';
+import GuideCard from '../../components/GuideCard';
+import SubscriptionPrompt from '../../components/SubscriptionPrompt';
 import Footer from '../../components/Footer';
 import { GuidesProvider, useGuides } from '../../contexts/GuidesContext';
 import { CategoriesProvider, useCategories } from '../../contexts/CategoriesContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
+import { fetchFeaturedGuideIds } from '../../services/guidesService';
 import { ArrowLeft, ChevronDown, X } from 'lucide-react';
 
 // Constants for filter options
@@ -18,20 +22,34 @@ const ALL_GUIDES = 'All Guides';
 /**
  * Guides page component displaying filterable and searchable travel guides
  * Features division, category, and tag filtering with search functionality
+ * Includes subscription-based access control
  */
 function GuidesPageContent() {
     const router = useRouter();
+    const { user } = useAuth();
+    const { hasActiveSubscription } = useSubscription();
     const { guides } = useGuides();
     const { categories, divisions } = useCategories();
     const [selectedDivision, setSelectedDivision] = useState(ALL_DIVISIONS);
     const [selectedCategory, setSelectedCategory] = useState(ALL_GUIDES);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [featuredGuideIds, setFeaturedGuideIds] = useState<number[]>([]);
+    const [showSubscriptionPrompt, setShowSubscriptionPrompt] = useState(false);
     
     // Accordion state for mobile filters
     const [isDivisionOpen, setIsDivisionOpen] = useState(false);
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
+
+    // Load featured guide IDs
+    useEffect(() => {
+        const loadFeaturedIds = async () => {
+            const ids = await fetchFeaturedGuideIds();
+            setFeaturedGuideIds(ids);
+        };
+        loadFeaturedIds();
+    }, []);
 
     // Close dropdowns when clicking outside
     useEffect(() => {
@@ -89,6 +107,21 @@ function GuidesPageContent() {
         });
     }, [guides, selectedDivision, selectedCategory, selectedTags, searchTerm]);
 
+    // Sort guides - featured (free) guides first, then others
+    const sortedGuides = useMemo(() => {
+        return [...filteredGuides].sort((a, b) => {
+            const aIsFeatured = featuredGuideIds.includes(a.id);
+            const bIsFeatured = featuredGuideIds.includes(b.id);
+            
+            // Featured guides come first
+            if (aIsFeatured && !bIsFeatured) return -1;
+            if (!aIsFeatured && bIsFeatured) return 1;
+            
+            // Otherwise maintain original order
+            return 0;
+        });
+    }, [filteredGuides, featuredGuideIds]);
+
     // Toggle tag selection
     const toggleTag = useCallback((tag: string) => {
         setSelectedTags(prev => 
@@ -127,6 +160,16 @@ function GuidesPageContent() {
                 <Suspense fallback={null}>
                     <QueryTagSync onTag={handleQueryTag} />
                 </Suspense>
+
+                {/* Subscription Prompt Modal */}
+                {showSubscriptionPrompt && user && !hasActiveSubscription && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <SubscriptionPrompt
+                            onClose={() => setShowSubscriptionPrompt(false)}
+                            showCloseButton={true}
+                        />
+                    </div>
+                )}
 
                 {/* Back Button */}
                 <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
@@ -440,9 +483,9 @@ function GuidesPageContent() {
                 </div>
 
                 {/* Results Count */}
-                {filteredGuides.length > 0 && (
+                {sortedGuides.length > 0 && (
                     <div className="mb-6 sm:mb-7 md:mb-8 text-sm sm:text-base md:text-lg font-['Lato'] text-gray-600">
-                        Showing {filteredGuides.length} guide{filteredGuides.length !== 1 ? 's' : ''} 
+                        Showing {sortedGuides.length} guide{sortedGuides.length !== 1 ? 's' : ''} 
                         {selectedDivision !== ALL_DIVISIONS && ` in ${selectedDivision}`}
                         {selectedCategory !== ALL_GUIDES && ` for ${selectedCategory}`}
                         {selectedTags.length > 0 && ` with tag${selectedTags.length > 1 ? 's' : ''}: ${selectedTags.join(', ')}`}
@@ -451,14 +494,31 @@ function GuidesPageContent() {
                 )}
 
                 {/* Guide Cards Grid - matching homepage grid pattern */}
-                {filteredGuides.length > 0 ? (
+                {sortedGuides.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-8 2xl:gap-10 pb-12 sm:pb-14 md:pb-16 lg:pb-20">
-                        {filteredGuides.map((guide) => (
-                            <GuideCard
-                                key={guide.id}
-                                guide={guide}
-                            />
-                        ))}
+                        {sortedGuides.map((guide) => {
+                            const isFeatured = featuredGuideIds.includes(guide.id);
+                            // Blur if: not featured AND (not logged in OR logged in without subscription)
+                            const isBlurred = !isFeatured && (!user || !hasActiveSubscription);
+                            
+                            return (
+                                <GuideCard
+                                    key={guide.id}
+                                    guide={guide}
+                                    isFeatured={isFeatured}
+                                    isBlurred={isBlurred}
+                                    onClick={isBlurred ? () => {
+                                        // If not logged in, redirect to signin
+                                        if (!user) {
+                                            router.push('/signin');
+                                        } else {
+                                            // If logged in but no subscription, show prompt
+                                            setShowSubscriptionPrompt(true);
+                                        }
+                                    } : undefined}
+                                />
+                            );
+                        })}
                     </div>
                 ) : (
                     /* No Results Message */

@@ -15,6 +15,9 @@ export default function SignIn() {
     const [rememberPassword, setRememberPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [needsConfirmation, setNeedsConfirmation] = useState(false);
+    const [resendingEmail, setResendingEmail] = useState(false);
+    const [resendSuccess, setResendSuccess] = useState(false);
     const [signingIn, setSigningIn] = useState(false);
     const router = useRouter();
     const { profile, user, isLoading } = useAuth();
@@ -47,6 +50,8 @@ export default function SignIn() {
         setLoading(true);
         setError('');
         setSigningIn(false);
+        setNeedsConfirmation(false);
+        setResendSuccess(false);
 
         if (!email || !password) {
             setError('Please fill in all fields');
@@ -63,8 +68,26 @@ export default function SignIn() {
         try {
             const response = await authService.signIn({ email, password });
 
+            console.log('🔍 Sign in response:', {
+                success: response.success,
+                error: response.error,
+                requiresConfirmation: response.requiresConfirmation,
+            });
+
             if (!response.success) {
-                setError(response.error || 'Failed to sign in');
+                const errorMsg = response.error || 'Failed to sign in';
+                
+                // Check if error is about email confirmation using the flag
+                if (response.requiresConfirmation || errorMsg === 'EMAIL_NOT_CONFIRMED') {
+                    console.log('📧 Email confirmation required');
+                    setNeedsConfirmation(true);
+                    // Don't set error message - the blue alert will handle it
+                    setLoading(false);
+                    return;
+                }
+                
+                console.log('❌ Sign in error:', errorMsg);
+                setError(errorMsg);
                 setLoading(false);
                 return;
             }
@@ -81,6 +104,28 @@ export default function SignIn() {
             setLoading(false);
         }
     }, [email, password]);
+
+    const handleResendConfirmation = useCallback(async () => {
+        setResendingEmail(true);
+        setResendSuccess(false);
+        setError('');
+
+        try {
+            const response = await authService.resendConfirmationEmail(email);
+            
+            if (response.success) {
+                setResendSuccess(true);
+                setNeedsConfirmation(false);
+            } else {
+                setError(response.error || 'Failed to resend confirmation email');
+            }
+        } catch (err) {
+            console.error('Resend confirmation error:', err);
+            setError('An unexpected error occurred. Please try again.');
+        } finally {
+            setResendingEmail(false);
+        }
+    }, [email]);
 
     return (
         <div className="min-h-screen bg-[#1b3c44] relative overflow-hidden">
@@ -231,6 +276,29 @@ export default function SignIn() {
                                     )}
                                 </div>
                             </button>
+
+                            {/* Email Confirmation Messages - Show after submit button */}
+                            {resendSuccess && (
+                                <div className="bg-green-500/20 border border-green-500 rounded-2xl text-green-200 text-center p-4 text-sm">
+                                    ✅ Confirmation email sent! Please check your inbox and spam folder.
+                                </div>
+                            )}
+
+                            {needsConfirmation && (
+                                <div className="bg-blue-500/20 border border-blue-400 rounded-2xl text-blue-200 p-4 text-sm space-y-3">
+                                    <p className="text-center">
+                                        📧 Your email address needs to be confirmed before you can sign in.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={handleResendConfirmation}
+                                        disabled={resendingEmail}
+                                        className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl py-2 px-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-['Schibsted_Grotesk']"
+                                    >
+                                        {resendingEmail ? 'Sending...' : 'Resend Confirmation Email'}
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Sign Up Link */}
                             <div className="text-center pt-1">

@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Footer from '../../../components/Footer';
 import StickyNavbar from '../../../components/StickyNavbar';
 import ImageLightbox from '../../../components/shared/ImageLightbox';
+import SubscriptionPrompt from '../../../components/SubscriptionPrompt';
 import { GuidesProvider, useGuides } from '../../../contexts/GuidesContext';
-import { ArrowLeft, Tag, MapPin, Lightbulb, Info, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useSubscription } from '../../../contexts/SubscriptionContext';
+import { ArrowLeft, Tag, MapPin, Lightbulb, Info, ThumbsUp, ThumbsDown, Lock } from 'lucide-react';
 import { GuideData, Language } from '../../../types';
 import { isValidImageUrl } from '../../../utils/imageUtils';
 
@@ -76,6 +79,8 @@ const parseMarkdownText = (text: string): React.ReactNode => {
 function GuideDetailContent({ params }: GuideDetailPageProps) {
     const router = useRouter();
     const { guides } = useGuides();
+    const { user } = useAuth();
+    const { canAccessGuide } = useSubscription();
     const unwrappedParams = React.use(params);
     const guide = guides.find(g => g.id === parseInt(unwrappedParams.id));
     
@@ -93,6 +98,23 @@ function GuideDetailContent({ params }: GuideDetailPageProps) {
     const [lightboxAlt, setLightboxAlt] = useState<string | undefined>(undefined);
     const [galleryImages, setGalleryImages] = useState<Array<{ url: string; caption?: string; alt?: string }> | undefined>(undefined);
     const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+    const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+    const [showSubscriptionPrompt, setShowSubscriptionPrompt] = useState(false);
+
+    // Check access when guide is loaded
+    useEffect(() => {
+        const checkAccess = async () => {
+            if (guide) {
+                const access = await canAccessGuide(guide.id);
+                setHasAccess(access);
+                // If logged in user doesn't have access, show prompt
+                if (user && !access) {
+                    setShowSubscriptionPrompt(true);
+                }
+            }
+        };
+        checkAccess();
+    }, [guide, canAccessGuide, user]);
 
     const hasBengali = useMemo(() => 
         guide ? hasBengaliContent(guide) : false, 
@@ -150,6 +172,78 @@ function GuideDetailContent({ params }: GuideDetailPageProps) {
                 <Footer />
             </div>
         );
+    }
+
+    // Check if access is being determined
+    if (hasAccess === null) {
+        return (
+            <div className="min-h-screen bg-[#f2eee9] text-[#1b3c44] font-['Schibsted_Grotesk']">
+                <StickyNavbar />
+                <div className="pt-24 px-6">
+                    <div className="text-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#cd8453] mx-auto mb-4"></div>
+                        <p className="text-gray-600">Loading guide...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // If user doesn't have access and is logged in, show locked state
+    if (!hasAccess && user) {
+        return (
+            <div className="min-h-screen bg-[#f2eee9] text-[#1b3c44] font-['Schibsted_Grotesk']">
+                <StickyNavbar />
+                
+                {/* Subscription Prompt Modal */}
+                {showSubscriptionPrompt && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <SubscriptionPrompt
+                            onClose={() => {
+                                setShowSubscriptionPrompt(false);
+                                router.push('/guides');
+                            }}
+                            showCloseButton={true}
+                        />
+                    </div>
+                )}
+                
+                <div className="pt-24 px-6">
+                    <div className="text-center py-20 max-w-2xl mx-auto">
+                        <div className="bg-white rounded-lg p-8 shadow-lg">
+                            <Lock className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                            <h1 className="text-3xl font-bold mb-4">Premium Guide</h1>
+                            <p className="text-gray-600 mb-6">
+                                This guide is available exclusively for premium members. 
+                                Subscribe now to unlock all guides!
+                            </p>
+                            <div className="flex gap-4 justify-center">
+                                <button
+                                    onClick={() => setShowSubscriptionPrompt(true)}
+                                    className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold"
+                                >
+                                    Subscribe Now (৳149)
+                                </button>
+                                <button
+                                    onClick={() => router.push('/guides')}
+                                    className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                >
+                                    <ArrowLeft size={20} />
+                                    Back to Guides
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
+
+    // If user is not logged in and doesn't have access, redirect to signin
+    if (!hasAccess && !user) {
+        router.push(`/signin?redirect=/guides/${guide.id}`);
+        return null;
     }
 
     const handleBack = () => router.push('/guides');

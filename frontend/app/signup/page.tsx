@@ -97,17 +97,31 @@ export default function SignUp() {
 
             if (!response.success) {
                 console.error('❌ Signup failed:', response.error);
-                setError(response.error || 'Failed to create account');
+                
+                // Check if it's the "email already exists" error
+                if (response.error?.toLowerCase().includes('already exists')) {
+                    setError('This email is already registered. Please sign in instead or use a different email.');
+                } else {
+                    setError(response.error || 'Failed to create account');
+                }
                 setLoading(false);
                 return;
             }
 
-            // Success - show success message and redirect
+            // Success - check if email confirmation is needed
             console.log('✅ Account created successfully for:', formData.email);
-            setSuccess(true);
+            
+            if (!response.session) {
+                // Email confirmation required
+                console.log('📧 Email confirmation required');
+                setSuccess(true);
+            } else {
+                // Auto-signed in
+                setSuccess(true);
+            }
             
             setTimeout(() => {
-                router.push('/signin');
+                router.push('/');
             }, 2000);
         } catch (err) {
             console.error('Sign up error:', err);

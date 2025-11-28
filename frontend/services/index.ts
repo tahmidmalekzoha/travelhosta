@@ -56,3 +56,19 @@ export {
 	setActiveHero,
 	refreshHeroImages,
 } from './heroService';
+
+export {
+	subscriptionService,
+	checkUserSubscription,
+	getUserSubscription,
+	upsertSubscription,
+	activateSubscription,
+	cancelSubscription,
+	getAllSubscriptions,
+	isGuideFeatured,
+	canAccessGuide,
+	type SubscriptionStatus,
+	type UserSubscription,
+	type SubscriptionCheckResponse,
+	type SubscriptionResponse,
+} from './subscriptionService';

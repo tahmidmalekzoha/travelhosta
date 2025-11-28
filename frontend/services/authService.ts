@@ -37,14 +37,24 @@ export interface AuthResponse {
   profile?: UserProfile;
   session?: Session;
   error?: string;
+  requiresConfirmation?: boolean;
 }
 
 const normalizeAuthError = (error: AuthError): string => {
+  const errorMsg = error.message?.toLowerCase() || '';
+  
+  // Check for email confirmation errors first
+  if (errorMsg.includes('email not confirmed') || 
+      errorMsg.includes('confirm your email') ||
+      errorMsg.includes('email confirmation')) {
+    return 'Please confirm your email address before signing in. Check your inbox for the confirmation link.';
+  }
+  
   switch (error.message) {
     case 'Invalid login credentials':
       return 'Invalid email or password. Please try again.';
     case 'Email not confirmed':
-      return 'Please confirm your email address before signing in.';
+      return 'Please confirm your email address before signing in. Check your inbox for the confirmation link.';
     case 'User already registered':
       return 'An account with this email already exists.';
     case 'Password should be at least 6 characters':
@@ -54,9 +64,9 @@ const normalizeAuthError = (error: AuthError): string => {
     case 'Email rate limit exceeded':
       return 'Too many requests. Please try again later.';
     default:
-      if (error.message?.toLowerCase().includes('already registered') ||
-          error.message?.toLowerCase().includes('already exists') ||
-          error.message?.toLowerCase().includes('duplicate')) {
+      if (errorMsg.includes('already registered') ||
+          errorMsg.includes('already exists') ||
+          errorMsg.includes('duplicate')) {
         return 'An account with this email already exists.';
       }
       return error.message || 'An error occurred. Please try again.';
@@ -103,19 +113,31 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
       };
     }
 
-    if (!authData.session) {
-      logger.warn('authService.signUp.sessionMissingIndicatesExistingUser', { email });
+    // Log the user object to debug identities
+    logger.info('authService.signUp.userCreated', { 
+      email,
+      hasIdentities: !!authData.user.identities,
+      identitiesCount: authData.user.identities?.length || 0,
+      hasSession: !!authData.session
+    });
+
+    // Check if user already exists (Supabase returns user with empty identities array)
+    // This is a security feature to prevent email enumeration
+    if (authData.user.identities && authData.user.identities.length === 0) {
+      logger.warn('authService.signUp.userAlreadyExists', { email });
       return {
         success: false,
         error: 'An account with this email already exists. Please sign in instead.',
       };
     }
 
-    if (!authData.user.identities || authData.user.identities.length === 0) {
-      logger.warn('authService.signUp.identitiesMissingIndicatesExistingUser', { email });
+    // If no session, email confirmation is required (but user was created successfully)
+    if (!authData.session) {
+      logger.info('authService.signUp.emailConfirmationRequired', { email });
       return {
-        success: false,
-        error: 'An account with this email already exists. Please sign in instead.',
+        success: true,
+        user: authData.user,
+        // No session yet - user needs to confirm email
       };
     }
 
@@ -157,7 +179,49 @@ export const signIn = async (data: SignInData): Promise<AuthResponse> => {
       logger.warn('authService.signIn.supabaseError', {
         code: authError.code,
         message: authError.message,
+        status: authError.status,
+        name: authError.name,
       });
+      
+      // Check for email confirmation error specifically
+      const errorMsg = authError.message?.toLowerCase() || '';
+      if (errorMsg.includes('email not confirmed') || 
+          errorMsg.includes('confirm your email') ||
+          errorMsg.includes('email confirmation')) {
+        return {
+          success: false,
+          error: 'EMAIL_NOT_CONFIRMED',
+          requiresConfirmation: true,
+        };
+      }
+      
+      // For "Invalid login credentials", check if it might be unconfirmed email
+      // We do this by attempting to resend confirmation - if it succeeds, email exists but unconfirmed
+      if (authError.message === 'Invalid login credentials') {
+        try {
+          const { error: resendError } = await supabase.auth.resend({
+            type: 'signup',
+            email: email,
+          });
+          
+          // If resend succeeds or returns "email already confirmed", user exists
+          if (!resendError || resendError.message?.includes('already confirmed')) {
+            if (!resendError) {
+              // Resend succeeded - email exists but not confirmed
+              logger.info('authService.signIn.emailNotConfirmed', { email });
+              return {
+                success: false,
+                error: 'EMAIL_NOT_CONFIRMED',
+                requiresConfirmation: true,
+              };
+            }
+          }
+        } catch (e) {
+          // If resend fails, treat as normal invalid credentials
+          logger.warn('authService.signIn.resendCheckFailed', { email });
+        }
+      }
+      
       return {
         success: false,
         error: normalizeAuthError(authError),
@@ -795,6 +859,39 @@ export const deleteUser = async (userId: string): Promise<AuthResponse> => {
   }
 };
 
+export const resendConfirmationEmail = async (email: string): Promise<AuthResponse> => {
+  try {
+    logger.info('authService.resendConfirmationEmail.start', { email });
+
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+    });
+
+    if (error) {
+      logger.warn('authService.resendConfirmationEmail.error', {
+        code: error.code,
+        message: error.message,
+      });
+      return {
+        success: false,
+        error: normalizeAuthError(error),
+      };
+    }
+
+    logger.info('authService.resendConfirmationEmail.success', { email });
+    return {
+      success: true,
+    };
+  } catch (error) {
+    logger.error('authService.resendConfirmationEmail.unexpectedError', error);
+    return {
+      success: false,
+      error: 'An unexpected error occurred while resending confirmation email.',
+    };
+  }
+};
+
 export const authService = {
   signUp,
   signIn,
@@ -818,6 +915,7 @@ export const authService = {
   promoteToSuperAdmin,
   demoteSuperAdminToAdmin,
   deleteUser,
+  resendConfirmationEmail,
 };
 
 export default authService;

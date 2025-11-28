@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import LenisProvider from '@/components/LenisProvider';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import { configureSanitizer } from '@/utils/sanitization';
@@ -19,9 +20,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     return (
         <ErrorBoundary>
             <AuthProvider>
-                <LenisProvider>
-                    {children}
-                </LenisProvider>
+                <SubscriptionProvider>
+                    <LenisProvider>
+                        {children}
+                    </LenisProvider>
+                </SubscriptionProvider>
             </AuthProvider>
         </ErrorBoundary>
     );
