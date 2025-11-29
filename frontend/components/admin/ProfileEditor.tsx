@@ -17,7 +17,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ onClose }) => {
     // Form state
     const [displayName, setDisplayName] = useState(profile?.display_name || '');
     const [username, setUsername] = useState(profile?.username || '');
-    const [fullName, setFullName] = useState(profile?.full_name || '');
     const [dateOfBirth, setDateOfBirth] = useState(profile?.date_of_birth || '');
 
     // Cooldown info
@@ -28,7 +27,6 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ onClose }) => {
         if (profile) {
             setDisplayName(profile.display_name || '');
             setUsername(profile.username || '');
-            setFullName(profile.full_name || '');
             setDateOfBirth(profile.date_of_birth || '');
 
             // Calculate if user can change display name
@@ -111,7 +109,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ onClose }) => {
             }
 
             const response = await authService.updateUserProfile(user.id, {
-                full_name: fullName || null,
+                username: username || '',
                 date_of_birth: dateOfBirth || null,
             });
 
@@ -277,13 +275,13 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ onClose }) => {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Full Name
+                                Username
                             </label>
                             <input
                                 type="text"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                placeholder="Enter your full name"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Enter your username"
                                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                 disabled={isLoading}
                             />

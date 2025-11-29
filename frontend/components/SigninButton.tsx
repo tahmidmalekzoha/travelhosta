@@ -35,8 +35,8 @@ const SigninButton: FunctionComponent = () => {
     };
 
     if (user && profile) {
-        // Get display name - use full_name if available, otherwise use email
-        const displayName = profile.full_name || user.email?.split('@')[0] || 'User';
+        // Get display name - use username if available, otherwise use email
+        const displayName = profile.username || user.email?.split('@')[0] || 'User';
         const isAdmin = profile.role === 'admin' || profile.role === 'superadmin';
         
         return (

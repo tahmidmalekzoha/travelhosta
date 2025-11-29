@@ -1,5 +1,6 @@
 import { supabase } from '../utils/supabase';
 import { logger } from '../utils/logger';
+import { authService } from './authService';
 
 export type SubscriptionStatus = 'active' | 'expired' | 'cancelled' | 'pending';
 
@@ -293,6 +294,7 @@ export const isGuideFeatured = async (guideId: number): Promise<boolean> => {
 /**
  * Check if user can access a guide
  * Returns true if:
+ * - User is an admin or superadmin
  * - User has active subscription
  * - Guide is featured (free for all)
  */
@@ -305,6 +307,14 @@ export const canAccessGuide = async (
     const isFeatured = await isGuideFeatured(guideId);
     if (isFeatured) {
       return true;
+    }
+
+    // If userId is provided, check if user is admin
+    if (userId) {
+      const profile = await authService.getUserProfile(userId);
+      if (profile && (profile.role === 'admin' || profile.role === 'superadmin')) {
+        return true;
+      }
     }
 
     // Check if user has subscription

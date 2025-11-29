@@ -2,7 +2,7 @@
  * Custom hook for managing guide form state and validation
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { GuideData, Language } from '../types';
 import { ToastType } from '../components/shared/Toast';
 import { formCacheManager } from '../utils/formCache';
@@ -29,27 +29,52 @@ export interface UseGuideFormReturn {
 
 export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
     const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
-    const [formData, setFormData] = useState<Omit<GuideData, 'id'> & { id?: number }>({
-        title: guide?.title || '',
-        description: guide?.description || '',
-        division: guide?.division || '',
-        category: guide?.category || '',
-        imageUrl: guide?.imageUrl || '',
-        tags: guide?.tags || [],
-        content: guide?.content || [],
-        titleBn: guide?.titleBn || '',
-        descriptionBn: guide?.descriptionBn || '',
-        contentBn: guide?.contentBn || [],
-        id: guide?.id
+    // Initialize with cached data or guide data to prevent loss on remount
+    const [formData, setFormData] = useState<Omit<GuideData, 'id'> & { id?: number }>(() => {
+        if (guide) {
+            return {
+                title: guide.title || '',
+                description: guide.description || '',
+                division: guide.division || '',
+                category: guide.category || '',
+                imageUrl: guide.imageUrl || '',
+                tags: guide.tags || [],
+                content: guide.content || [],
+                titleBn: guide.titleBn || '',
+                descriptionBn: guide.descriptionBn || '',
+                contentBn: guide.contentBn || [],
+                id: guide.id
+            };
+        }
+        // For new guides, try to load from cache
+        const cached = formCacheManager.loadFormData();
+        if (cached) {
+            return cached;
+        }
+        // Default empty form
+        return {
+            title: '',
+            description: '',
+            division: '',
+            category: '',
+            imageUrl: '',
+            tags: [],
+            content: [],
+            titleBn: '',
+            descriptionBn: '',
+            contentBn: []
+        };
     });
 
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
     const [sessionId] = useState(() => Date.now().toString());
+    const initializedGuideIdRef = useRef<number | undefined>(guide?.id);
 
-    // Update form data when guide prop changes
+    // Update form data when switching to a different guide (not on every render)
     useEffect(() => {
-        if (guide) {
-            console.log('📝 Updating form with guide data:', guide.id);
+        if (guide && guide.id !== initializedGuideIdRef.current) {
+            console.log('📝 Switching to different guide, loading form data:', guide.id);
+            initializedGuideIdRef.current = guide.id;
             setFormData({
                 title: guide.title || '',
                 description: guide.description || '',
@@ -63,10 +88,18 @@ export function useGuideForm(guide?: GuideData): UseGuideFormReturn {
                 contentBn: guide.contentBn || [],
                 id: guide.id
             });
+        } else if (!guide && initializedGuideIdRef.current !== undefined) {
+            // Switched from editing to creating new
+            console.log('📝 Switched to create mode, loading from cache or resetting');
+            initializedGuideIdRef.current = undefined;
+            const cached = formCacheManager.loadFormData();
+            if (cached) {
+                setFormData(cached);
+            }
         }
-    }, [guide]); // Re-run when guide object changes
+    }, [guide?.id]); // Only re-run when the guide ID changes
 
-    // Save form data to cache on every change
+    // Save form data to cache on every change (for persistence across tab switches)
     useEffect(() => {
         formCacheManager.saveFormData(formData);
         formCacheManager.saveSession(sessionId, formData.id);

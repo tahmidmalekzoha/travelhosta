@@ -4,6 +4,7 @@ import { FunctionComponent, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
 // Dynamic import for performance - loads only when needed
+// Keep mounted to prevent state loss on tab switches
 const GuidesManagement = dynamic(() => import('../../../components/admin/GuidesManagement'), {
     loading: () => (
         <div className="flex items-center justify-center min-h-screen">

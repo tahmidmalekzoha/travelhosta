@@ -48,12 +48,12 @@ const AdminHeader: FunctionComponent<AdminHeaderProps> = ({ onMenuClick }) => {
                     <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-gray-200">
                         <div className="hidden sm:block text-right">
                             <p className="text-sm font-medium text-[#1b3c44]">
-                                {profile?.full_name || user?.email?.split('@')[0] || 'User'}
+                                {profile?.username || user?.email?.split('@')[0] || 'User'}
                             </p>
                             <p className="text-xs text-gray-500">{user?.email}</p>
                         </div>
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold text-sm sm:text-base">
-                            {(profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U').toUpperCase()}
+                            {(profile?.username?.charAt(0) || user?.email?.charAt(0) || 'U').toUpperCase()}
                         </div>
                     </div>
                 </div>

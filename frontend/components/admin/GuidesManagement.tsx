@@ -1,6 +1,6 @@
 "use client";
 
-import { FunctionComponent, useState, useCallback, useMemo, useEffect } from 'react';
+import { FunctionComponent, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GuideData, Language, GuideDataWithAudit, ContentBlock, ItineraryStep } from '../../types';
 import { Json } from '../../types/supabase';
@@ -67,12 +67,29 @@ const GuidesManagement: FunctionComponent = () => {
     const [viewingGuide, setViewingGuide] = useState<GuideData | null>(null);
     const [viewLanguage, setViewLanguage] = useState<Language>('en');
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-    const [isInitialized, setIsInitialized] = useState(false);
+    const isInitializedRef = useRef(false);
     const [guidesWithAudit, setGuidesWithAudit] = useState<GuideDataWithAudit[]>([]);
+    const isPageVisible = useRef(true);
 
-    // Restore state from URL and localStorage on mount
+    // Track page visibility to prevent unwanted refreshes
     useEffect(() => {
-        if (isInitialized || guides.length === 0) return;
+        const handleVisibilityChange = () => {
+            isPageVisible.current = !document.hidden;
+            if (!document.hidden) {
+                console.log('👁️ Page visible again, maintaining state');
+            } else {
+                console.log('🙈 Page hidden, state preserved');
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
+
+    // Restore state from URL and localStorage on mount (runs only once)
+    useEffect(() => {
+        // Skip if already initialized, if we don't have guides yet, or if page is hidden
+        if (isInitializedRef.current || guides.length === 0 || !isPageVisible.current) return;
 
         const mode = searchParams.get('mode'); // 'create', 'edit', 'view'
         const guideId = searchParams.get('guideId');
@@ -102,8 +119,9 @@ const GuidesManagement: FunctionComponent = () => {
             }
         }
 
-        setIsInitialized(true);
-    }, [searchParams, guides, isInitialized]);
+        // Mark as initialized using ref to persist across re-renders
+        isInitializedRef.current = true;
+    }, [searchParams, guides]);
 
     // Note: Form state is now auto-saved by useGuideForm hook via FormCacheManager
     // No need to manually save here
@@ -277,7 +295,11 @@ const GuidesManagement: FunctionComponent = () => {
 
     const handleEdit = useCallback((guide: GuideData) => {
         clearFormData(); // Clear any previous form data
-        setEditingGuide(guide);
+        // Use the same guide reference to prevent remounts
+        setEditingGuide(prevGuide => {
+            if (prevGuide?.id === guide.id) return prevGuide;
+            return guide;
+        });
         setShowForm(true);
         updateURL('edit', guide.id);
     }, [clearFormData, updateURL]);
@@ -462,6 +484,21 @@ const GuidesManagement: FunctionComponent = () => {
         );
     }
 
+    // Memoize the form to prevent re-renders
+    const formElement = useMemo(() => {
+        if (!showForm) return null;
+        return (
+            <EnhancedGuideForm
+                key={editingGuide?.id || 'new'}
+                guide={editingGuide || undefined}
+                onSubmit={handleSubmit}
+                onCancel={resetForm}
+                divisions={divisionNames}
+                categories={categoryNames}
+            />
+        );
+    }, [showForm, editingGuide?.id, handleSubmit, resetForm, divisionNames, categoryNames]);
+
     // If showing the form
     if (showForm) {
         return (
@@ -474,13 +511,7 @@ const GuidesManagement: FunctionComponent = () => {
                         ← Back to Guides
                     </button>
                 </div>
-                <EnhancedGuideForm
-                    guide={editingGuide || undefined}
-                    onSubmit={handleSubmit}
-                    onCancel={resetForm}
-                    divisions={divisionNames}
-                    categories={categoryNames}
-                />
+                {formElement}
 
                 {/* Toast Notification */}
                 {toastComponent}

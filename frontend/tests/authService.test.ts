@@ -12,9 +12,8 @@ type SupabaseProfileResponse = SupabaseAuthResponse<UserProfile | null>;
 const createUserProfile = (overrides: Partial<UserProfile> = {}): UserProfile => ({
   id: 'user-123',
   email: 'user@example.com',
-  full_name: 'Test User',
+  username: 'test_user',
   display_name: 'tester',
-  username: 'tester',
   role: 'user',
   avatar_url: null,
   date_of_birth: null,

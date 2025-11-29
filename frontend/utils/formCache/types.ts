@@ -24,6 +24,16 @@ export interface CachedContentData {
 }
 
 /**
+ * Editor state for preserving scroll and cursor position
+ */
+export interface EditorState {
+    scrollTop: number;
+    cursorStart: number;
+    cursorEnd: number;
+    language: 'en' | 'bn';
+}
+
+/**
  * Session metadata for form editing
  */
 export interface FormSession {
@@ -40,6 +50,7 @@ export const FORM_CACHE_KEYS = {
     CONTENT_EN: 'travelhosta:guide:contentEn',
     CONTENT_BN: 'travelhosta:guide:contentBn',
     SESSION: 'travelhosta:guide:session',
+    EDITOR_STATE: 'travelhosta:guide:editorState',
 } as const;
 
 /**

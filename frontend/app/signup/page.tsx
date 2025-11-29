@@ -17,7 +17,7 @@ const VALIDATION = {
  */
 export default function SignUp() {
     const [formData, setFormData] = useState({
-        fullName: '',
+        username: '',
         email: '',
         dateOfBirth: '',
         password: '',
@@ -40,8 +40,8 @@ export default function SignUp() {
     }, []);
 
     const validateForm = useCallback((): boolean => {
-        if (!formData.fullName.trim()) {
-            setError('Full name is required');
+        if (!formData.username.trim()) {
+            setError('Username is required');
             return false;
         }
         if (!formData.email.trim()) {
@@ -89,7 +89,7 @@ export default function SignUp() {
             const response = await authService.signUp({
                 email: formData.email,
                 password: formData.password,
-                fullName: formData.fullName,
+                username: formData.username,
                 dateOfBirth: formData.dateOfBirth,
             });
 
@@ -209,19 +209,19 @@ export default function SignUp() {
                                 </div>
                             )}
 
-                            {/* Full Name Field */}
+                            {/* Username Field */}
                             <div className="space-y-2">
-                                <label htmlFor="fullName" className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg block">
-                                    Full Name
+                                <label htmlFor="username" className="text-[#f2eee9] font-['Schibsted_Grotesk'] text-base lg:text-lg block">
+                                    Username
                                 </label>
                                 <input
-                                    id="fullName"
+                                    id="username"
                                     type="text"
-                                    name="fullName"
-                                    value={formData.fullName}
+                                    name="username"
+                                    value={formData.username}
                                     onChange={handleInputChange}
                                     className="w-full bg-[#e4d9d3] rounded-2xl h-12 lg:h-14 px-5 text-base text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#cd8453] transition-all duration-200"
-                                    placeholder="Enter your full name"
+                                    placeholder="Enter your username"
                                     required
                                 />
                             </div>

@@ -9,6 +9,7 @@ import type {
     CachedFormData,
     CachedContentData,
     FormSession,
+    EditorState,
 } from './types';
 import { FORM_CACHE_KEYS, FORM_CACHE_EXPIRY_MS } from './types';
 
@@ -228,12 +229,43 @@ export class FormCacheManager {
     }
 
     /**
+     * Save editor state (scroll position and cursor)
+     */
+    saveEditorState(state: EditorState): boolean {
+        return this.setItem(FORM_CACHE_KEYS.EDITOR_STATE, JSON.stringify(state));
+    }
+
+    /**
+     * Load editor state
+     */
+    loadEditorState(): EditorState | null {
+        const cached = this.getItem(FORM_CACHE_KEYS.EDITOR_STATE);
+        if (!cached) return null;
+
+        try {
+            return JSON.parse(cached);
+        } catch (error) {
+            console.error('Error parsing cached editor state:', error);
+            this.clearEditorState();
+            return null;
+        }
+    }
+
+    /**
+     * Clear editor state
+     */
+    clearEditorState(): void {
+        this.removeItem(FORM_CACHE_KEYS.EDITOR_STATE);
+    }
+
+    /**
      * Clear all form-related cache
      */
     clearAll(): void {
         this.clearFormData();
         this.clearContentText();
         this.clearSession();
+        this.clearEditorState();
         console.log('🧹 All form cache cleared');
     }
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Footer from '../../../components/Footer';
 import StickyNavbar from '../../../components/StickyNavbar';
 import ImageLightbox from '../../../components/shared/ImageLightbox';
+import BookmarkButton from '../../../components/shared/BookmarkButton';
 import SubscriptionPrompt from '../../../components/SubscriptionPrompt';
 import { GuidesProvider, useGuides } from '../../../contexts/GuidesContext';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -262,6 +263,9 @@ function GuideDetailContent({ params }: GuideDetailPageProps) {
                             </span>
                             <span className="font-['Schibsted_Grotesk'] font-normal text-[50.37px] text-[#f2eee9] ml-[93.4px] mr-[34px]">Back</span>
                         </button>
+
+                        {/* Bookmark Button */}
+                        <BookmarkButton guideId={guide.id} variant="detail" />
 
                         {/* Language Toggle - only show if Bengali content exists */}
                         {hasBengali && (

@@ -26,7 +26,7 @@ const ALL_GUIDES = 'All Guides';
  */
 function GuidesPageContent() {
     const router = useRouter();
-    const { user } = useAuth();
+    const { user, isAdmin } = useAuth();
     const { hasActiveSubscription } = useSubscription();
     const { guides } = useGuides();
     const { categories, divisions } = useCategories();
@@ -173,11 +173,11 @@ function GuidesPageContent() {
 
                 {/* Back Button */}
                 <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
-                    <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#1b3c44] h-[48px] sm:h-[54px] md:h-[60px] lg:h-[70px] xl:h-[92px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#152e34]">
-                        <span className="absolute left-[6px] sm:left-[7px] md:left-[8px] lg:left-[9px] xl:left-[11.54px] top-1/2 -translate-y-1/2 flex h-[38px] w-[38px] sm:h-[43px] sm:w-[43px] md:h-[48px] md:w-[48px] lg:h-[56px] lg:w-[56px] xl:h-[65.062px] xl:w-[65.062px] items-center justify-center rounded-full bg-[#f2eee9] text-[#1b3c44]">
-                            <ArrowLeft className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" strokeWidth={2.5} />
+                    <button onClick={handleBack} className="group relative inline-flex items-center rounded-full bg-[#1b3c44] h-[40px] sm:h-[44px] md:h-[48px] lg:h-[56px] transition-transform duration-200 hover:-translate-x-1 hover:bg-[#152e34]">
+                        <span className="absolute left-[5px] sm:left-[6px] md:left-[6px] lg:left-[7px] top-1/2 -translate-y-1/2 flex h-[32px] w-[32px] sm:h-[35px] sm:w-[35px] md:h-[38px] md:w-[38px] lg:h-[44px] lg:w-[44px] items-center justify-center rounded-full bg-[#f2eee9] text-[#1b3c44]">
+                            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-5 lg:h-5" strokeWidth={2.5} />
                         </span>
-                        <span className="font-['Schibsted_Grotesk'] font-normal text-[16px] sm:text-[20px] md:text-[24px] lg:text-[32px] xl:text-[48px] text-[#f2eee9] ml-[48px] mr-[12px] sm:ml-[54px] sm:mr-[14px] md:ml-[60px] md:mr-[18px] lg:ml-[70px] lg:mr-[24px] xl:ml-[90px] xl:mr-[32px]">Back</span>
+                        <span className="font-['Schibsted_Grotesk'] font-normal text-[14px] sm:text-[16px] md:text-[18px] lg:text-[24px] text-[#f2eee9] ml-[40px] mr-[10px] sm:ml-[44px] sm:mr-[10px] md:ml-[48px] md:mr-[12px] lg:ml-[56px] lg:mr-[16px]">Back</span>
                     </button>
                 </div>
 
@@ -498,8 +498,8 @@ function GuidesPageContent() {
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-8 2xl:gap-10 pb-12 sm:pb-14 md:pb-16 lg:pb-20">
                         {sortedGuides.map((guide) => {
                             const isFeatured = featuredGuideIds.includes(guide.id);
-                            // Blur if: not featured AND (not logged in OR logged in without subscription)
-                            const isBlurred = !isFeatured && (!user || !hasActiveSubscription);
+                            // Blur if: not featured AND (not logged in OR (logged in without subscription AND not admin))
+                            const isBlurred = !isFeatured && (!user || (!hasActiveSubscription && !isAdmin));
                             
                             return (
                                 <GuideCard

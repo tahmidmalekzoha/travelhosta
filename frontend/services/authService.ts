@@ -7,9 +7,8 @@ export type UserRole = 'user' | 'admin' | 'superadmin';
 export interface UserProfile {
   id: string;
   email: string;
-  full_name: string | null;
+  username: string;
   display_name: string | null;
-  username: string | null;
   role: UserRole;
   avatar_url: string | null;
   date_of_birth: string | null;
@@ -22,7 +21,7 @@ export interface UserProfile {
 export interface SignUpData {
   email: string;
   password: string;
-  fullName?: string;
+  username?: string;
   dateOfBirth?: string;
 }
 
@@ -74,7 +73,7 @@ const normalizeAuthError = (error: AuthError): string => {
 };
 
 export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
-  const { email, password, fullName, dateOfBirth } = data;
+  const { email, password, username, dateOfBirth } = data;
 
   try {
     logger.info('authService.signUp.start', { email });
@@ -87,7 +86,7 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
       password,
       options: {
         data: {
-          full_name: fullName || '',
+          username: username || '',
           date_of_birth: dateOfBirth || null,
         },
         emailRedirectTo: redirectTo,
@@ -336,7 +335,7 @@ const createUserProfileIfMissing = async (userId: string): Promise<UserProfile |
       .insert({
         id: userId,
         email: authData.user.email || '',
-        full_name: authData.user.user_metadata?.full_name || null,
+        username: authData.user.user_metadata?.username || authData.user.email?.split('@')[0] || 'user',
         date_of_birth: authData.user.user_metadata?.date_of_birth || null,
         role: 'user',
       })

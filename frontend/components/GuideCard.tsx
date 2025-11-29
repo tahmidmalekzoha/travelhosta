@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { GuideData } from '@/types';
 import { Lock } from 'lucide-react';
 import { isValidImageUrl } from '../utils/imageUtils';
+import BookmarkButton from './shared/BookmarkButton';
 
 interface GuideCardProps {
     guide: GuideData;
@@ -82,8 +83,15 @@ const GuideCard: React.FC<GuideCardProps> = ({
 
                 {/* Featured Badge */}
                 {isFeatured && (
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-5 md:right-5 z-10 bg-yellow-400 text-yellow-900 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] md:text-xs font-bold shadow-lg">
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 md:top-5 md:left-5 z-10 bg-yellow-400 text-yellow-900 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] md:text-xs font-bold shadow-lg">
                         FREE
+                    </div>
+                )}
+
+                {/* Bookmark Button - top right corner */}
+                {!isBlurred && (
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-5 md:right-5 z-10">
+                        <BookmarkButton guideId={guide.id} />
                     </div>
                 )}
 

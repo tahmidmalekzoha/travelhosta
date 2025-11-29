@@ -72,3 +72,18 @@ export {
 	type SubscriptionCheckResponse,
 	type SubscriptionResponse,
 } from './subscriptionService';
+
+export {
+	toggleBookmark,
+	isGuideBookmarked,
+	getBookmarkedGuides,
+	getBookmarkedGuideIds,
+} from './bookmarksService';
+
+export {
+	getUserReferralCode,
+	applyReferralCode,
+	getReferralStats,
+	getReferralLink,
+	type ReferralStats,
+} from './referralService';

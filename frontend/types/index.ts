@@ -222,9 +222,8 @@ export interface User {
 export interface UserProfile {
     id: string;
     email: string;
-    full_name: string | null;
+    username: string; // Primary identifier, also used as referral code
     display_name: string | null; // User-changeable display name (24hr cooldown)
-    username: string | null; // Unique permanent identifier (admin-only change)
     role: 'admin' | 'user' | 'superadmin';
     avatar_url: string | null;
     date_of_birth: string | null;

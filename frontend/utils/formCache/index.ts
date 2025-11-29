@@ -8,5 +8,6 @@ export type {
     CachedFormData,
     CachedContentData,
     FormSession,
+    EditorState,
 } from './types';
 export { FORM_CACHE_KEYS, FORM_CACHE_EXPIRY_MS } from './types';

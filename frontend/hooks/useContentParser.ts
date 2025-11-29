@@ -27,79 +27,136 @@ export function useContentParser(
     guide?: GuideData,
     onContentChange?: (content: ContentBlock[], contentBn: ContentBlock[]) => void
 ): UseContentParserReturn {
-    const [contentText, setContentText] = useState('');
-    const [contentTextBn, setContentTextBn] = useState('');
+    // Initialize with cached content or guide content immediately to prevent loss on remount
+    const [contentText, setContentText] = useState(() => {
+        if (guide?.id && guide.content) {
+            return contentToText(guide.content);
+        }
+        const cached = formCacheManager.loadContentText();
+        return cached?.contentEn || '';
+    });
+    const [contentTextBn, setContentTextBn] = useState(() => {
+        if (guide?.id && guide.contentBn) {
+            return contentToText(guide.contentBn);
+        }
+        const cached = formCacheManager.loadContentText();
+        return cached?.contentBn || '';
+    });
     const [contentErrors, setContentErrors] = useState<string[]>([]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [isInitialized, setIsInitialized] = useState(false);
-    const prevGuideIdRef = useRef<number | undefined>(guide?.id);
+    const initializedGuideIdRef = useRef<number | undefined>(guide?.id);
+    const isRestoringStateRef = useRef(false);
+    const hasRestoredPositionRef = useRef(false);
 
-    // Reset initialization when guide ID changes
+    // Restore scroll position and cursor after component mounts (once)
     useEffect(() => {
-        if (prevGuideIdRef.current !== guide?.id) {
-            setIsInitialized(false);
-            prevGuideIdRef.current = guide?.id;
+        if (!textareaRef.current || isRestoringStateRef.current || hasRestoredPositionRef.current) return;
+
+        const editorState = formCacheManager.loadEditorState();
+        if (editorState && contentText) {
+            isRestoringStateRef.current = true;
+            hasRestoredPositionRef.current = true;
+            
+            // Use multiple RAF to ensure DOM is fully ready
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (textareaRef.current) {
+                        textareaRef.current.scrollTop = editorState.scrollTop;
+                        textareaRef.current.setSelectionRange(editorState.cursorStart, editorState.cursorEnd);
+                        console.log('📍 Restored editor position - scroll:', editorState.scrollTop, 'cursor:', editorState.cursorStart);
+                        isRestoringStateRef.current = false;
+                    }
+                });
+            });
         }
-    }, [guide?.id]);
+    }, [contentText]); // Still depend on contentText to wait for it to load
 
-    // Initialize content text from existing guide or cache
+    // Save editor state on interaction
     useEffect(() => {
-        if (isInitialized) return;
+        const textarea = textareaRef.current;
+        if (!textarea) return;
 
-        try {
-            // If editing an existing guide, ALWAYS load from guide data (database)
-            // Ignore cache to show the actual persisted content
-            if (guide?.id) {
-                console.log('📖 Loading guide content for editing, guide ID:', guide.id);
-                console.log('📦 Original content from DB:', guide.content);
-                
-                if (guide?.content) {
-                    const convertedText = contentToText(guide.content);
-                    console.log('📝 Converted content to text:', convertedText);
-                    setContentText(convertedText);
-                } else {
-                    setContentText('');
-                }
-                if (guide?.contentBn) {
-                    setContentTextBn(contentToText(guide.contentBn));
-                } else {
-                    setContentTextBn('');
-                }
-            } else {
-                // Only use cache for NEW guides (no ID yet)
-                const cachedContent = formCacheManager.loadContentText();
-
-                if (cachedContent) {
-                    setContentText(cachedContent.contentEn);
-                    setContentTextBn(cachedContent.contentBn);
-                } else {
-                    setContentText('');
-                    setContentTextBn('');
-                }
+        let saveTimeout: NodeJS.Timeout;
+        
+        const saveEditorState = () => {
+            if (textarea && !isRestoringStateRef.current) {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    const state = {
+                        scrollTop: textarea.scrollTop,
+                        cursorStart: textarea.selectionStart,
+                        cursorEnd: textarea.selectionEnd,
+                        language: 'en' as const
+                    };
+                    formCacheManager.saveEditorState(state);
+                }, 150); // Debounce to reduce localStorage writes
             }
-        } catch (error) {
-            console.error('Error loading content from cache:', error);
-            // Fallback to guide data
-            if (guide?.content) {
-                setContentText(contentToText(guide.content));
+        };
+
+        // Save on scroll, click, and keyup
+        textarea.addEventListener('scroll', saveEditorState, { passive: true });
+        textarea.addEventListener('click', saveEditorState);
+        textarea.addEventListener('keyup', saveEditorState);
+        
+        // Save immediately on blur (tab switch)
+        const saveImmediately = () => {
+            if (textarea && !isRestoringStateRef.current) {
+                clearTimeout(saveTimeout);
+                const state = {
+                    scrollTop: textarea.scrollTop,
+                    cursorStart: textarea.selectionStart,
+                    cursorEnd: textarea.selectionEnd,
+                    language: 'en' as const
+                };
+                formCacheManager.saveEditorState(state);
+                console.log('💾 Saved editor state on blur');
+            }
+        };
+        textarea.addEventListener('blur', saveImmediately);
+
+        return () => {
+            clearTimeout(saveTimeout);
+            textarea.removeEventListener('scroll', saveEditorState);
+            textarea.removeEventListener('click', saveEditorState);
+            textarea.removeEventListener('keyup', saveEditorState);
+            textarea.removeEventListener('blur', saveImmediately);
+        };
+    }, []);
+
+    // Update content when switching to a different guide
+    useEffect(() => {
+        // Only update if guide ID actually changed (not just reference)
+        if (guide?.id !== undefined && guide.id !== initializedGuideIdRef.current) {
+            console.log('📖 Switching to different guide, loading content for ID:', guide.id);
+            initializedGuideIdRef.current = guide.id;
+            
+            // Load guide content from database
+            if (guide.content) {
+                const convertedText = contentToText(guide.content);
+                console.log('📝 Loaded guide content from DB');
+                setContentText(convertedText);
             } else {
                 setContentText('');
             }
-            if (guide?.contentBn) {
+            if (guide.contentBn) {
                 setContentTextBn(contentToText(guide.contentBn));
             } else {
                 setContentTextBn('');
             }
+        } else if (guide?.id === undefined && initializedGuideIdRef.current !== undefined) {
+            // Switched from editing to creating new - reset to cache or empty
+            console.log('📝 Switched to create mode, resetting content');
+            initializedGuideIdRef.current = undefined;
+            const cachedContent = formCacheManager.loadContentText();
+            setContentText(cachedContent?.contentEn || '');
+            setContentTextBn(cachedContent?.contentBn || '');
         }
+    }, [guide?.id]); // Only depend on guide ID
 
-        setIsInitialized(true);
-    }, [guide?.id, guide?.content, guide?.contentBn, isInitialized]);
-
-    // Save content text to cache on every change
+    // Save content text to cache on every change (for persistence across tab switches)
     useEffect(() => {
-        if (!isInitialized) return;
         formCacheManager.saveContentText(contentText, contentTextBn);
-    }, [contentText, contentTextBn, isInitialized]);
+    }, [contentText, contentTextBn]);
 
     // Parse content text and update form data
     useEffect(() => {

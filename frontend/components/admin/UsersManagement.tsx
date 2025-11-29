@@ -128,7 +128,7 @@ const UsersManagement: FunctionComponent = () => {
 
     const filteredUsers = users.filter(user => {
         const matchesSearch =
-            (user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+            (user.username?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
             user.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesRole = filterRole === 'all' || user.role === filterRole;
         return matchesSearch && matchesRole;
@@ -321,11 +321,11 @@ const UsersManagement: FunctionComponent = () => {
                                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
                                             <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold text-sm">
-                                                {(user.full_name || user.email).charAt(0).toUpperCase()}
+                                                {(user.username || user.email).charAt(0).toUpperCase()}
                                             </div>
                                             <div className="ml-3 lg:ml-4">
                                                 <div className="text-sm font-medium text-[#1b3c44]">
-                                                    {user.full_name || 'No name'}
+                                                    {user.username || 'No username'}
                                                     {user.id === currentUserProfile?.id && (
                                                         <span className="ml-2 text-xs text-gray-500">(You)</span>
                                                     )}
@@ -433,11 +433,11 @@ const UsersManagement: FunctionComponent = () => {
                         <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <div className="w-10 h-10 rounded-full bg-[#cd8453] flex items-center justify-center text-white font-semibold flex-shrink-0">
-                                    {(user.full_name || user.email).charAt(0).toUpperCase()}
+                                    {(user.username || user.email).charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <div className="text-sm font-medium text-[#1b3c44] truncate">
-                                        {user.full_name || 'No name'}
+                                        {user.username || 'No username'}
                                         {user.id === currentUserProfile?.id && (
                                             <span className="ml-2 text-xs text-gray-500">(You)</span>
                                         )}

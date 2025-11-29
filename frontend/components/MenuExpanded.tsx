@@ -13,6 +13,9 @@ const MENU_ITEMS = [
     { label: 'Home', path: '/' },
     { label: 'Guides', path: '/guides' },
     { label: 'Destinations', path: '/destinations' },
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Profile', path: '/profile' },
+    { label: 'Earn Rewards', path: '/rewards' },
     { label: 'About us', path: '/about' },
     { label: 'Contact', path: '/contact' },
 ] as const;

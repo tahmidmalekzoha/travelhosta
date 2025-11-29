@@ -5,7 +5,7 @@
  * Now includes state persistence across page reloads
  */
 
-import { FunctionComponent, useState, useEffect } from 'react';
+import { FunctionComponent, useState, useEffect, memo } from 'react';
 import { GuideData } from '../../types';
 import { useCategories } from '../../contexts/CategoriesContext';
 import { useGuideForm } from '../../hooks/useGuideForm';
@@ -235,4 +235,10 @@ const EnhancedGuideForm: FunctionComponent<EnhancedGuideFormProps> = ({
     );
 };
 
-export default EnhancedGuideForm;
+// Memoize to prevent unnecessary re-renders
+export default memo(EnhancedGuideForm, (prevProps, nextProps) => {
+    // Only re-render if guide ID changes or if switching between create/edit modes
+    return prevProps.guide?.id === nextProps.guide?.id &&
+           prevProps.divisions === nextProps.divisions &&
+           prevProps.categories === nextProps.categories;
+});
